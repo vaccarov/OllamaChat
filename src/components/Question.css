@@ -1,0 +1,9 @@
+
+.questionContainer {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.questionArea {
+  flex: 1;
+}

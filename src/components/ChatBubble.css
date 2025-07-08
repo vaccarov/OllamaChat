@@ -1,0 +1,40 @@
+.thinkTag {
+  margin: 14px 0;
+  border-left: 3px solid #ccc;
+}
+
+.thinkButton {
+  cursor: pointer;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.thinkContent {
+  padding: 14px 14px 0;
+  font-style: italic;
+}
+
+.bubble {
+  padding: 0 14px;
+  border-radius: 16px;
+  line-height: 1.4;
+}
+
+.custom {
+  align-self: center;
+  background-color: #d4ff004f;
+}
+
+.user {
+  align-self: flex-end;
+  background-color: #00abff4f;
+  border-top-right-radius: 0;
+}
+
+.assistant {
+  align-self: flex-start;
+  background-color: #0000006e;
+  border-top-left-radius: 0;
+}

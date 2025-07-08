@@ -1,0 +1,8 @@
+.systemPromptContainer {
+    display: flex;
+    column-gap: 14px;
+}
+
+.systemPrompt {
+    flex: 1;
+}
