@@ -1,0 +1,11 @@
+.langContainer {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.flagPicker {
+    padding: 6px 10px;
+    border: none;
+    background: var(--backcolor);
+}

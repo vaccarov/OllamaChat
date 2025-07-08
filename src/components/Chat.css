@@ -1,0 +1,29 @@
+.chatContainer {
+  position: relative;
+  border: 1px solid var(--maincolor);
+  border-radius: 5px;
+  overflow: auto;
+  display: flex;
+  flex: 1;
+}
+
+.arrowsChat {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.chat {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  flex: 1;
+  overflow: auto;
+}

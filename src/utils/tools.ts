@@ -1,7 +1,7 @@
-export const formatSize = (bytes: number) => {
-    const units = ['octets', 'Ko', 'Mo', 'Go', 'To'];
-    let i = 0;
-    let size = bytes;
+export const formatSize = (bytes: number): string => {
+    const units: string[] = ['octets', 'Ko', 'Mo', 'Go', 'To'];
+    let i: number = 0;
+    let size: number = bytes;
 
     // Calculer la taille en fonction des unités
     while (size >= 1024 && i < units.length - 1) {
