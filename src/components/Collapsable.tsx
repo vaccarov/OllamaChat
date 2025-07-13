@@ -1,16 +1,15 @@
-import React, { useState } from "react";
+import React from "react";
 import { ChevronDown, ChevronUp } from "react-feather";
 import "./ChatBubble.css";
 
-export function Collapsible({ children }: { children: React.ReactNode}) {
-  const [open, setOpen] = useState<boolean>(false);
+export function Collapsible({ children, isOpen, onToggle }: { children: React.ReactNode, isOpen: boolean, onToggle: () => void }) {
   return (
     <div className="thinkTag">
-			<div className="thinkButton" onClick={() => setOpen(!open)}>
-				{open ? "Masquer" : "Raisonnement"}
-				{open ? <ChevronUp /> : <ChevronDown />}
+			<div className="thinkButton" onClick={onToggle}>
+				{isOpen ? "Masquer" : "Raisonnement"}
+				{isOpen ? <ChevronUp /> : <ChevronDown />}
 			</div>
-      {open && (
+      {isOpen && (
         <div className="thinkContent">
           {children}
         </div>

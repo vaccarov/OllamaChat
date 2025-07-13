@@ -18,6 +18,8 @@ export type MessageContextType = {
   addMessage: (role: string, content: string) => void;
   addChunk: (chunk: string) => void;
   resetSystemPrompt: (chunk: string) => void;
+  collapsibleStates: Map<string | undefined, boolean>;
+  toggleCollapsible: (messageDate: string | undefined) => void;
 };
 
 export const MessageContext = createContext<MessageContextType | undefined>(undefined);
@@ -43,9 +45,9 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
 
   const addChunk = (chunk: string): void => {
     setMessages(prevMessages => {
-      const updated = [...prevMessages];
+      const updated: ChatText[] = [...prevMessages];
       if (updated.length > 0) {
-        const lastMessage = updated[updated.length - 1];
+        const lastMessage: ChatText = updated[updated.length - 1];
         updated[updated.length - 1] = {
           ...lastMessage,
           content: lastMessage.content + chunk,
@@ -59,8 +61,29 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
     setMessages([message('system', prompt)]);
   }
 
+  const [collapsibleStates, setCollapsibleStates] = useState<Map<string | undefined, boolean>>(new Map());
+
+  const toggleCollapsible = (messageDate: string | undefined) => {
+    setCollapsibleStates(prevStates => {
+      const newStates = new Map(prevStates);
+      newStates.set(messageDate, !newStates.get(messageDate));
+      return newStates;
+    });
+  };
+
   return (
-    <MessageContext.Provider value={{ messages, conversation, doc, setDoc, setMessages, addMessage, addChunk, resetSystemPrompt }}>
+    <MessageContext.Provider value={{
+      messages,
+      conversation,
+      doc,
+      setDoc,
+      setMessages,
+      addMessage,
+      addChunk,
+      resetSystemPrompt,
+      collapsibleStates,
+      toggleCollapsible
+    }}>
       {children}
     </MessageContext.Provider>
   );

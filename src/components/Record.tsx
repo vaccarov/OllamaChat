@@ -9,7 +9,7 @@ type AudioRecorderProps = {
 
 export default function AudioRecorder({ onTranscript }: AudioRecorderProps): React.ReactElement {
   const [recording, setRecording] = useState<boolean>(false);
-  const [lang, setLang] = useState<string>('fr');
+  const [lang] = useState<string>('fr');
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
