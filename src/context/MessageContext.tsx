@@ -1,13 +1,8 @@
 import { ChatText } from '@/models/ChatText';
+import { DocumentToSend } from '@/models/DocumentToSend';
 import { systemPrompt } from '@/utils/constants';
 import { Message } from 'ollama';
 import React, { createContext, Dispatch, RefObject, SetStateAction, useEffect, useRef, useState } from 'react';
-
-export type DocumentToSend = {
-  name: string;
-  size: number;
-  data: string;
-}
 
 export type MessageContextType = {
   messages: ChatText[];
@@ -15,7 +10,7 @@ export type MessageContextType = {
   conversation: RefObject<Message[]>;
   setDoc: Dispatch<SetStateAction<DocumentToSend | undefined>>
   setMessages: Dispatch<SetStateAction<ChatText[]>>;
-  addMessage: (role: string, content: string) => void;
+  addMessage: (role: string, content: string, doc?: DocumentToSend) => void;
   addChunk: (chunk: string) => void;
   resetSystemPrompt: (chunk: string) => void;
   collapsibleStates: Map<string | undefined, boolean>;
@@ -24,8 +19,8 @@ export type MessageContextType = {
 
 export const MessageContext = createContext<MessageContextType | undefined>(undefined);
 
-const message = (role: string, content: string): ChatText =>
-  ({role, content, date: new Date().toISOString()});
+const message = (role: string, content: string, doc?: DocumentToSend): ChatText =>
+  ({role, content, date: new Date().toISOString(), doc});
 
 export const MessageProvider = ({ children }: { children: React.ReactNode }) => {
   const conversation = useRef<Message[]>([]);
@@ -35,11 +30,15 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
   useEffect(() => {
     conversation.current = messages
       .filter((m: ChatText) => m.role !== 'custom')
-      .map((m: ChatText) => ({role: m.role, content: m.content}));
+      .map((m: ChatText) => ({
+        role: m.role,
+        content: m.content,
+        images: m.doc ? [m.doc.data.split(',')[1]] : undefined,
+      }));
   }, [messages]);
 
-  const addMessage = (role: string, content: string): void => {
-    const newMsg: ChatText = message(role, content);
+  const addMessage = (role: string, content: string, doc?: DocumentToSend): void => {
+    const newMsg: ChatText = message(role, content, doc);
     setMessages(prevMessages => [...prevMessages, newMsg]);
   };
 
