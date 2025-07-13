@@ -14,6 +14,7 @@ export const useTts = () => {
   });
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
   const utteranceQueueRef = useRef<SpeechSynthesisUtterance[]>([]);
+  const streamCancelledRef = useRef<boolean>(false);
 
   useEffect(() => {
     localStorage.setItem('tts-enabled', JSON.stringify(isTtsEnabled));
@@ -34,8 +35,9 @@ export const useTts = () => {
         }, 150);
       };
       utterance.onerror = (e) => {
-        if (e.error === 'interrupted') return;
-        console.error("Erreur de SpeechSynthesis:", e);
+        if (e.error !== 'interrupted') {
+          console.error("Erreur de SpeechSynthesis:", e);
+        }
         setIsSpeaking(false);
         processQueue();
       };
@@ -44,19 +46,24 @@ export const useTts = () => {
   }, [isTtsEnabled]);
 
   const speak = useCallback((text: string, lang: string = 'fr-FR'): void => {
-    if (!isTtsEnabled || !text.trim()) return;
+    if (!isTtsEnabled || !text.trim() || streamCancelledRef.current) return;
 
-    const cleaned = cleanText(text);
+    const cleaned: string = cleanText(text);
     if (!cleaned) return;
 
     const utterance = new SpeechSynthesisUtterance(cleaned);
     utterance.lang = lang;
     utteranceQueueRef.current.push(utterance);
-    
+
     processQueue();
   }, [isTtsEnabled, processQueue]);
 
+  const start = (): void => {
+    streamCancelledRef.current = false;
+  };
+
   const cancel = (): void => {
+    streamCancelledRef.current = true;
     utteranceQueueRef.current = []; // Vide la file d'attente
     window.speechSynthesis.cancel();
     setIsSpeaking(false);
@@ -73,6 +80,7 @@ export const useTts = () => {
     setIsTtsEnabled,
     isSpeaking,
     speak,
+    start,
     cancel,
   };
 };

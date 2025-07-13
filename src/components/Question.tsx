@@ -17,7 +17,7 @@ export const Question: React.FC = (): React.ReactElement => {
   const { conversation, doc, addMessage, addChunk, setDoc } = useContext(MessageContext)!;
   const [userPrompt, setUserPrompt] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
-  const { isTtsEnabled, setIsTtsEnabled, isSpeaking, speak, cancel } = useTts();
+  const { isTtsEnabled, setIsTtsEnabled, isSpeaking, speak, cancel, start } = useTts();
 
   const stopRequest = (): void => {
     ollama.abort();
@@ -34,6 +34,7 @@ export const Question: React.FC = (): React.ReactElement => {
 
   const sendRequest = async (prompt: string): Promise<void> => {
     if (!prompt && !doc) return;
+    start();
 
     const fullPrompt: string = doc ? `${prompt} | (message ajouté au prompt) contenu du document: | ${doc.data}` : prompt;
     const messagesForApi: ChatText[] = [
