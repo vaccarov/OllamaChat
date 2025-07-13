@@ -36,14 +36,17 @@ export const Question: React.FC = (): React.ReactElement => {
     if (!prompt && !doc) return;
     start();
 
-    const fullPrompt: string = doc ? `${prompt} | (message ajouté au prompt) contenu du document: | ${doc.data}` : prompt;
     const messagesForApi: ChatText[] = [
       ...conversation.current,
-      { role: 'user', content: fullPrompt },
+      {
+        role: 'user',
+        content: prompt,
+        images: doc ? [doc.data.split(',')[1]] : undefined,
+      },
     ];
 
     setUserPrompt('');
-    addMessage('user', fullPrompt);
+    addMessage('user', prompt, doc);
     setLoading(true);
     let sentenceBuffer = "";
 
