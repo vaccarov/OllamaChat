@@ -4,7 +4,8 @@
 
 ## Fonctionnalités
 
-*   **Chat avec Ollama :** Interagissez avec des modèles de langage locaux hébergés par Ollama.
+*   **Chat avec Ollama :** Interagissez avec des modèles de langage locaux via Ollama.
+*   **Import/Export de Sessions :** Sauvegardez et restaurez vos sessions de chat au format JSON, permettant de les partager ou de les archiver facilement.
 *   **Transcription Vocale (STT) :** Enregistrez votre voix et faites-la transcrire en texte via un backend dédié (comme `ChatServer`).
 *   **Lecture Vocale (TTS) :** Les réponses du modèle sont lues à voix haute pour une expérience plus immersive.
 *   **Gestion des Documents :** Joignez des documents à vos requêtes pour que le modèle puisse les analyser.

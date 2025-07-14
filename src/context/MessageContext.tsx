@@ -24,6 +24,8 @@ export type MessageContextType = {
   renameSession: (id: string, name: string) => void;
   deleteSession: (id: string) => void;
   duplicateSession: (id: string) => void;
+  exportSessions: () => void;
+  importSessions: (jsonString: string) => void;
 };
 
 export const MessageContext = createContext<MessageContextType | undefined>(undefined);
@@ -186,6 +188,34 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
     });
   }, []);
 
+  const exportSessions = useCallback((): void => {
+    const json: string = JSON.stringify(chatHistory, null, 2);
+    const blob: Blob = new Blob([json], { type: 'application/json' });
+    const url: string = URL.createObjectURL(blob);
+    const a: HTMLAnchorElement = document.createElement('a');
+    a.href = url;
+    a.download = 'chat_history.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, [chatHistory]);
+
+  const importSessions = useCallback((jsonString: string) => {
+    try {
+      const importedHistory: ChatHistory = JSON.parse(jsonString);
+      if (importedHistory && Array.isArray(importedHistory.sessions) && typeof importedHistory.activeSessionId === 'string') {
+        setChatHistory(importedHistory);
+      } else {
+        console.error('Invalid chat history format', importedHistory);
+        alert('Invalid chat history file. Please select a valid JSON file.');
+      }
+    } catch (error) {
+      console.error('Error parsing chat history JSON', error);
+      alert('Error importing chat history. Please ensure the file is a valid JSON.');
+    }
+  }, []);
+
   return (
     <MessageContext.Provider value={{
       activeSession,
@@ -203,7 +233,9 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
       toggleCollapsible,
       renameSession,
       deleteSession,
-      duplicateSession
+      duplicateSession,
+      exportSessions,
+      importSessions
     }}>
       {children}
     </MessageContext.Provider>

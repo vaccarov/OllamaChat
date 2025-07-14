@@ -1,12 +1,13 @@
 import { MessageContext, MessageContextType } from '@/context/MessageContext';
 import { ChatSession } from '@/models/ChatHistory';
 import { ActionIcon, Button, Menu, NavLink } from '@mantine/core';
-import { useContext } from 'react';
-import { Copy, Edit, MoreVertical, Plus, Trash2 } from 'react-feather';
+import { useContext, useRef } from 'react';
+import { Copy, Download, Edit, MoreVertical, Plus, Trash2, Upload } from 'react-feather';
 import './ChatList.css';
 
 export function ChatList(): React.ReactElement {
   console.log('OOO ChatList');
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const {
     sessions,
     activeSession,
@@ -15,6 +16,8 @@ export function ChatList(): React.ReactElement {
     renameSession,
     deleteSession,
     duplicateSession,
+    exportSessions,
+    importSessions,
   }: MessageContextType = useContext(MessageContext)!;
 
   const handleRename = (id: string) => {
@@ -28,6 +31,24 @@ export function ChatList(): React.ReactElement {
     const newName = prompt('Nom du chat');
     if (newName) {
       startNewSession(newName);
+    }
+  };
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const file: File | undefined = event.target.files?.[0];
+    if (file) {
+      const reader: FileReader = new FileReader();
+      reader.onload = (e: ProgressEvent<FileReader>) => {
+        const content: string | ArrayBuffer | null | undefined = e.target?.result;
+        if (typeof content === 'string') {
+          importSessions(content);
+        }
+      };
+      reader.readAsText(file);
     }
   };
 
@@ -68,6 +89,21 @@ export function ChatList(): React.ReactElement {
             </Menu>
           </div>
         ))}
+      </div>
+      <div className="sessionActions">
+        <Button onClick={exportSessions} fullWidth variant="light" leftSection={<Download size={16} />}>
+          Exporter les sessions
+        </Button>
+        <Button onClick={handleImportClick} fullWidth variant="light" leftSection={<Upload size={16} />}>
+          Importer les sessions
+        </Button>
+        <input
+          type="file"
+          ref={fileInputRef}
+          style={{ display: 'none' }}
+          accept=".json"
+          onChange={handleFileChange}
+        />
       </div>
     </div>
   );
