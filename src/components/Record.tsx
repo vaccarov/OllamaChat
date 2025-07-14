@@ -21,13 +21,13 @@ export default function AudioRecorder({ onTranscript }: AudioRecorderProps): Rea
       mediaRecorderRef.current = recorder;
       const chunks: Blob[] = [];
 
-      recorder.ondataavailable = (e) => {
+      recorder.ondataavailable = (e: BlobEvent): void => {
         if (e.data.size > 0) {
           chunks.push(e.data);
         }
       };
 
-      mediaRecorderRef.current.onstop = async (): Promise<void> => {
+      mediaRecorderRef.current.onstop = async (e: Event): Promise<void> => {
         const audioBlob: Blob = new Blob(chunks, { type: 'audio/webm' });
         
         const formData: FormData = new FormData();
@@ -48,7 +48,7 @@ export default function AudioRecorder({ onTranscript }: AudioRecorderProps): Rea
 
           const json: { transcript: string } = await res.json();
           onTranscript(json.transcript);
-        } catch (error) {
+        } catch (error: any) {
           console.error("Erreur lors de l'envoi de l'audio:", error);
           onTranscript("Erreur: Impossible de contacter le serveur de transcription.");
         }
@@ -56,7 +56,7 @@ export default function AudioRecorder({ onTranscript }: AudioRecorderProps): Rea
 
       recorder.start();
       setRecording(true);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Impossible d'accéder au microphone:", error);
       alert("L'accès au microphone est nécessaire pour l'enregistrement. Veuillez autoriser l'accès dans les paramètres de votre navigateur.");
     }
@@ -66,9 +66,8 @@ export default function AudioRecorder({ onTranscript }: AudioRecorderProps): Rea
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
       mediaRecorderRef.current.stop();
     }
-    // Arrêter toutes les pistes pour éteindre l'indicateur du microphone
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current.getTracks().forEach((track: MediaStreamTrack) => track.stop());
       streamRef.current = null;
     }
     setRecording(false);

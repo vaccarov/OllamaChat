@@ -1,0 +1,21 @@
+.chatListContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1rem;
+  width: 250px;
+  flex-shrink: 0;
+  border-right: 1px solid;
+}
+
+.chatList {
+  margin-top: 1rem;
+  overflow-y: auto;
+}
+
+.chatListItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 10px;
+}

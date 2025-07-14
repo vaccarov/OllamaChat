@@ -1,4 +1,5 @@
 import { MessageContext } from "@/context/MessageContext";
+import { ChatSession } from "@/models/ChatHistory";
 import { ChatText } from "@/models/ChatText";
 import { ActionIcon } from "@mantine/core";
 import React, { useContext, useEffect, useRef, useState } from "react";
@@ -8,7 +9,7 @@ import ChatBubble from "./ChatBubble";
 
 export const Chat: React.FC = (): React.ReactElement => {
   console.log('OOO Chat');
-  const messages: ChatText[] = useContext(MessageContext)!.messages;
+  const { activeSession }: { activeSession: ChatSession | undefined } = useContext(MessageContext)!;
   const [showTopArrow, setShowTopArrow] = useState<boolean>(false);
   const [showBottomArrow, setShowBottomArrow] = useState<boolean>(true);
   const chatRef = useRef<HTMLDivElement>(null);
@@ -26,14 +27,14 @@ export const Chat: React.FC = (): React.ReactElement => {
 
     chatEl.addEventListener("scroll", handleScroll);
     return () => chatEl.removeEventListener("scroll", handleScroll);
-  }, [messages]);
+  }, [activeSession?.messages]);
 
   const scrollToTop = (): void => {
     if (chatRef.current) chatRef.current.scrollTop = 0;
   };
 
   const scrollToBottom = (force: boolean = false): void => {
-    const el = chatRef.current;
+    const el: HTMLDivElement | null = chatRef.current;
     if (!el) return;
     const isNearBottom: boolean = el.scrollHeight - el.scrollTop - el.clientHeight < 70;
 
@@ -57,7 +58,7 @@ export const Chat: React.FC = (): React.ReactElement => {
         )}
       </div>
       <div className="chat" ref={chatRef}>
-        {messages
+        {activeSession?.messages
         ?.slice(1)
         .map((msg: ChatText, i: number) => 
           <ChatBubble message={msg} key={i} />

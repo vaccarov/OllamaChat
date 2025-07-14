@@ -1,31 +1,31 @@
-import ReactMarkdown from "react-markdown";
-import "./ChatBubble.css";
+import { MessageContext, MessageContextType } from "@/context/MessageContext";
 import { ChatText } from "@/models/ChatText";
-import { useContext, useState } from "react";
-import { MessageContext } from "@/context/MessageContext";
-import { Collapsible } from "./Collapsable";
-import rehypeRaw from 'rehype-raw';
 import { Modal } from "@mantine/core";
+import { useContext, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import rehypeRaw from 'rehype-raw';
+import "./ChatBubble.css";
+import { Collapsible } from "./Collapsable";
 
 type ChatProps = {
   message: ChatText;
 };
 
 export default function ChatBubble({ message }: ChatProps): React.ReactElement | null {
-  const messageContext = useContext(MessageContext);
+  const messageContext: MessageContextType | undefined = useContext(MessageContext);
   if (!messageContext) return null;
 
   const { collapsibleStates, toggleCollapsible } = messageContext;
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const isCollapsibleOpen: boolean = collapsibleStates.get(message.date) || false;
-  const handleToggleCollapsible = () => toggleCollapsible(message.date);
+  const handleToggleCollapsible = (): void => toggleCollapsible(message.date);
 
   const content: string = message.content;
   const parts: string[] = content.split(/<think>(.*?)<\/think>/s);
 
-  const renderContent = () => {
-    const contentParts = parts.map((part, index) => {
+  const renderContent = (): React.ReactElement | React.ReactElement[] => {
+    const contentParts: React.ReactElement[] = parts.map((part: string, index: number) => {
       return index % 2 === 1 ? (
         <Collapsible key={index} isOpen={isCollapsibleOpen} onToggle={handleToggleCollapsible}>
           <ReactMarkdown rehypePlugins={[rehypeRaw]}>{part}</ReactMarkdown>

@@ -1,6 +1,6 @@
 .chatContainer {
   position: relative;
-  border: 1px solid var(--maincolor);
+  /* border: 1px solid var(--maincolor); */
   border-radius: 5px;
   overflow: auto;
   display: flex;
@@ -22,8 +22,8 @@
 .chat {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 14px;
+  gap: 1rem;
+  padding: 1rem;
   flex: 1;
   overflow: auto;
 }
