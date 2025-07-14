@@ -19,3 +19,12 @@
   justify-content: space-between;
   padding-right: 10px;
 }
+
+.sessionActions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid var(--mantine-color-gray-3);
+}

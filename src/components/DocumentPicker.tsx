@@ -6,7 +6,6 @@ import { Image } from "react-feather";
 
 const DocumentPicker = memo((): React.ReactElement => {
   console.log('OOO DocumentPicker');
-  console.log('OOO DocumentPicker');
   const { setDoc }: MessageContextType = useContext(MessageContext)!;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const handleFileChange = async (
