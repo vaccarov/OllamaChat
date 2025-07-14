@@ -22,11 +22,11 @@ export const AppProviders = ({ children }: { children: React.ReactNode }) => {
         },
       }}>
       <OllamaProvider>
-        <MessageProvider>
-          <ModelProvider>
+        <ModelProvider>
+          <MessageProvider>
             {children}
-          </ModelProvider>
-        </MessageProvider>
+          </MessageProvider>
+        </ModelProvider>
       </OllamaProvider>
     </MantineProvider>
   );

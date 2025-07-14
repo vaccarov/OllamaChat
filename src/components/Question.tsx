@@ -1,10 +1,11 @@
-import { MessageContext } from "@/context/MessageContext";
-import { ModelContext } from "@/context/ModelContext";
+import { MessageContext, MessageContextType } from "@/context/MessageContext";
+import { ModelContext, ModelContextType } from "@/context/ModelContext";
 import { useOllama } from "@/context/OllamaContext";
 import { useTts } from "@/hooks/useTts";
 import { ChatText } from "@/models/ChatText";
+import { DocumentToSend } from "@/models/DocumentToSend";
 import { ActionIcon, Chip, Textarea } from "@mantine/core";
-import { AbortableAsyncIterator, ChatResponse } from "ollama";
+import { AbortableAsyncIterator, ChatResponse, Message } from "ollama";
 import React, { useContext, useState } from "react";
 import { Loader, Play, Volume2, VolumeX, X } from "react-feather";
 import DocumentPicker from "./DocumentPicker";
@@ -13,8 +14,8 @@ import AudioRecorder from "./Record";
 
 export const Question: React.FC = (): React.ReactElement => {
   const ollama = useOllama();
-  const model: string = useContext(ModelContext)!.model;
-  const { conversation, doc, addMessage, addChunk, setDoc } = useContext(MessageContext)!;
+  const { model }: ModelContextType = useContext(ModelContext)!;
+  const { conversation, doc, addMessage, addChunk, setDoc }: MessageContextType = useContext(MessageContext)!;
   const [userPrompt, setUserPrompt] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const { isTtsEnabled, setIsTtsEnabled, isSpeaking, speak, cancel, start } = useTts();
@@ -36,19 +37,19 @@ export const Question: React.FC = (): React.ReactElement => {
     if (!prompt && !doc) return;
     start();
 
-    const messagesForApi: ChatText[] = [
-      ...conversation.current,
+    const messagesForApi: Message[] = [
+      ...(conversation.current || []),
       {
         role: 'user',
         content: prompt,
         images: doc ? [doc.data.split(',')[1]] : undefined,
-      },
+      } as Message,
     ];
 
     setUserPrompt('');
     addMessage('user', prompt, doc);
     setLoading(true);
-    let sentenceBuffer = "";
+    let sentenceBuffer: string = "";
 
     try {
       const stream: AbortableAsyncIterator<ChatResponse> = await ollama.chat({
@@ -63,10 +64,10 @@ export const Question: React.FC = (): React.ReactElement => {
         addChunk(chunk);
         sentenceBuffer += chunk;
 
-        const sentenceEndIndex = sentenceBuffer.search(/[.!?]/);
+        const sentenceEndIndex: number = sentenceBuffer.search(/[.!?]/);
 
         if (sentenceEndIndex !== -1) {
-          const sentence = sentenceBuffer.substring(0, sentenceEndIndex + 1);
+          const sentence: string = sentenceBuffer.substring(0, sentenceEndIndex + 1);
           speak(sentence);
           sentenceBuffer = sentenceBuffer.substring(sentenceEndIndex + 1);
         }
@@ -107,8 +108,8 @@ export const Question: React.FC = (): React.ReactElement => {
         className="questionArea"
         placeholder="Écrire une question..."
         value={userPrompt}
-        onChange={(event) => setUserPrompt(event.currentTarget.value)}
-        onKeyDown={(e) => {
+        onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setUserPrompt(event.currentTarget.value)}
+        onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
           if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             sendRequest(userPrompt);

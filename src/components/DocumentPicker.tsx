@@ -1,12 +1,14 @@
-import { MessageContext } from "@/context/MessageContext";
+import { MessageContext, MessageContextType } from "@/context/MessageContext";
+import { DocumentToSend } from "@/models/DocumentToSend";
 import { ActionIcon } from "@mantine/core";
-import React, { useContext } from "react";
-import { Paperclip } from "react-feather";
+import React, { memo, useContext, useRef } from "react";
+import { Image } from "react-feather";
 
-export default function DocumentPicker(): React.ReactElement {
+const DocumentPicker = memo((): React.ReactElement => {
   console.log('OOO DocumentPicker');
-  const {setDoc} = useContext(MessageContext)!;
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  console.log('OOO DocumentPicker');
+  const { setDoc }: MessageContextType = useContext(MessageContext)!;
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const handleFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>
   ): Promise<void> => {
@@ -14,12 +16,12 @@ export default function DocumentPicker(): React.ReactElement {
     if (!file) return;
 
     const reader: FileReader = new FileReader();
-    reader.onload = () => {
+    reader.onload = (): void => {
       setDoc({
         name: file.name,
         size: file.size,
         data: reader.result as string
-      });
+      } as DocumentToSend);
     };
     reader.readAsDataURL(file);
     e.target.value = "";
@@ -27,8 +29,10 @@ export default function DocumentPicker(): React.ReactElement {
 
   return (
     <ActionIcon onClick={() => fileInputRef.current!.click()}>
-      <Paperclip></Paperclip>
+      <Image></Image>
       <input ref={fileInputRef} type="file" onChange={handleFileChange} className="hidden"/>
     </ActionIcon>
   );
-}
+});
+
+export default DocumentPicker;
