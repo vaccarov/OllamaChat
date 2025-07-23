@@ -54,7 +54,7 @@ export function ChatList(): React.ReactElement {
 
   return (
     <div className="chatListContainer">
-      <Button onClick={handleNewChat} fullWidth variant="light" leftSection={<Plus size={16} />}>
+      <Button onClick={handleNewChat} fullWidth color={'var(--maincolor)'} variant='light' leftSection={<Plus size={16} />}>
         Nouvelle Discussion
       </Button>
       <div className="chatList">
@@ -65,7 +65,7 @@ export function ChatList(): React.ReactElement {
               active={session.id === activeSession?.id}
               onClick={() => setActiveSessionId(session.id)}
               variant="subtle"
-              style={{ flexGrow: 1 }}
+              style={{ flexGrow: 1, color: session.id === activeSession?.id ? 'var(--maincolor)' : 'inherit' }}
             />
             <Menu shadow="md" width={200}>
               <Menu.Target>
@@ -91,10 +91,10 @@ export function ChatList(): React.ReactElement {
         ))}
       </div>
       <div className="sessionActions">
-        <Button onClick={exportSessions} fullWidth variant="light" leftSection={<Download size={16} />}>
+        <Button onClick={exportSessions} fullWidth color={'var(--maincolor)'} variant="light" leftSection={<Download size={16} />}>
           Exporter les sessions
         </Button>
-        <Button onClick={handleImportClick} fullWidth variant="light" leftSection={<Upload size={16} />}>
+        <Button onClick={handleImportClick} fullWidth color={'var(--maincolor)'} variant="light" leftSection={<Upload size={16} />}>
           Importer les sessions
         </Button>
         <input

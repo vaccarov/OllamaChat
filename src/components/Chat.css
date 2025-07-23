@@ -1,6 +1,6 @@
 .chatContainer {
   position: relative;
-  /* border: 1px solid var(--maincolor); */
+  border: 1px solid var(--maincolor);
   border-radius: 5px;
   overflow: auto;
   display: flex;
@@ -9,8 +9,8 @@
 
 .arrowsChat {
   position: absolute;
-  top: 0;
-  bottom: 0;
+  top: 1rem;
+  bottom: 1rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;

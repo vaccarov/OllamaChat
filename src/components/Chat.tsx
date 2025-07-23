@@ -36,7 +36,7 @@ export const Chat: React.FC = (): React.ReactElement => {
   const scrollToBottom = (force: boolean = false): void => {
     const el: HTMLDivElement | null = chatRef.current;
     if (!el) return;
-    const isNearBottom: boolean = el.scrollHeight - el.scrollTop - el.clientHeight < 70;
+    const isNearBottom: boolean = el.scrollHeight - el.scrollTop - el.clientHeight < 90;
 
     if (isNearBottom || force) {
       el.scrollTop = el.scrollHeight;
@@ -47,12 +47,12 @@ export const Chat: React.FC = (): React.ReactElement => {
     <div className="chatContainer">
       <div className={"arrowsChat"}>
         {showTopArrow && (
-          <ActionIcon variant="outline" color="white" onClick={scrollToTop}>
+          <ActionIcon variant="outline" onClick={scrollToTop}>
             <ArrowUp />
           </ActionIcon>
         )}
         {showBottomArrow && (
-          <ActionIcon variant="outline" color="white" onClick={() => scrollToBottom(true)}>
+          <ActionIcon variant="outline" onClick={() => scrollToBottom(true)}>
             <ArrowDown />
           </ActionIcon>
         )}

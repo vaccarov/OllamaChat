@@ -1,40 +1,41 @@
 .thinkTag {
-  margin: 14px 0;
-  border-left: 3px solid #ccc;
+  margin: 1rem 0;
+  border-left: 3px solid var(--maincolor);
 }
 
 .thinkButton {
   cursor: pointer;
-  padding: 0 14px;
+  padding: 0 1rem;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 1rem;
 }
 
 .thinkContent {
-  padding: 14px 14px 0;
+  padding: 1rem 1rem 0;
   font-style: italic;
 }
 
 .bubble {
-  padding: 0 14px;
-  border-radius: 16px;
+  padding: 0 1rem;
+  border-radius: 1rem;
   line-height: 1.4;
+  max-width: 80%;
 }
 
 .custom {
   align-self: center;
-  background-color: #d4ff004f;
+  background-color: var(--customBubble);
 }
 
 .user {
   align-self: flex-end;
-  background-color: #00abff4f;
+  background-color: var(--userBubble);
   border-top-right-radius: 0;
 }
 
 .assistant {
   align-self: flex-start;
-  background-color: #0000006e;
+  background-color: var(--assistantBubble);
   border-top-left-radius: 0;
 }

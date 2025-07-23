@@ -1,6 +1,6 @@
 .systemPromptContainer {
     display: flex;
-    column-gap: 14px;
+    column-gap: 1rem;
 }
 
 .systemPrompt {

@@ -28,8 +28,9 @@ export const SystemPrompt: React.FC = (): React.ReactElement => {
         value={prompt}
         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPrompt(e.target.value)}
         autosize
-        maxRows={4}/>
+        maxRows={2}/>
         <Button
+          color={'var(--maincolor)'} 
           variant="light"
           rightSection={<Edit size={14} />}
           onClick={handleUpdate}>
