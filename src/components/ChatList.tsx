@@ -3,10 +3,12 @@ import { ChatSession } from '@/models/ChatHistory';
 import { ActionIcon, Button, Menu, NavLink } from '@mantine/core';
 import { useContext, useRef } from 'react';
 import { Copy, Download, Edit, MoreVertical, Plus, Trash2, Upload } from 'react-feather';
+import { useTranslation } from 'react-i18next';
 import './ChatList.css';
+import LanguageSwitcher from './LanguageSwitcher';
 
 export function ChatList(): React.ReactElement {
-  console.log('OOO ChatList');
+  const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const {
     sessions,
@@ -21,14 +23,14 @@ export function ChatList(): React.ReactElement {
   }: MessageContextType = useContext(MessageContext)!;
 
   const handleRename = (id: string) => {
-    const newName = prompt('Nom du chat');
+    const newName = prompt(t('chat_name_prompt'));
     if (newName) {
       renameSession(id, newName);
     }
   };
 
   const handleNewChat = () => {
-    const newName = prompt('Nom du chat');
+    const newName = prompt(t('chat_name_prompt'));
     if (newName) {
       startNewSession(newName);
     }
@@ -55,7 +57,7 @@ export function ChatList(): React.ReactElement {
   return (
     <div className="chatListContainer">
       <Button onClick={handleNewChat} fullWidth color={'var(--maincolor)'} variant='light' leftSection={<Plus size={16} />}>
-        Nouvelle Discussion
+        {t('new_chat')}
       </Button>
       <div className="chatList">
         {sessions.map((session: ChatSession) => (
@@ -76,14 +78,14 @@ export function ChatList(): React.ReactElement {
 
               <Menu.Dropdown>
                 <Menu.Item leftSection={<Edit size={14} />} onClick={() => handleRename(session.id)}>
-                  Renommer
+                  {t('rename')}
                 </Menu.Item>
                 <Menu.Item leftSection={<Copy size={14} />} onClick={() => duplicateSession(session.id)}>
-                  Dupliquer
+                  {t('duplicate')}
                 </Menu.Item>
                 <Menu.Divider />
                 <Menu.Item color="red" leftSection={<Trash2 size={14} />} onClick={() => deleteSession(session.id)}>
-                  Supprimer
+                  {t('delete')}
                 </Menu.Item>
               </Menu.Dropdown>
             </Menu>
@@ -91,19 +93,25 @@ export function ChatList(): React.ReactElement {
         ))}
       </div>
       <div className="sessionActions">
-        <Button onClick={exportSessions} fullWidth color={'var(--maincolor)'} variant="light" leftSection={<Download size={16} />}>
-          Exporter les sessions
-        </Button>
-        <Button onClick={handleImportClick} fullWidth color={'var(--maincolor)'} variant="light" leftSection={<Upload size={16} />}>
-          Importer les sessions
-        </Button>
-        <input
-          type="file"
-          ref={fileInputRef}
-          style={{ display: 'none' }}
-          accept=".json"
-          onChange={handleFileChange}
-        />
+        <div className="importExport">
+          <ActionIcon
+            onClick={exportSessions}
+            color={'var(--maincolor)'} variant="light"
+            title={t('export_sessions')}>
+            <Download size={16} />
+          </ActionIcon>
+          <ActionIcon onClick={handleImportClick} color={'var(--maincolor)'} variant="light" title={t('import_sessions')}>
+            <Upload size={16} />
+          </ActionIcon>
+          <input
+            type="file"
+            ref={fileInputRef}
+            style={{ display: 'none' }}
+            accept=".json"
+            onChange={handleFileChange}
+          />
+        </div>
+        <LanguageSwitcher />
       </div>
     </div>
   );

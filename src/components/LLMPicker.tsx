@@ -5,10 +5,11 @@ import { modelChanged } from "@/utils/constants";
 import { Select } from "@mantine/core";
 import { ListResponse, ModelResponse } from "ollama/browser";
 import React, { useContext, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import "./LLMPicker.css";
 
 export const LLMPicker: React.FC = (): React.ReactElement => {
-  console.log('OOO LLMPicker');
+  const { t } = useTranslation();
   const ollama = useOllama();
   const { model, setModel }: ModelContextType = useContext(ModelContext)!;
   const { updateModel, addMessage }: MessageContextType = useContext(MessageContext)!;
@@ -28,7 +29,7 @@ export const LLMPicker: React.FC = (): React.ReactElement => {
             }
           }
         } catch (error: any) {
-          console.error("Erreur lors de la récupération des modèles", error);
+          console.error(t('error_fetching_models'), error);
         }
       };
       fetchModels();
@@ -40,13 +41,13 @@ export const LLMPicker: React.FC = (): React.ReactElement => {
     if (selectedModel) {
       setModel(selectedModel);
       updateModel(selectedModel);
-      addMessage('custom', modelChanged(selectedModel));
+      addMessage('custom', modelChanged(t, selectedModel));
     }
   };
 
   return (
     <Select
-      placeholder="Choose LLM"
+      placeholder={t('select_model')}
       value={model}
       onChange={handleModelChange}
       data={models.map((m: ModelResponse) => ({

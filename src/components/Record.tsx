@@ -1,6 +1,7 @@
 import { ActionIcon } from '@mantine/core';
 import { useRef, useState } from 'react';
 import { Mic, MicOff } from 'react-feather';
+import { useTranslation } from 'react-i18next';
 import "./Record.css";
 
 type AudioRecorderProps = {
@@ -8,6 +9,7 @@ type AudioRecorderProps = {
 };
 
 export default function AudioRecorder({ onTranscript }: AudioRecorderProps): React.ReactElement {
+  const { t } = useTranslation();
   const [recording, setRecording] = useState<boolean>(false);
   const [lang] = useState<string>('fr');
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -41,24 +43,24 @@ export default function AudioRecorder({ onTranscript }: AudioRecorderProps): Rea
           });
 
           if (!res.ok) {
-            console.error("Erreur du serveur:", res.status, res.statusText);
-            onTranscript(`Erreur de transcription (code: ${res.status})`);
+            console.error(t('server_error'), res.status, res.statusText);
+            onTranscript(t('transcription_error_code', { code: res.status }));
             return;
           }
 
           const json: { transcript: string } = await res.json();
           onTranscript(json.transcript);
         } catch (error: any) {
-          console.error("Erreur lors de l'envoi de l'audio:", error);
-          onTranscript("Erreur: Impossible de contacter le serveur de transcription.");
+          console.error(t('error_sending_audio'), error);
+          onTranscript(t('error_contacting_transcription_server'));
         }
       };
 
       recorder.start();
       setRecording(true);
     } catch (error: any) {
-      console.error("Impossible d'accéder au microphone:", error);
-      alert("L'accès au microphone est nécessaire pour l'enregistrement. Veuillez autoriser l'accès dans les paramètres de votre navigateur.");
+      console.error(t('microphone_access_error'), error);
+      alert(t('microphone_access_required'));
     }
   };
 
@@ -99,8 +101,9 @@ export default function AudioRecorder({ onTranscript }: AudioRecorderProps): Rea
       </select> */}
       <ActionIcon
         variant="subtle"
+        color="white"
         onClick={handleRecordClick}
-        title={recording ? "Arrêter l'enregistrement" : "Démarrer l'enregistrement"}
+        title={recording ? t('stop_recording') : t('start_recording')}
       >
         {recording ? <MicOff color="red"/> : <Mic />}
       </ActionIcon>

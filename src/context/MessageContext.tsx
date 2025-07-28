@@ -1,9 +1,9 @@
 import { ChatHistory, ChatSession } from '@/models/ChatHistory';
 import { ChatText } from '@/models/ChatText';
 import { DocumentToSend } from '@/models/DocumentToSend';
-import { systemPrompt as defaultSystemPrompt } from '@/utils/constants';
 import { Message } from 'ollama';
 import React, { createContext, Dispatch, RefObject, SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
 import { ModelContext } from './ModelContext';
 
@@ -15,7 +15,7 @@ export type MessageContextType = {
   setDoc: Dispatch<SetStateAction<DocumentToSend | undefined>>;
   addMessage: (role: string, content: string, doc?: DocumentToSend) => void;
   addChunk: (chunk: string) => void;
-  startNewSession: (name?: string) => void;
+  startNewSession: (name: string) => void;
   setActiveSessionId: (id: string) => void;
   updateSystemPrompt: (prompt: string) => void;
   updateModel: (model: string) => void;
@@ -30,7 +30,7 @@ export type MessageContextType = {
 
 export const MessageContext = createContext<MessageContextType | undefined>(undefined);
 
-const createNewSession = (systemPrompt: string, model: string = '', name: string = 'Nouvelle Discussion'): ChatSession => ({
+const createNewSession = (systemPrompt: string, model: string = '', name: string): ChatSession => ({
   id: uuidv4(),
   name,
   messages: [{ role: 'system', content: systemPrompt, date: new Date().toISOString() }],
@@ -39,6 +39,7 @@ const createNewSession = (systemPrompt: string, model: string = '', name: string
 });
 
 export const MessageProvider = ({ children }: { children: React.ReactNode }) => {
+  const { t } = useTranslation();
   const modelContext = React.useContext(ModelContext);
   const model: string = modelContext?.model || '';
   const setModel: (newModel: string) => void = modelContext?.setModel || (() => {});
@@ -48,7 +49,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
       const parsedHistory: ChatHistory = JSON.parse(savedHistory);
       return parsedHistory;
     }
-    const newSession: ChatSession = createNewSession(defaultSystemPrompt, ''); 
+    const newSession: ChatSession = createNewSession(t('system_prompt_content'), '', t('new_chat_default_name')); 
     return { sessions: [newSession], activeSessionId: newSession.id };
   });
 
@@ -79,7 +80,9 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
         .map((m: ChatText) => ({
           role: m.role,
           content: m.content,
-          images: m.doc ? [m.doc.data.split(',')[1]] : undefined
+          images: m.doc && m.doc.data.split(',')[1] !== undefined
+            ? [m.doc.data.split(',')[1] as string]
+            : undefined
         }));
       setModel(active.model);
     }
@@ -102,8 +105,13 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
       const sessions: ChatSession[] = prev.sessions.map((s: ChatSession) => {
         if (s.id === prev.activeSessionId) {
           const messages: ChatText[] = [...s.messages];
-          const lastMessage: ChatText = { ...messages[messages.length - 1] };
-          lastMessage.content += chunk;
+          const prevLastMessage = messages[messages.length - 1];
+          const lastMessage: ChatText = {
+            ...prevLastMessage,
+            role: prevLastMessage?.role ?? '',
+            content: (prevLastMessage?.content ?? '') + chunk,
+            date: prevLastMessage?.date ?? new Date().toISOString()
+          };
           messages[messages.length - 1] = lastMessage;
           return { ...s, messages };
         }
@@ -113,9 +121,9 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
     });
   }, []);
 
-  const startNewSession = useCallback((name?: string) => {
+  const startNewSession = useCallback((name: string) => {
     setChatHistory((prev: ChatHistory) => {
-      const newSession: ChatSession = createNewSession(defaultSystemPrompt, model, name);
+      const newSession: ChatSession = createNewSession(t('system_prompt_content'), model, name);
       return { sessions: [...prev.sessions, newSession], activeSessionId: newSession.id };
     });
   }, [model]);
@@ -169,11 +177,11 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
     setChatHistory((prev: ChatHistory) => {
       const sessions: ChatSession[] = prev.sessions.filter((s: ChatSession) => s.id !== id);
       if (sessions.length === 0) {
-        const newSession: ChatSession = createNewSession(defaultSystemPrompt, model);
+        const newSession: ChatSession = createNewSession(t('system_prompt_content'), model, t('new_chat_default_name'));
         return { sessions: [newSession], activeSessionId: newSession.id };
       }
       if (prev.activeSessionId === id) {
-        return { ...prev, sessions, activeSessionId: sessions[0].id };
+        return { ...prev, sessions, activeSessionId: sessions[0]?.id ?? null };
       }
       return { ...prev, sessions };
     });
@@ -183,7 +191,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
     setChatHistory((prev: ChatHistory) => {
       const sessionToDuplicate: ChatSession | undefined = prev.sessions.find((s: ChatSession) => s.id === id);
       if (!sessionToDuplicate) return prev;
-      const newSession: ChatSession = { ...sessionToDuplicate, id: uuidv4(), name: `${sessionToDuplicate.name} (copy)` };
+      const newSession: ChatSession = { ...sessionToDuplicate, id: uuidv4(), name: `${sessionToDuplicate.name}${t('copy_suffix')}` };
       return { ...prev, sessions: [...prev.sessions, newSession], activeSessionId: newSession.id };
     });
   }, []);
@@ -194,7 +202,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
     const url: string = URL.createObjectURL(blob);
     const a: HTMLAnchorElement = document.createElement('a');
     a.href = url;
-    a.download = 'chat_history.json';
+    a.download = t('chat_history_filename');
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -207,12 +215,12 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
       if (importedHistory && Array.isArray(importedHistory.sessions) && typeof importedHistory.activeSessionId === 'string') {
         setChatHistory(importedHistory);
       } else {
-        console.error('Invalid chat history format', importedHistory);
-        alert('Invalid chat history file. Please select a valid JSON file.');
+        console.error(t('invalid_chat_history_format'), importedHistory);
+        alert(t('invalid_chat_history_format'));
       }
     } catch (error) {
-      console.error('Error parsing chat history JSON', error);
-      alert('Error importing chat history. Please ensure the file is a valid JSON.');
+      console.error(t('error_parsing_chat_history_json'), error);
+      alert(t('error_parsing_chat_history_json'));
     }
   }, []);
 

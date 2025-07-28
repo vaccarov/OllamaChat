@@ -1,11 +1,12 @@
 import { MessageContext, MessageContextType } from "@/context/MessageContext";
-import { Button, Textarea } from "@mantine/core";
+import { ActionIcon, Textarea } from "@mantine/core";
 import React, { useContext, useEffect, useState } from "react";
 import { Edit } from "react-feather";
+import { useTranslation } from "react-i18next";
 import "./Systemprompt.css";
 
 export const SystemPrompt: React.FC = (): React.ReactElement => {
-  console.log('OOO SystemPrompt');
+  const { t } = useTranslation();
   const { activeSession, updateSystemPrompt }: MessageContextType = useContext(MessageContext)!;
   const [prompt, setPrompt] = useState<string>("");
 
@@ -29,13 +30,13 @@ export const SystemPrompt: React.FC = (): React.ReactElement => {
         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPrompt(e.target.value)}
         autosize
         maxRows={2}/>
-        <Button
+        <ActionIcon
           color={'var(--maincolor)'} 
           variant="light"
-          rightSection={<Edit size={14} />}
-          onClick={handleUpdate}>
-          Update
-        </Button>
+          onClick={handleUpdate}
+          title={t('update_button')}>
+          <Edit size={14} />
+        </ActionIcon>
     </div>
   );
 };

@@ -27,7 +27,7 @@ const DocumentPicker = memo((): React.ReactElement => {
   };
 
   return (
-    <ActionIcon onClick={() => fileInputRef.current!.click()}>
+    <ActionIcon onClick={() => fileInputRef.current!.click()} color="white">
       <Image></Image>
       <input ref={fileInputRef} type="file" onChange={handleFileChange} className="hidden"/>
     </ActionIcon>

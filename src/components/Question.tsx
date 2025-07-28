@@ -2,17 +2,17 @@ import { MessageContext, MessageContextType } from "@/context/MessageContext";
 import { ModelContext, ModelContextType } from "@/context/ModelContext";
 import { useOllama } from "@/context/OllamaContext";
 import { useTts } from "@/hooks/useTts";
-import { ChatText } from "@/models/ChatText";
-import { DocumentToSend } from "@/models/DocumentToSend";
 import { ActionIcon, Chip, Textarea } from "@mantine/core";
 import { AbortableAsyncIterator, ChatResponse, Message } from "ollama";
 import React, { useContext, useState } from "react";
 import { Loader, Play, Volume2, VolumeX, X } from "react-feather";
+import { useTranslation } from "react-i18next";
 import DocumentPicker from "./DocumentPicker";
 import "./Question.css";
 import AudioRecorder from "./Record";
 
 export const Question: React.FC = (): React.ReactElement => {
+  const { t } = useTranslation();
   const ollama = useOllama();
   const { model }: ModelContextType = useContext(ModelContext)!;
   const { conversation, doc, addMessage, addChunk, setDoc }: MessageContextType = useContext(MessageContext)!;
@@ -79,8 +79,8 @@ export const Question: React.FC = (): React.ReactElement => {
 
     } catch (error: any) {
       const errorMessage: string = error.name === 'AbortError'
-        ? 'La requête a été annulée.'
-        : `Erreur: ${error.message || 'Une erreur inconnue est survenue.'}`;
+        ? t('request_aborted')
+        : `${t('error_prefix')}${error.message || t('unknown_error')}`;
       addMessage('custom', errorMessage);
     } finally {
       setDoc(undefined);
@@ -99,14 +99,14 @@ export const Question: React.FC = (): React.ReactElement => {
       <AudioRecorder onTranscript={handleTranscript} />
       <DocumentPicker />
       {doc && <Chip
-        icon={<X size={16} />}
+        icon={<X size={16} color="white" />}
         onClick={() => setDoc(undefined)}
         checked={true}>
         {doc.name}
       </Chip>}
       <Textarea
         className="questionArea"
-        placeholder="Écrire une question..."
+        placeholder={t('chat_placeholder')}
         value={userPrompt}
         onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setUserPrompt(event.currentTarget.value)}
         onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -121,14 +121,14 @@ export const Question: React.FC = (): React.ReactElement => {
       <ActionIcon
         variant="subtle"
         onClick={handleTtsButtonClick}
-        title={isTtsEnabled ? (isSpeaking ? "Arrêter la lecture" : "Désactiver la lecture audio") : "Activer la lecture audio"}>
-        {isTtsEnabled ? <Volume2 color={isSpeaking ? 'red' : 'currentColor'} /> : <VolumeX />}
+        title={isTtsEnabled ? (isSpeaking ? t('stop_reading') : t('disable_audio_reading')) : t('enable_audio_reading')}>
+        {isTtsEnabled ? <Volume2 color="white" /> : <VolumeX color="white" />}
       </ActionIcon>
       <ActionIcon
         variant="subtle"
         disabled={!model}
         onClick={() => loading ? stopRequest() : sendRequest(userPrompt)}>
-        {loading ? <Loader className="spin-animation" /> : <Play />}
+        {loading ? <Loader className="spin-animation" color="white" /> : <Play color="white" />}
       </ActionIcon>
     </div>
   );
