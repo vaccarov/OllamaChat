@@ -13,8 +13,8 @@ export type MessageContextType = {
   doc: DocumentToSend | undefined;
   conversation: RefObject<Message[]>;
   setDoc: Dispatch<SetStateAction<DocumentToSend | undefined>>;
-  addMessage: (role: string, content: string, doc?: DocumentToSend) => void;
-  addChunk: (chunk: string) => void;
+  addMessage: (role: string, content: string, doc?: DocumentToSend, sessionId?: string) => void;
+  addChunk: (chunk: string, sessionId?: string) => void;
   startNewSession: (name: string) => void;
   setActiveSessionId: (id: string) => void;
   updateSystemPrompt: (prompt: string) => void;
@@ -30,16 +30,16 @@ export type MessageContextType = {
 
 export const MessageContext = createContext<MessageContextType | undefined>(undefined);
 
-const createNewSession = (systemPrompt: string, model: string = '', name: string): ChatSession => ({
-  id: uuidv4(),
-  name,
-  messages: [{ role: 'system', content: systemPrompt, date: new Date().toISOString() }],
-  systemPrompt,
-  model,
-});
-
 export const MessageProvider = ({ children }: { children: React.ReactNode }) => {
   const { t } = useTranslation();
+
+  const createNewSession = useCallback((systemPrompt: string, model: string = '', name: string = t('new_chat_default_name')): ChatSession => ({
+    id: uuidv4(),
+    name,
+    messages: [{ role: 'system', content: systemPrompt, date: new Date().toISOString() }],
+    systemPrompt,
+    model,
+  }), [t]);
   const modelContext = React.useContext(ModelContext);
   const model: string = modelContext?.model || '';
   const setModel: (newModel: string) => void = modelContext?.setModel || (() => {});
@@ -90,20 +90,22 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
 
   const activeSession: ChatSession | undefined = chatHistory.sessions.find((s: ChatSession) => s.id === chatHistory.activeSessionId);
 
-  const addMessage = useCallback((role: string, content: string, doc?: DocumentToSend) => {
+  const addMessage = useCallback((role: string, content: string, doc?: DocumentToSend, sessionId?: string) => {
     setChatHistory((prev: ChatHistory) => {
+      const targetSessionId = sessionId || prev.activeSessionId;
       const newMsg: ChatText = { role, content, date: new Date().toISOString(), doc };
       const sessions: ChatSession[] = prev.sessions.map((s: ChatSession) =>
-        s.id === prev.activeSessionId ? { ...s, messages: [...s.messages, newMsg] } : s
+        s.id === targetSessionId ? { ...s, messages: [...s.messages, newMsg] } : s
       );
       return { ...prev, sessions };
     });
   }, []);
 
-  const addChunk = useCallback((chunk: string) => {
+  const addChunk = useCallback((chunk: string, sessionId?: string) => {
     setChatHistory((prev: ChatHistory) => {
+      const targetSessionId = sessionId || prev.activeSessionId;
       const sessions: ChatSession[] = prev.sessions.map((s: ChatSession) => {
-        if (s.id === prev.activeSessionId) {
+        if (s.id === targetSessionId) {
           const messages: ChatText[] = [...s.messages];
           const prevLastMessage = messages[messages.length - 1];
           const lastMessage: ChatText = {

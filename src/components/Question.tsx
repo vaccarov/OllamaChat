@@ -15,7 +15,7 @@ export const Question: React.FC = (): React.ReactElement => {
   const { t } = useTranslation();
   const ollama = useOllama();
   const { model }: ModelContextType = useContext(ModelContext)!;
-  const { conversation, doc, addMessage, addChunk, setDoc }: MessageContextType = useContext(MessageContext)!;
+  const { conversation, doc, addMessage, addChunk, setDoc, activeSession }: MessageContextType = useContext(MessageContext)!;
   const [userPrompt, setUserPrompt] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const { isTtsEnabled, setIsTtsEnabled, isSpeaking, speak, cancel, start } = useTts();
@@ -37,6 +37,8 @@ export const Question: React.FC = (): React.ReactElement => {
     if (!prompt && !doc) return;
     start();
 
+    const currentSessionId = activeSession?.id;
+
     const messagesForApi: Message[] = [
       ...(conversation.current || []),
       {
@@ -47,7 +49,7 @@ export const Question: React.FC = (): React.ReactElement => {
     ];
 
     setUserPrompt('');
-    addMessage('user', prompt, doc);
+    addMessage('user', prompt, doc, currentSessionId);
     setLoading(true);
     let sentenceBuffer: string = "";
 
@@ -58,10 +60,10 @@ export const Question: React.FC = (): React.ReactElement => {
         stream: true,
       });
 
-      addMessage('assistant', '');
+      addMessage('assistant', '', undefined, currentSessionId);
       for await (const part of stream) {
         const chunk: string = part.message.content;
-        addChunk(chunk);
+        addChunk(chunk, currentSessionId);
         sentenceBuffer += chunk;
 
         const sentenceEndIndex: number = sentenceBuffer.search(/[.!?]/);
@@ -81,7 +83,7 @@ export const Question: React.FC = (): React.ReactElement => {
       const errorMessage: string = error.name === 'AbortError'
         ? t('request_aborted')
         : `${t('error_prefix')}${error.message || t('unknown_error')}`;
-      addMessage('custom', errorMessage);
+      addMessage('custom', errorMessage, undefined, currentSessionId);
     } finally {
       setDoc(undefined);
       setLoading(false);

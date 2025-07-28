@@ -24,7 +24,7 @@ export const LLMPicker: React.FC = (): React.ReactElement => {
           const sortedModels: ModelResponse[] = data.models.sort((a: ModelResponse, b: ModelResponse) => a.size - b.size);
           if (sortedModels.length) {
             setModels(sortedModels);
-            if (!model) {
+            if (!model && sortedModels[0]) {
               setModel(sortedModels[0].model);
             }
           }
