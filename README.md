@@ -1,93 +1,118 @@
 # OllamaChat
 
-`OllamaChat` est une interface utilisateur interactive basée sur React et TypeScript, conçue pour interagir avec des modèles de langage locaux via Ollama et intégrer la transcription vocale en temps réel. Ce projet offre une expérience de chat fluide avec des fonctionnalités avancées comme la transcription audio, la lecture vocale des réponses du modèle, et la gestion des documents.
+`OllamaChat` is an interactive user interface based on React and TypeScript, designed to interact with local language models via Ollama and integrate real-time voice transcription. This project offers a smooth chat experience with advanced features like audio transcription, voice playback of model responses, and document management.
 
-## Fonctionnalités
+## Overview
 
-*   **Chat avec Ollama :** Interagissez avec des modèles de langage locaux via Ollama.
-*   **Import/Export de Sessions :** Sauvegardez et restaurez vos sessions de chat au format JSON, permettant de les partager ou de les archiver facilement.
-*   **Transcription Vocale (STT) :** Enregistrez votre voix et faites-la transcrire en texte via un backend dédié (comme `ChatServer`).
-*   **Lecture Vocale (TTS) :** Les réponses du modèle sont lues à voix haute pour une expérience plus immersive.
-*   **Gestion des Documents :** Joignez des documents à vos requêtes pour que le modèle puisse les analyser.
-*   **Interface Réactive :** Conçue avec Mantine pour une expérience utilisateur moderne et agréable.
-*   **Typage Fort (TypeScript) :** Le projet est entièrement typé pour une meilleure maintenabilité et détection précoce des erreurs.
+![Application Screenshot](./public/screenshot.png)
+*Screenshot of the main OllamaChat interface.*
 
-## Technologies Utilisées
+## Features
 
-*   **React :** Bibliothèque JavaScript pour la construction d'interfaces utilisateur.
-*   **Vite :** Outil de build rapide pour le développement frontend.
-*   **Mantine :** Bibliothèque de composants React pour une UI élégante.
-*   **Ollama JS :** Client JavaScript pour interagir avec les modèles Ollama.
-*   **Web Speech API :** Pour l'enregistrement audio (`getUserMedia`) et la synthèse vocale (`SpeechSynthesis`).
+*   **Chat with Ollama:** Interact with local LLM via Ollama.
+*   **Import/Export Sessions:** Save and restore your chat sessions in JSON format, allowing for easy sharing or archiving.
+*   **Voice Transcription (STT):** Record your voice and have it transcribed into text via a dedicated backend (like `ChatServer`).
+*   **Text-to-Speech (TTS):** The model's responses are read aloud for a more immersive experience.
+*   **Document Management:** Attach documents to your requests for the model to analyze.
+*   **Internationalization (i18n):** The interface is available in multiple languages thanks to `i18next`.
+*   **Markdown Rendering:** The model's responses are formatted in Markdown for rich display (lists, code, etc.). Reasoning is collapsable.
+*   **Customizable System Prompt:** Define a custom system prompt to guide the model's behavior.
+*   **Strong Typing (TypeScript):** The project is fully typed for better maintainability and early error detection.
 
-## Prérequis
+## Technologies Used
 
-Avant de démarrer l'application, assurez-vous d'avoir les éléments suivants :
+*   **React:** A JavaScript library for building user interfaces.
+*   **Vite:** A fast frontend build tool.
+*   **Mantine:** A React component library for an elegant UI.
+*   **Ollama JS:** A JavaScript client for interacting with Ollama models.
+*   **i18next:** An internationalization framework for React.
+*   **React Markdown:** For rendering model responses in Markdown.
+*   **Web Speech API:** For audio recording (`getUserMedia`) and speech synthesis (`SpeechSynthesis`).
 
-*   **Node.js (version 18 ou supérieure recommandée)**
-*   **npm** ou **Yarn** (gestionnaire de paquets)
-*   **Un serveur Ollama en cours d'exécution** avec les modèles de votre choix (ex: `ollama run mistral`).
-*   **Le backend `ChatServer` en cours d'exécution** (pour la transcription vocale).
+## Prerequisites
 
-## Installation et Démarrage
+Before starting the application, ensure you have the following:
 
-Suivez ces étapes pour configurer et lancer l'application :
+*   **Node.js (version 18 or higher recommended)**
+*   **npm** or **Yarn** (package manager)
+*   **A running Ollama server** with the models of your choice (e.g., `ollama pull mistral`).
+*   **The `ChatServer` backend running** (for voice transcription).
 
-1.  **Naviguez vers le répertoire du projet :**
+## Installation and Startup
+
+Follow these steps to set up and launch the application:
+
+1.  **Navigate to the project directory:**
     ```bash
     cd ./OllamaChat
     ```
 
-2.  **Installez les dépendances :**
+2.  **Install dependencies:**
     ```bash
     npm install
-    # ou
+    # or
     yarn install
     ```
 
-3.  **Configurez l'URL du serveur de transcription :**
-    Créez un fichier `.env` à la racine du projet (`/Users/victor/Projets/AnswR/OllamaChat/.env`) et ajoutez-y l'URL de votre backend `ChatServer` :
+3.  **Configure the transcription server URL:**
+    Create a `.env` file at the root of the project (`/Users/victor/Projets/AnswR/OllamaChat/.env`) and add the URL of your `ChatServer` backend:
     ```
     VITE_OLLAMA_URL=http://127.0.0.1:11434
     VITE_SERVER_URL=http://127.0.0.1:8000
     ```
-    *(Assurez-vous que cette URL correspond à l'adresse où votre `ChatServer` est en cours d'exécution.)*
+    *(Make sure this URL matches the address where your `ChatServer` is running.)*
 
-4.  **Démarrez le serveur de développement :**
+4.  **Start the development server:**
     ```bash
     npm run dev
-    # ou
+    # or
     yarn dev
     ```
-    L'application sera accessible à `http://localhost:5173` (ou un autre port si spécifié par Vite).
+    The application will be accessible at `http://localhost:5173` (or another port if specified by Vite).
 
-## Utilisation
+## Usage
 
-*   **Sélection du Modèle :** Choisissez le modèle Ollama avec lequel vous souhaitez interagir via le sélecteur en haut.
-*   **Saisie de Texte :** Tapez vos questions dans la zone de texte et appuyez sur `Entrée` pour envoyer.
-*   **Transcription Vocale :** Cliquez sur l'icône du microphone pour enregistrer votre voix. Le texte transcrit apparaîtra dans la zone de saisie et sera envoyé au modèle.
-*   **Lecture Vocale :** Activez/désactivez la lecture des réponses du modèle via l'icône de volume. Si une lecture est en cours, cliquer sur l'icône l'arrêtera.
-*   **Ajout de Documents :** Utilisez l'icône de trombone pour joindre un fichier. Son contenu sera ajouté à votre prompt.
+*   **Model Selection:** Choose the Ollama model you want to interact with via the selector at the top.
+*   **Text Input:** Type your questions in the text box and press `Enter` to send.
+*   **Voice Transcription:** Click the microphone icon to record your voice. The transcribed text will appear in the input box and be sent to the model.
+*   **Text-to-Speech:** Enable/disable the reading of model responses via the volume icon. If a reading is in progress, clicking the icon will stop it.
+*   **Adding Documents:** Use the image icon to attach a file. Its content will be added to your prompt. (Right now, only images are considered).
 
-## Structure du Projet
+## Project Structure
 
-*   `src/App.tsx` : Composant racine de l'application.
-*   `src/components/` : Contient les composants réutilisables (Chat, Question, LLMPicker, AudioRecorder, etc.).
-*   `src/context/` : Gère les contextes React pour le partage d'état (messages, modèle Ollama).
-*   `src/hooks/` : Contient les hooks personnalisés (ex: `useTts` pour la synthèse vocale).
-*   `src/models/` : Définitions des types TypeScript.
-*   `src/utils/` : Fonctions utilitaires.
+*   `src/App.tsx`: The root component of the application.
+*   `src/components/`: Contains reusable components:
+    *   `Chat.tsx`: Displays the current conversation.
+    *   `ChatBubble.tsx`: Represents a message bubble in the chat.
+    *   `ChatList.tsx`: Manages the list of conversations.
+    *   `Collapsable.tsx`: A reusable accordion component.
+    *   `DocumentPicker.tsx`: Allows selecting documents to attach.
+    *   `LanguageSwitcher.tsx`: Allows changing the interface language.
+    *   `LLMPicker.tsx`: Allows selecting the language model.
+    *   `Question.tsx`: The input area for asking questions.
+    *   `Record.tsx`: Manages audio recording.
+    *   `SystemPrompt.tsx`: Allows setting a system prompt.
+*   `src/context/`: Manages React contexts for state sharing:
+    *   `AppProviders.tsx`: A component that wraps all context providers.
+    *   `MessageContext.tsx`: Manages messages in the active conversation.
+    *   `ModelContext.tsx`: Manages the selected language model.
+    *   `OllamaContext.tsx`: Manages the connection with the Ollama server.
+*   `src/hooks/`: Contains custom hooks:
+    *   `useTts.ts`: Manages Text-to-Speech.
+*   `src/locales/`: Contains translation files for internationalization.
+*   `src/models/`: TypeScript type definitions.
+*   `src/utils/`: Utility functions.
 
-## Développement
+## Development
 
-Le projet utilise Vite pour un développement rapide. Les commandes clés sont :
+The project uses Vite for rapid development. The key commands are:
 
-*   `npm run dev` : Démarre le serveur de développement.
-*   `npm run build` : Compile l'application pour la production.
-*   `npm run lint` : Exécute ESLint pour vérifier le code.
-*   `npm run preview` : Prévisualise la version de production.
+*   `npm run dev`: Starts the development server.
+*   `npm run build`: Compiles the application for production.
+*   `npm run lint`: Runs ESLint to check the code.
+*   `npm run preview`: Previews the production build.
 
 ## Notes
 
-*   En mode développement, vous pourriez observer certains effets de bord (comme des logs en double) dus au `StrictMode` de React. Ces comportements sont normaux et n'affectent pas la version de production.
-*   Assurez-vous que votre serveur Ollama est accessible depuis l'URL configurée dans `VITE_OLLAMA_URL` dans votre fichier `.env`.
+*   In development mode, you might observe some side effects (like duplicate logs) due to React's `StrictMode`. This behavior is normal and does not affect the production version.
+*   Ensure that your Ollama server is accessible from the URL configured in `VITE_OLLAMA_URL` in your `.env` file.

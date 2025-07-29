@@ -14,7 +14,7 @@ export const Chat: React.FC = (): React.ReactElement => {
   const [showBottomArrow, setShowBottomArrow] = useState<boolean>(true);
   const chatRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { 
+  useEffect(() => {
     const chatEl: HTMLDivElement = chatRef.current!;
     if (!chatEl) return;
     const handleScroll = (): void => {
@@ -29,8 +29,12 @@ export const Chat: React.FC = (): React.ReactElement => {
     return () => chatEl.removeEventListener("scroll", handleScroll);
   }, [activeSession?.messages]);
 
+  useEffect(() => {
+    scrollToBottom(true);
+  }, [activeSession]);
+
   const scrollToTop = (): void => {
-    if (chatRef.current) chatRef.current.scrollTop = 0;
+    if (chatRef.current) chatRef.current.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const scrollToBottom = (force: boolean = false): void => {
@@ -39,7 +43,7 @@ export const Chat: React.FC = (): React.ReactElement => {
     const isNearBottom: boolean = el.scrollHeight - el.scrollTop - el.clientHeight < 90;
 
     if (isNearBottom || force) {
-      el.scrollTop = el.scrollHeight;
+      el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
     }
   };
 

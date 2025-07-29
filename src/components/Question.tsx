@@ -79,10 +79,10 @@ export const Question: React.FC = (): React.ReactElement => {
         speak(sentenceBuffer);
       }
 
-    } catch (error: any) {
-      const errorMessage: string = error.name === 'AbortError'
+    } catch (error) {
+      const errorMessage: string = (error as Error).name === 'AbortError'
         ? t('request_aborted')
-        : `${t('error_prefix')}${error.message || t('unknown_error')}`;
+        : `${t('error_prefix')}${(error as Error).message || t('unknown_error')}`;
       addMessage('custom', errorMessage, undefined, currentSessionId);
     } finally {
       setDoc(undefined);

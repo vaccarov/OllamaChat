@@ -12,11 +12,11 @@ type ChatProps = {
 };
 
 export default function ChatBubble({ message }: ChatProps): React.ReactElement | null {
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const messageContext: MessageContextType | undefined = useContext(MessageContext);
   if (!messageContext) return null;
 
   const { collapsibleStates, toggleCollapsible } = messageContext;
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const isCollapsibleOpen: boolean = collapsibleStates.get(message.date) || false;
   const handleToggleCollapsible = (): void => toggleCollapsible(message.date);

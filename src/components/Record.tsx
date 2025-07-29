@@ -29,7 +29,7 @@ export default function AudioRecorder({ onTranscript }: AudioRecorderProps): Rea
         }
       };
 
-      mediaRecorderRef.current.onstop = async (e: Event): Promise<void> => {
+      mediaRecorderRef.current.onstop = async (): Promise<void> => {
         const audioBlob: Blob = new Blob(chunks, { type: 'audio/webm' });
         
         const formData: FormData = new FormData();
@@ -50,7 +50,7 @@ export default function AudioRecorder({ onTranscript }: AudioRecorderProps): Rea
 
           const json: { transcript: string } = await res.json();
           onTranscript(json.transcript);
-        } catch (error: any) {
+        } catch (error) {
           console.error(t('error_sending_audio'), error);
           onTranscript(t('error_contacting_transcription_server'));
         }
@@ -58,7 +58,7 @@ export default function AudioRecorder({ onTranscript }: AudioRecorderProps): Rea
 
       recorder.start();
       setRecording(true);
-    } catch (error: any) {
+    } catch (error) {
       console.error(t('microphone_access_error'), error);
       alert(t('microphone_access_required'));
     }

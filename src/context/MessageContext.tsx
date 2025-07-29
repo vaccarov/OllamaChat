@@ -53,20 +53,6 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
     return { sessions: [newSession], activeSessionId: newSession.id };
   });
 
-  useEffect(() => {
-    if (model && chatHistory.activeSessionId) {
-      setChatHistory((prev: ChatHistory) => {
-        const activeSession: ChatSession | undefined = prev.sessions.find((s: ChatSession) => s.id === prev.activeSessionId);
-        if (activeSession && activeSession.model === '') { // Only update if model is not already set
-          const sessions: ChatSession[] = prev.sessions.map((s: ChatSession) =>
-            s.id === prev.activeSessionId ? { ...s, model } : s
-          );
-          return { ...prev, sessions };
-        }
-        return prev;
-      });
-    }
-  }, [model, chatHistory.activeSessionId]);
 
   const [doc, setDoc] = useState<DocumentToSend | undefined>();
   const conversation = useRef<Message[]>([]);

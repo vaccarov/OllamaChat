@@ -28,14 +28,14 @@ export const LLMPicker: React.FC = (): React.ReactElement => {
               setModel(sortedModels[0].model);
             }
           }
-        } catch (error: any) {
+        } catch (error) {
           console.error(t('error_fetching_models'), error);
         }
       };
       fetchModels();
       hasFetched.current = true;
     }
-  }, [model, setModel, ollama]);
+  }, [model, setModel, ollama, t]);
 
   const handleModelChange = (selectedModel: string | null): void => {
     if (selectedModel) {
