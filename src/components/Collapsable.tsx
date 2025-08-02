@@ -16,7 +16,7 @@ export function Collapsible({ children, isOpen, onToggle }: CollapsibleProps): R
   return (
     <div className="thinkTag">
 			<div className="thinkButton" onClick={onToggle}>
-				{isOpen ? t('hide') : t('reasoning')}
+				{isOpen ? t('common.hide') : t('common.reasoning')}
 				{isOpen ? <ChevronUp /> : <ChevronDown />}
 			</div>
       {isOpen && (

@@ -81,8 +81,8 @@ export const Question: React.FC = (): React.ReactElement => {
 
     } catch (error) {
       const errorMessage: string = (error as Error).name === 'AbortError'
-        ? t('request_aborted')
-        : `${t('error_prefix')}${(error as Error).message || t('unknown_error')}`;
+        ? t('errors.request_aborted')
+        : `${t('errors.prefix')}${(error as Error).message || t('errors.unknown')}`;
       addMessage('custom', errorMessage, undefined, currentSessionId);
     } finally {
       setDoc(undefined);
@@ -108,7 +108,7 @@ export const Question: React.FC = (): React.ReactElement => {
       </Chip>}
       <Textarea
         className="questionArea"
-        placeholder={t('chat_placeholder')}
+        placeholder={t('chat.placeholder')}
         value={userPrompt}
         onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setUserPrompt(event.currentTarget.value)}
         onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -123,7 +123,7 @@ export const Question: React.FC = (): React.ReactElement => {
       <ActionIcon
         variant="subtle"
         onClick={handleTtsButtonClick}
-        title={isTtsEnabled ? (isSpeaking ? t('stop_reading') : t('disable_audio_reading')) : t('enable_audio_reading')}>
+        title={isTtsEnabled ? (isSpeaking ? t('audio.stop_reading') : t('audio.disable_reading')) : t('audio.enable_reading')}>
         {isTtsEnabled ? <Volume2 color="white" /> : <VolumeX color="white" />}
       </ActionIcon>
       <ActionIcon

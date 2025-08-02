@@ -29,7 +29,7 @@ export const LLMPicker: React.FC = (): React.ReactElement => {
             }
           }
         } catch (error) {
-          console.error(t('error_fetching_models'), error);
+          console.error(t('errors.fetching_models'), error);
         }
       };
       fetchModels();
@@ -41,13 +41,13 @@ export const LLMPicker: React.FC = (): React.ReactElement => {
     if (selectedModel) {
       setModel(selectedModel);
       updateModel(selectedModel);
-      addMessage('custom', modelChanged(t, selectedModel));
+      addMessage('custom', t('model.changed', { selectedModel }));
     }
   };
 
   return (
     <Select
-      placeholder={t('select_model')}
+      placeholder={t('model.select')}
       value={model}
       onChange={handleModelChange}
       data={models.map((m: ModelResponse) => ({

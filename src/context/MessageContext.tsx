@@ -33,7 +33,7 @@ export const MessageContext = createContext<MessageContextType | undefined>(unde
 export const MessageProvider = ({ children }: { children: React.ReactNode }) => {
   const { t } = useTranslation();
 
-  const createNewSession = useCallback((systemPrompt: string, model: string = '', name: string = t('new_chat_default_name')): ChatSession => ({
+  const createNewSession = useCallback((systemPrompt: string, model: string = '', name: string = t('chat.new_chat_default_name')): ChatSession => ({
     id: uuidv4(),
     name,
     messages: [{ role: 'system', content: systemPrompt, date: new Date().toISOString() }],
@@ -49,7 +49,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
       const parsedHistory: ChatHistory = JSON.parse(savedHistory);
       return parsedHistory;
     }
-    const newSession: ChatSession = createNewSession(t('system_prompt_content'), '', t('new_chat_default_name')); 
+    const newSession: ChatSession = createNewSession(t('system_prompt.content'), '', t('chat.new_chat_default_name')); 
     return { sessions: [newSession], activeSessionId: newSession.id };
   });
 
@@ -111,7 +111,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
 
   const startNewSession = useCallback((name: string) => {
     setChatHistory((prev: ChatHistory) => {
-      const newSession: ChatSession = createNewSession(t('system_prompt_content'), model, name);
+      const newSession: ChatSession = createNewSession(t('system_prompt.content'), model, name);
       return { sessions: [...prev.sessions, newSession], activeSessionId: newSession.id };
     });
   }, [model]);
@@ -165,7 +165,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
     setChatHistory((prev: ChatHistory) => {
       const sessions: ChatSession[] = prev.sessions.filter((s: ChatSession) => s.id !== id);
       if (sessions.length === 0) {
-        const newSession: ChatSession = createNewSession(t('system_prompt_content'), model, t('new_chat_default_name'));
+        const newSession: ChatSession = createNewSession(t('system_prompt.content'), model, t('chat.new_chat_default_name'));
         return { sessions: [newSession], activeSessionId: newSession.id };
       }
       if (prev.activeSessionId === id) {
@@ -179,7 +179,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
     setChatHistory((prev: ChatHistory) => {
       const sessionToDuplicate: ChatSession | undefined = prev.sessions.find((s: ChatSession) => s.id === id);
       if (!sessionToDuplicate) return prev;
-      const newSession: ChatSession = { ...sessionToDuplicate, id: uuidv4(), name: `${sessionToDuplicate.name}${t('copy_suffix')}` };
+      const newSession: ChatSession = { ...sessionToDuplicate, id: uuidv4(), name: `${sessionToDuplicate.name}${t('chat.copy_suffix')}` };
       return { ...prev, sessions: [...prev.sessions, newSession], activeSessionId: newSession.id };
     });
   }, []);
@@ -190,7 +190,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
     const url: string = URL.createObjectURL(blob);
     const a: HTMLAnchorElement = document.createElement('a');
     a.href = url;
-    a.download = t('chat_history_filename');
+    a.download = t('chat.history.filename');
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -203,12 +203,12 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
       if (importedHistory && Array.isArray(importedHistory.sessions) && typeof importedHistory.activeSessionId === 'string') {
         setChatHistory(importedHistory);
       } else {
-        console.error(t('invalid_chat_history_format'), importedHistory);
-        alert(t('invalid_chat_history_format'));
+        console.error(t('chat.history.invalid_format'), importedHistory);
+        alert(t('chat.history.invalid_format'));
       }
     } catch (error) {
-      console.error(t('error_parsing_chat_history_json'), error);
-      alert(t('error_parsing_chat_history_json'));
+      console.error(t('chat.history.parsing_error'), error);
+      alert(t('chat.history.parsing_error'));
     }
   }, []);
 

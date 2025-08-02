@@ -23,14 +23,14 @@ export function ChatList(): React.ReactElement {
   }: MessageContextType = useContext(MessageContext)!;
 
   const handleRename = (id: string) => {
-    const newName = prompt(t('chat_name_prompt'));
+    const newName = prompt(t('chat.name_prompt'));
     if (newName) {
       renameSession(id, newName);
     }
   };
 
   const handleNewChat = () => {
-    const newName = prompt(t('chat_name_prompt'));
+    const newName = prompt(t('chat.name_prompt'));
     if (newName) {
       startNewSession(newName);
     }
@@ -57,7 +57,7 @@ export function ChatList(): React.ReactElement {
   return (
     <div className="chatListContainer">
       <Button onClick={handleNewChat} fullWidth color={'var(--maincolor)'} variant='light' leftSection={<Plus size={16} />}>
-        {t('new_chat')}
+        {t('chat.new')}
       </Button>
       <div className="chatList">
         {sessions.map((session: ChatSession) => (
@@ -78,14 +78,14 @@ export function ChatList(): React.ReactElement {
 
               <Menu.Dropdown>
                 <Menu.Item leftSection={<Edit size={14} />} onClick={() => handleRename(session.id)}>
-                  {t('rename')}
+                  {t('chat.rename')}
                 </Menu.Item>
                 <Menu.Item leftSection={<Copy size={14} />} onClick={() => duplicateSession(session.id)}>
-                  {t('duplicate')}
+                  {t('chat.duplicate')}
                 </Menu.Item>
                 <Menu.Divider />
                 <Menu.Item color="red" leftSection={<Trash2 size={14} />} onClick={() => deleteSession(session.id)}>
-                  {t('delete')}
+                  {t('chat.delete')}
                 </Menu.Item>
               </Menu.Dropdown>
             </Menu>
@@ -97,10 +97,10 @@ export function ChatList(): React.ReactElement {
           <ActionIcon
             onClick={exportSessions}
             color={'var(--maincolor)'} variant="light"
-            title={t('export_sessions')}>
+            title={t('chat.export')}>
             <Download size={16} />
           </ActionIcon>
-          <ActionIcon onClick={handleImportClick} color={'var(--maincolor)'} variant="light" title={t('import_sessions')}>
+          <ActionIcon onClick={handleImportClick} color={'var(--maincolor)'} variant="light" title={t('chat.import')}>
             <Upload size={16} />
           </ActionIcon>
           <input

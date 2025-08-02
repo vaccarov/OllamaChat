@@ -43,24 +43,24 @@ export default function AudioRecorder({ onTranscript }: AudioRecorderProps): Rea
           });
 
           if (!res.ok) {
-            console.error(t('server_error'), res.status, res.statusText);
-            onTranscript(t('transcription_error_code', { code: res.status }));
+            console.error(t('errors.server'), res.status, res.statusText);
+            onTranscript(t('errors.transcription_code', { code: res.status }));
             return;
           }
 
           const json: { transcript: string } = await res.json();
           onTranscript(json.transcript);
         } catch (error) {
-          console.error(t('error_sending_audio'), error);
-          onTranscript(t('error_contacting_transcription_server'));
+          console.error(t('errors.sending_audio'), error);
+          onTranscript(t('errors.contacting_transcription_server'));
         }
       };
 
       recorder.start();
       setRecording(true);
     } catch (error) {
-      console.error(t('microphone_access_error'), error);
-      alert(t('microphone_access_required'));
+      console.error(t('errors.microphone_access'), error);
+      alert(t('errors.microphone_required'));
     }
   };
 
@@ -103,7 +103,7 @@ export default function AudioRecorder({ onTranscript }: AudioRecorderProps): Rea
         variant="subtle"
         color="white"
         onClick={handleRecordClick}
-        title={recording ? t('stop_recording') : t('start_recording')}
+        title={recording ? t('audio.stop_recording') : t('audio.start_recording')}
       >
         {recording ? <MicOff color="red"/> : <Mic />}
       </ActionIcon>

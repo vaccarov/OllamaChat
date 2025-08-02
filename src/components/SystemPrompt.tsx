@@ -34,7 +34,7 @@ export const SystemPrompt: React.FC = (): React.ReactElement => {
           color={'var(--maincolor)'} 
           variant="light"
           onClick={handleUpdate}
-          title={t('update_button')}>
+          title={t('system_prompt.update')}>
           <Edit size={14} />
         </ActionIcon>
     </div>

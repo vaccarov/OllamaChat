@@ -36,7 +36,7 @@ Before starting the application, ensure you have the following:
 *   **Node.js (version 18 or higher recommended)**
 *   **npm** or **Yarn** (package manager)
 *   **A running Ollama server** with the models of your choice (e.g., `ollama pull mistral`).
-*   **The `ChatServer` backend running** (for voice transcription).
+*   **The `ChatServer` backend running** (for voice transcription), available at https://github.com/vaccarov/ChatServer.
 
 ## Installation and Startup
 

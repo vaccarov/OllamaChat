@@ -14,7 +14,7 @@ const LanguageSwitcher = () => {
         value={i18n.language}
         onChange={(e) => changeLanguage(e.target.value)}
         className="flagPicker"
-        title={t('language')}
+        title={t('common.language')}
       >
         <option value="fr">🇫🇷</option>
         <option value="en">🇬🇧</option>

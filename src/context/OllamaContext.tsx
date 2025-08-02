@@ -18,7 +18,7 @@ export const OllamaProvider = ({ children }: { children: React.ReactNode }) => {
 export const useOllama = () => {
   const context = useContext(OllamaContext);
   if (!context) {
-    throw new Error(t('use_ollama_error'));
+    throw new Error('useOllama must be used within an OllamaProvider');
   }
   return context.ollama;
 };
