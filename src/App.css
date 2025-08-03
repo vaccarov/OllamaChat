@@ -1,6 +1,6 @@
 .appContainer {
   display: flex;
-  height: 100vh;
+  height: var(--app-height);
   width: 100vw;
 }
 

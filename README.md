@@ -54,13 +54,14 @@ Follow these steps to set up and launch the application:
     yarn install
     ```
 
-3.  **Configure the transcription server URL:**
-    Create a `.env` file at the root of the project (`/Users/victor/Projets/AnswR/OllamaChat/.env`) and add the URL of your `ChatServer` backend:
+3.  **Configure environment variables:**
+    Create a `.env` file at the root of the project (`/Users/victor/Projets/AnswR/OllamaChat/.env`) and add the following variables:
     ```
-    VITE_OLLAMA_URL=http://127.0.0.1:11434
-    VITE_SERVER_URL=http://127.0.0.1:8000
+    VITE_OLLAMA_HOST=localhost
+    VITE_OLLAMA_PORT=11434
+    VITE_SERVER_URL=http://localhost:8000
     ```
-    *(Make sure this URL matches the address where your `ChatServer` is running.)*
+    *(`VITE_OLLAMA_HOST` is used for proxying Ollama requests. `VITE_SERVER_URL` should match the address where your `ChatServer` is running, but is not mandatory if you don't use speech to text)*
 
 4.  **Start the development server:**
     ```bash

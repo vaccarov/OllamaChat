@@ -3,13 +3,31 @@ import { LLMPicker } from "@/components/LLMPicker";
 import { Question } from "@/components/Question";
 import { SystemPrompt } from "@/components/SystemPrompt";
 import { ActionIcon } from "@mantine/core";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Menu, X } from "react-feather";
 import "./App.css";
 import { ChatList } from "./components/ChatList";
 
 const App: React.FC = (): React.ReactElement => {
-  const [showChatList, setShowChatList] = useState<boolean>(true);
+  const [showChatList, setShowChatList] = useState<boolean>(() => {
+    const saved = localStorage.getItem('showChatList');
+    return saved ? JSON.parse(saved) : false;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('showChatList', JSON.stringify(showChatList));
+  }, [showChatList]);
+
+  // Adapt height for mobile use in browser
+  useEffect(() => {
+    const setAppHeight = () => {
+      const doc = document.documentElement;
+      doc.style.setProperty('--app-height', `${window.innerHeight}px`);
+    };
+    window.addEventListener('resize', setAppHeight);
+    setAppHeight();
+    return () => window.removeEventListener('resize', setAppHeight);
+  }, []);
 
   const toggleChatList = () => {
     setShowChatList(!showChatList);
