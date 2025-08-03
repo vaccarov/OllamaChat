@@ -11,7 +11,7 @@ type AudioRecorderProps = {
 export default function AudioRecorder({ onTranscript }: AudioRecorderProps): React.ReactElement {
   const { t } = useTranslation();
   const [recording, setRecording] = useState<boolean>(false);
-  const [lang] = useState<string>('fr');
+  const [lang, setLang] = useState<string>(localStorage.getItem('speechLang') || 'fr');
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
@@ -85,20 +85,24 @@ export default function AudioRecorder({ onTranscript }: AudioRecorderProps): Rea
 
   return (
     <div className="langContainer">
-      {/* <select
+      <select
         id="language"
         value={lang}
-        onChange={(e) => setLang(e.target.value)}
+        onChange={(e) => {
+          setLang(e.target.value);
+          localStorage.setItem('speechLang', e.target.value);
+        }}
         className="flagPicker"
         title="Langue pour la transcription"
       >
         <option value="fr">🇫🇷</option>
         <option value="en">🇬🇧</option>
         <option value="zh">🇨🇳</option>
+        <option value="ja">🇯🇵</option>
         <option value="es">🇪🇸</option>
         <option value="de">🇩🇪</option>
         <option value="it">🇮🇹</option>
-      </select> */}
+      </select>
       <ActionIcon
         variant="subtle"
         color="white"
