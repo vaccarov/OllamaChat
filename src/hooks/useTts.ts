@@ -31,7 +31,7 @@ export const useTts = () => {
       utterance.onend = (): void => {
         setTimeout((): void => {
           setIsSpeaking(false);
-          processQueue(); // Lance la phrase suivante
+          processQueue();
         }, 150);
       };
       utterance.onerror = (e: SpeechSynthesisErrorEvent): void => {

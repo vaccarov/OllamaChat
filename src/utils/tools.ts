@@ -12,3 +12,16 @@ export const formatSize = (bytes: number): string => {
     // Retourner la taille formatée avec 2 décimales
     return `${size.toFixed(2)} ${units[i]}`;
 };
+
+export const mapIsoToBcp47 = (isoCode: string): string => {
+    switch (isoCode) {
+        case 'en': return 'en-US';
+        case 'fr': return 'fr-FR';
+        case 'zh': return 'zh-CN';
+        case 'ja': return 'ja-JP';
+        case 'es': return 'es-ES';
+        case 'de': return 'de-DE';
+        case 'it': return 'it-IT';
+        default: return 'fr-FR';
+    }
+};

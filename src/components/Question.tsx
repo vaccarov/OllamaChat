@@ -2,10 +2,11 @@ import { MessageContext, MessageContextType } from "@/context/MessageContextDefi
 import { ModelContext, ModelContextType } from "@/context/ModelContextDefinition";
 import { useOllama } from "@/hooks/useOllama";
 import { useTts } from "@/hooks/useTts";
-import { ActionIcon, Chip, Textarea } from "@mantine/core";
+import { mapIsoToBcp47 } from "@/utils/tools";
+import { ActionIcon, Chip, Textarea, Menu } from "@mantine/core";
 import { AbortableAsyncIterator, ChatResponse, Message } from "ollama";
 import React, { useContext, useState } from "react";
-import { Loader, Play, Volume2, VolumeX, X } from "react-feather";
+import { Loader, Play, Volume2, VolumeX, X, MoreVertical } from "react-feather";
 import { useTranslation } from "react-i18next";
 import DocumentPicker from "./DocumentPicker";
 import "./Question.css";
@@ -52,6 +53,7 @@ export const Question: React.FC = (): React.ReactElement => {
     addMessage('user', prompt, doc, currentSessionId);
     setLoading(true);
     let sentenceBuffer: string = "";
+    const currentSpeechLang = mapIsoToBcp47(localStorage.getItem('speechLang') || 'fr');
 
     try {
       const stream: AbortableAsyncIterator<ChatResponse> = await ollama.chat({
@@ -70,13 +72,13 @@ export const Question: React.FC = (): React.ReactElement => {
 
         if (sentenceEndIndex !== -1) {
           const sentence: string = sentenceBuffer.substring(0, sentenceEndIndex + 1);
-          speak(sentence);
+          speak(sentence, currentSpeechLang);
           sentenceBuffer = sentenceBuffer.substring(sentenceEndIndex + 1);
         }
       }
 
       if (sentenceBuffer.trim()) {
-        speak(sentenceBuffer);
+        speak(sentenceBuffer, currentSpeechLang);
       }
 
     } catch (error) {
@@ -98,8 +100,27 @@ export const Question: React.FC = (): React.ReactElement => {
 
   return (
     <div className="questionContainer">
-      <AudioRecorder onTranscript={handleTranscript} />
-      <DocumentPicker />
+      <Menu shadow="md" width={200}>
+        <Menu.Target>
+          <ActionIcon variant="subtle" title={t('menu.options')}>
+            <MoreVertical color="white" />
+          </ActionIcon>
+        </Menu.Target>
+
+        <Menu.Dropdown>
+          <div className="menu-items-horizontal">
+            <AudioRecorder onTranscript={handleTranscript} />
+            <ActionIcon
+              variant="subtle"
+              onClick={handleTtsButtonClick}
+              title={isTtsEnabled ? (isSpeaking ? t('audio.stop_reading') : t('audio.disable_reading')) : t('audio.enable_reading')}>
+              {isTtsEnabled ? <Volume2 color="white" /> : <VolumeX color="white" />}
+            </ActionIcon>
+            <DocumentPicker />
+          </div>
+        </Menu.Dropdown>
+      </Menu>
+
       {doc && <Chip
         icon={<X size={16} color="white" />}
         onClick={() => setDoc(undefined)}
@@ -120,12 +141,6 @@ export const Question: React.FC = (): React.ReactElement => {
         maxRows={10}
         autosize
       />
-      <ActionIcon
-        variant="subtle"
-        onClick={handleTtsButtonClick}
-        title={isTtsEnabled ? (isSpeaking ? t('audio.stop_reading') : t('audio.disable_reading')) : t('audio.enable_reading')}>
-        {isTtsEnabled ? <Volume2 color="white" /> : <VolumeX color="white" />}
-      </ActionIcon>
       <ActionIcon
         variant="subtle"
         disabled={!model}
