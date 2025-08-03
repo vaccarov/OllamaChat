@@ -1,4 +1,4 @@
-import { MessageContext, MessageContextType } from "@/context/MessageContext";
+import { MessageContext, MessageContextType } from "@/context/MessageContextDefinition";
 import { DocumentToSend } from "@/models/DocumentToSend";
 import { ActionIcon } from "@mantine/core";
 import React, { memo, useContext, useRef } from "react";

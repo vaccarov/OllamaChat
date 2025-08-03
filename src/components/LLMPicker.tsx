@@ -1,7 +1,6 @@
-import { MessageContext, MessageContextType } from "@/context/MessageContext";
-import { ModelContext, ModelContextType } from "@/context/ModelContext";
-import { useOllama } from "@/context/OllamaContext";
-import { modelChanged } from "@/utils/constants";
+import { MessageContext, MessageContextType } from "@/context/MessageContextDefinition";
+import { ModelContext, ModelContextType } from "@/context/ModelContextDefinition";
+import { useOllama } from "@/hooks/useOllama";
 import { Select } from "@mantine/core";
 import { ListResponse, ModelResponse } from "ollama/browser";
 import React, { useContext, useEffect, useRef, useState } from "react";

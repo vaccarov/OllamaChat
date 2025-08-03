@@ -1,6 +1,6 @@
-import { MessageContext, MessageContextType } from "@/context/MessageContext";
-import { ModelContext, ModelContextType } from "@/context/ModelContext";
-import { useOllama } from "@/context/OllamaContext";
+import { MessageContext, MessageContextType } from "@/context/MessageContextDefinition";
+import { ModelContext, ModelContextType } from "@/context/ModelContextDefinition";
+import { useOllama } from "@/hooks/useOllama";
 import { useTts } from "@/hooks/useTts";
 import { ActionIcon, Chip, Textarea } from "@mantine/core";
 import { AbortableAsyncIterator, ChatResponse, Message } from "ollama";

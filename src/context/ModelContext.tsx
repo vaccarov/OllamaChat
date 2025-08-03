@@ -1,11 +1,5 @@
-import React, { createContext, useEffect, useState } from 'react';
-
-export type ModelContextType = {
-  model: string;
-  setModel: (newModel: string) => void;
-};
-
-export const ModelContext = createContext<ModelContextType | undefined>(undefined);
+import React, { useEffect, useState } from 'react';
+import { ModelContext } from './ModelContextDefinition';
 
 export const ModelProvider = ({ children }: { children: React.ReactNode }) => {
   const [model, setModel] = useState<string>(() => {

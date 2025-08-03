@@ -1,4 +1,4 @@
-import { MessageContext, MessageContextType } from "@/context/MessageContext";
+import { MessageContext, MessageContextType } from "@/context/MessageContextDefinition";
 import { ActionIcon, Textarea } from "@mantine/core";
 import React, { useContext, useEffect, useState } from "react";
 import { Edit } from "react-feather";

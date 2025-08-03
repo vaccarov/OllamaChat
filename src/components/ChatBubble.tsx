@@ -1,4 +1,4 @@
-import { MessageContext, MessageContextType } from "@/context/MessageContext";
+import { MessageContext, MessageContextType } from "@/context/MessageContextDefinition";
 import { ChatText } from "@/models/ChatText";
 import { Modal } from "@mantine/core";
 import { useContext, useState } from "react";

@@ -2,33 +2,12 @@ import { ChatHistory, ChatSession } from '@/models/ChatHistory';
 import { ChatText } from '@/models/ChatText';
 import { DocumentToSend } from '@/models/DocumentToSend';
 import { Message } from 'ollama';
-import React, { createContext, Dispatch, RefObject, SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
-import { ModelContext } from './ModelContext';
+import { ModelContext } from './ModelContextDefinition';
 
-export type MessageContextType = {
-  activeSession: ChatSession | undefined;
-  sessions: ChatSession[];
-  doc: DocumentToSend | undefined;
-  conversation: RefObject<Message[]>;
-  setDoc: Dispatch<SetStateAction<DocumentToSend | undefined>>;
-  addMessage: (role: string, content: string, doc?: DocumentToSend, sessionId?: string) => void;
-  addChunk: (chunk: string, sessionId?: string) => void;
-  startNewSession: (name: string) => void;
-  setActiveSessionId: (id: string) => void;
-  updateSystemPrompt: (prompt: string) => void;
-  updateModel: (model: string) => void;
-  collapsibleStates: Map<string | undefined, boolean>;
-  toggleCollapsible: (messageDate: string | undefined) => void;
-  renameSession: (id: string, name: string) => void;
-  deleteSession: (id: string) => void;
-  duplicateSession: (id: string) => void;
-  exportSessions: () => void;
-  importSessions: (jsonString: string) => void;
-};
-
-export const MessageContext = createContext<MessageContextType | undefined>(undefined);
+import { MessageContext } from './MessageContextDefinition';
 
 export const MessageProvider = ({ children }: { children: React.ReactNode }) => {
   const { t } = useTranslation();
@@ -42,7 +21,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
   }), [t]);
   const modelContext = React.useContext(ModelContext);
   const model: string = modelContext?.model || '';
-  const setModel: (newModel: string) => void = modelContext?.setModel || (() => {});
+  const setModel: (newModel: string) => void = React.useMemo(() => modelContext?.setModel || (() => {}), [modelContext?.setModel]);
   const [chatHistory, setChatHistory] = useState<ChatHistory>(() => {
     const savedHistory: string | null = localStorage.getItem('chatHistory');
     if (savedHistory) {
@@ -114,7 +93,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
       const newSession: ChatSession = createNewSession(t('system_prompt.content'), model, name);
       return { sessions: [...prev.sessions, newSession], activeSessionId: newSession.id };
     });
-  }, [model]);
+  }, [createNewSession, model, t]);
 
   const setActiveSessionId = useCallback((id: string) => {
     setChatHistory((prev: ChatHistory) => ({ ...prev, activeSessionId: id }));
@@ -173,7 +152,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
       }
       return { ...prev, sessions };
     });
-  }, [model]);
+  }, [createNewSession, model, t]);
 
   const duplicateSession = useCallback((id: string) => {
     setChatHistory((prev: ChatHistory) => {
@@ -182,7 +161,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
       const newSession: ChatSession = { ...sessionToDuplicate, id: uuidv4(), name: `${sessionToDuplicate.name}${t('chat.copy_suffix')}` };
       return { ...prev, sessions: [...prev.sessions, newSession], activeSessionId: newSession.id };
     });
-  }, []);
+  }, [t]);
 
   const exportSessions = useCallback((): void => {
     const json: string = JSON.stringify(chatHistory, null, 2);
@@ -195,7 +174,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  }, [chatHistory]);
+  }, [chatHistory, t]);
 
   const importSessions = useCallback((jsonString: string) => {
     try {
@@ -210,7 +189,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
       console.error(t('chat.history.parsing_error'), error);
       alert(t('chat.history.parsing_error'));
     }
-  }, []);
+  }, [t]);
 
   return (
     <MessageContext.Provider value={{

@@ -1,4 +1,4 @@
-import { MessageContext } from "@/context/MessageContext";
+import { MessageContext } from "@/context/MessageContextDefinition";
 import { ChatSession } from "@/models/ChatHistory";
 import { ChatText } from "@/models/ChatText";
 import { ActionIcon } from "@mantine/core";

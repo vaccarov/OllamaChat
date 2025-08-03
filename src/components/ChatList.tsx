@@ -1,4 +1,4 @@
-import { MessageContext, MessageContextType } from '@/context/MessageContext';
+import { MessageContext, MessageContextType } from '@/context/MessageContextDefinition';
 import { ChatSession } from '@/models/ChatHistory';
 import { ActionIcon, Button, Menu, NavLink } from '@mantine/core';
 import { useContext, useRef } from 'react';
@@ -93,6 +93,7 @@ export function ChatList(): React.ReactElement {
         ))}
       </div>
       <div className="sessionActions">
+        <LanguageSwitcher />
         <div className="importExport">
           <ActionIcon
             onClick={exportSessions}
@@ -111,7 +112,6 @@ export function ChatList(): React.ReactElement {
             onChange={handleFileChange}
           />
         </div>
-        <LanguageSwitcher />
       </div>
     </div>
   );

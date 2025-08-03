@@ -1,7 +1,6 @@
-import React, { createContext, useContext, useMemo } from 'react';
 import { Ollama } from 'ollama';
-
-const OllamaContext = createContext<{ollama: Ollama} | undefined>(undefined);
+import React, { useMemo } from 'react';
+import { OllamaContext } from './OllamaContextDefinition';
 
 export const OllamaProvider = ({ children }: { children: React.ReactNode }) => {
   const ollama = useMemo(() => {
@@ -15,10 +14,4 @@ export const OllamaProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export const useOllama = () => {
-  const context = useContext(OllamaContext);
-  if (!context) {
-    throw new Error('useOllama must be used within an OllamaProvider');
-  }
-  return context.ollama;
-};
+
