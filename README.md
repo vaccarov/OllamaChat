@@ -2,10 +2,10 @@
 
 `OllamaChat` is an interactive user interface based on React and TypeScript, designed to interact with local language models via Ollama and integrate real-time voice transcription. This project offers a smooth chat experience with advanced features like audio transcription, voice playback of model responses, and document management.
 
-## Overview
+## Overview (desktop & mobile)
 
-![Application Screenshot](./public/screenshot.png)
-*Screenshot of the main OllamaChat interface.*
+<img src="./public/screenshot.png" />
+<img src="./public/mobile.png" height="400" />
 
 ## Features
 
@@ -18,6 +18,38 @@
 *   **Markdown Rendering:** The model's responses are formatted in Markdown for rich display (lists, code, etc.). Reasoning is collapsable.
 *   **Customizable System Prompt:** Define a custom system prompt to guide the model's behavior.
 *   **Strong Typing (TypeScript):** The project is fully typed for better maintainability and early error detection.
+
+## Request Flow
+
+### Chat Request Flow (to Ollama)
+
+The Vite server acts as a proxy to avoid CORS issues when communicating with the Ollama server.
+
+```
+  Client/Browser          Vite Server (Proxy)            Ollama Server
+       |--- 1. Chat Request ------>|                           |
+       |                           |-- 2. Forwarded Request -->|
+       |                           |                           |---[ 3. Process request ]
+       |                           |                           |          |
+       |                           |                           |<---------+
+       |<-- 5. Streamed Response --|<--- 4. LLM Response ------|
+       
+```
+
+### Audio Transcription Flow (with Whisper)
+
+The backend `ChatServer` uses a **Whisper** model to perform audio transcription.
+You can find it here : https://github.com/vaccarov/ChatServer
+
+```
+  Client/Browser        Backend (ChatServer)
+       |--- 1. Record Audio ------>|
+       | (send audio blob)         |
+       |                           |--- [ 2. Transcribe ]
+       |                           |             |
+       |                           |<------------+
+       |<-- 3. Transcribed Text ---|
+```
 
 ## Technologies Used
 
@@ -49,9 +81,7 @@ Follow these steps to set up and launch the application:
 
 2.  **Install dependencies:**
     ```bash
-    npm install
-    # or
-    yarn install
+    npm install # or yarn install
     ```
 
 3.  **Configure environment variables:**
@@ -65,9 +95,7 @@ Follow these steps to set up and launch the application:
 
 4.  **Start the development server:**
     ```bash
-    npm run dev
-    # or
-    yarn dev
+    npm run dev # or yarn dev
     ```
     The application will be accessible at `http://localhost:5173` (or another port if specified by Vite).
 
