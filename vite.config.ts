@@ -1,5 +1,5 @@
-import { defineConfig, loadEnv } from 'vite'
-import react from '@vitejs/plugin-react'
+import react from '@vitejs/plugin-react';
+import { defineConfig, loadEnv } from 'vite';
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
@@ -28,6 +28,29 @@ export default defineConfig(({ mode }) => {
       alias: {
         '@': '/src',
         'ollama': 'ollama/browser'
+      },
+    },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('react-dom')) {
+              return 'react-dom';
+            }
+            if (id.includes('react-markdown') || id.includes('micromark') || id.includes('rehype')) {
+              return 'markdown';
+            }
+            if (id.includes('@mantine')) {
+              return 'mantine';
+            }
+            if (id.includes('ollama')) {
+              return 'ollama';
+            }
+            if (id.includes('node_modules')) {
+              return 'vendor';
+            }
+          },
+        },
       },
     },
   }

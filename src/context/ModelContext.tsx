@@ -20,15 +20,7 @@ export const ModelProvider = ({ children }: { children: React.ReactNode }) => {
           return { ...model, show };
         }),
       );
-
-      const sortedModels = modelsWithDetails.sort((a, b) => a.size - b.size);
-
-      if (sortedModels.length) {
-        setModels(sortedModels);
-        if (!model && sortedModels[0]) {
-          setModel(sortedModels[0].model);
-        }
-      }
+      setModels(modelsWithDetails.sort((a, b) => a.size - b.size));
     } catch (error) {
       console.error('Error fetching models', error);
     }
@@ -39,8 +31,14 @@ export const ModelProvider = ({ children }: { children: React.ReactNode }) => {
   }, [model]);
 
   useEffect(() => {
+    if (!model && models[0]) {
+      setModel(models[0].model);
+    }
+  }, [models, model]);
+
+  useEffect(() => {
     refreshModels();
-  }, []);
+  }, [refreshModels]);
 
   const currentModel = useMemo(() => {
     return models.find(m => m.model === model);
