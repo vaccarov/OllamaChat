@@ -10,15 +10,15 @@ export default defineConfig(({ mode }) => {
       host: true,
       strictPort: true,
       hmr: {
-        host: env.VITE_OLLAMA_HOST,
+        host: env.VITE_HOST,
       },
       proxy: {
         '/api': {
-          target: `http://${env.VITE_OLLAMA_HOST}:${env.VITE_OLLAMA_PORT}`,
+          target: `http://${env.VITE_HOST}:${env.VITE_OLLAMA_PORT}`,
           changeOrigin: true,
           configure: (proxy) => {
             proxy.on('proxyReq', (proxyReq) => {
-              proxyReq.setHeader('origin', `http://${env.VITE_OLLAMA_HOST}:${env.VITE_OLLAMA_PORT}`);
+              proxyReq.setHeader('origin', `http://${env.VITE_HOST}:${env.VITE_OLLAMA_PORT}`);
             });
           }
         },

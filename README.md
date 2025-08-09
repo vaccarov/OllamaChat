@@ -87,11 +87,11 @@ Follow these steps to set up and launch the application:
 3.  **Configure environment variables:**
     Create a `.env` file at the root of the project (`/Users/victor/Projets/AnswR/OllamaChat/.env`) and add the following variables:
     ```
-    VITE_OLLAMA_HOST=localhost
+    VITE_HOST=localhost
+    VITE_SERVER_PORT=8000
     VITE_OLLAMA_PORT=11434
-    VITE_SERVER_URL=http://localhost:8000
     ```
-    *(`VITE_OLLAMA_HOST` is used for proxying Ollama requests. `VITE_SERVER_URL` should match the address where your `ChatServer` is running, but is not mandatory if you don't use speech to text)*
+    *(`VITE_HOST` is used for proxying Ollama requests, and in my case match the address where your `ChatServer` is running, but is not mandatory if you don't use speech to text)*
 
 4.  **Start the development server:**
     ```bash
@@ -144,4 +144,11 @@ The project uses Vite for rapid development. The key commands are:
 ## Notes
 
 *   In development mode, you might observe some side effects (like duplicate logs) due to React's `StrictMode`. This behavior is normal and does not affect the production version.
-*   Ensure that your Ollama server is accessible from the URL configured in `VITE_OLLAMA_URL` in your `.env` file.
+*   Ensure that your Ollama server is accessible from the URL configured in `VITE_HOST` in your `.env` file.
+
+Todo:
+Add refresh models button
+auto scroll issue
+select list of system prompts
+dissociate models that can handle documents
+separate types and interfaces in /types folder

@@ -37,7 +37,7 @@ export default function AudioRecorder({ onTranscript }: AudioRecorderProps): Rea
         formData.append("language", lang);
 
         try {
-          const res: Response = await fetch(`${import.meta.env.VITE_SERVER_URL}/transcribe`, {
+          const res: Response = await fetch(`${import.meta.env.VITE_HOST}:${import.meta.env.VITE_SERVER_PORT}/transcribe`, {
             method: "POST",
             body: formData,
           });
