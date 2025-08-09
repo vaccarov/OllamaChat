@@ -1,15 +1,15 @@
 import { ChatSession } from '@/models/ChatHistory';
-import { DocumentToSend } from '@/models/DocumentToSend';
+import { ImageToSend } from '@/models/ImageToSend';
 import { Message } from 'ollama';
 import { createContext, Dispatch, RefObject, SetStateAction } from 'react';
 
 export type MessageContextType = {
   activeSession: ChatSession | undefined;
   sessions: ChatSession[];
-  doc: DocumentToSend | undefined;
+  image: ImageToSend | undefined;
   conversation: RefObject<Message[]>;
-  setDoc: Dispatch<SetStateAction<DocumentToSend | undefined>>;
-  addMessage: (role: string, content: string, doc?: DocumentToSend, sessionId?: string) => void;
+  setImage: Dispatch<SetStateAction<ImageToSend | undefined>>;
+  addMessage: (role: string, content: string, image?: ImageToSend, sessionId?: string) => void;
   addChunk: (chunk: string, sessionId?: string) => void;
   startNewSession: (name: string) => void;
   setActiveSessionId: (id: string) => void;

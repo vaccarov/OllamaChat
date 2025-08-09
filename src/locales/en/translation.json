@@ -33,7 +33,12 @@
   },
   "model": {
     "select": "Select Model",
-    "changed": "Model changed to {{selectedModel}}"
+    "changed": "Model changed to {{selectedModel}}",
+    "capabilities": {
+      "images": "Can analyze images",
+      "thinking": "Can show its reasoning process",
+      "insert": "Can complete partial code"
+    }
   },
   "audio": {
     "stop_reading": "Stop reading",

@@ -35,12 +35,12 @@ export default function ChatBubble({ message }: ChatProps): React.ReactElement |
       );
     });
 
-    if (message.doc && message.doc.data.startsWith('data:image')) {
+    if (message.image && message.image.data.startsWith('data:image')) {
       return (
         <>
-          <img src={message.doc.data} alt={message.doc.name} onClick={() => setIsModalOpen(true)} style={{ maxWidth: '100%', maxHeight: '200px', cursor: 'pointer' }} />
-          <Modal opened={isModalOpen} onClose={() => setIsModalOpen(false)} title={message.doc.name}>
-            <img src={message.doc.data} alt={message.doc.name} style={{ width: '100%' }} />
+          <img src={message.image.data} alt={message.image.name} onClick={() => setIsModalOpen(true)} style={{ maxWidth: '100%', maxHeight: '200px', cursor: 'pointer' }} />
+          <Modal opened={isModalOpen} onClose={() => setIsModalOpen(false)} title={message.image.name}>
+            <img src={message.image.data} alt={message.image.name} style={{ width: '100%' }} />
           </Modal>
           {contentParts}
         </>

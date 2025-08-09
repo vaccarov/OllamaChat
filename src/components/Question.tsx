@@ -8,18 +8,20 @@ import { AbortableAsyncIterator, ChatResponse, Message } from "ollama";
 import React, { useContext, useState } from "react";
 import { Loader, Play, Volume2, VolumeX, X, MoreVertical } from "react-feather";
 import { useTranslation } from "react-i18next";
-import DocumentPicker from "./DocumentPicker";
+import ImagePicker from "./ImagePicker";
 import "./Question.css";
 import AudioRecorder from "./Record";
 
 export const Question: React.FC = (): React.ReactElement => {
   const { t } = useTranslation();
   const ollama = useOllama();
-  const { model }: ModelContextType = useContext(ModelContext)!;
-  const { conversation, doc, addMessage, addChunk, setDoc, activeSession }: MessageContextType = useContext(MessageContext)!;
+  const { currentModel }: ModelContextType = useContext(ModelContext)!;
+  const { conversation, image, addMessage, addChunk, setImage, activeSession }: MessageContextType = useContext(MessageContext)!;
   const [userPrompt, setUserPrompt] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const { isTtsEnabled, setIsTtsEnabled, isSpeaking, speak, cancel, start } = useTts();
+
+  const hasVisionCapability = currentModel?.show?.capabilities?.includes('vision');
 
   const stopRequest = (): void => {
     ollama.abort();
@@ -35,7 +37,7 @@ export const Question: React.FC = (): React.ReactElement => {
   };
 
   const sendRequest = async (prompt: string): Promise<void> => {
-    if (!prompt && !doc) return;
+    if (!prompt && !image) return;
     start();
 
     const currentSessionId = activeSession?.id;
@@ -45,19 +47,20 @@ export const Question: React.FC = (): React.ReactElement => {
       {
         role: 'user',
         content: prompt,
-        images: doc ? [doc.data.split(',')[1]] : undefined,
+        images: image?.data ? [image.data.split(',')[1]] : undefined,
       } as Message,
     ];
 
     setUserPrompt('');
-    addMessage('user', prompt, doc, currentSessionId);
+    addMessage('user', prompt, image, currentSessionId);
+    setImage(undefined);
     setLoading(true);
     let sentenceBuffer: string = "";
     const currentSpeechLang = mapIsoToBcp47(localStorage.getItem('speechLang') || 'fr');
 
     try {
       const stream: AbortableAsyncIterator<ChatResponse> = await ollama.chat({
-        model,
+        model: currentModel!.model,
         messages: messagesForApi,
         stream: true,
       });
@@ -87,7 +90,6 @@ export const Question: React.FC = (): React.ReactElement => {
         : `${t('errors.prefix')}${(error as Error).message || t('errors.unknown')}`;
       addMessage('custom', errorMessage, undefined, currentSessionId);
     } finally {
-      setDoc(undefined);
       setLoading(false);
     }
   };
@@ -100,7 +102,7 @@ export const Question: React.FC = (): React.ReactElement => {
 
   return (
     <div className="questionContainer">
-      <Menu shadow="md" width={200}>
+      <Menu shadow="md">
         <Menu.Target>
           <ActionIcon variant="subtle" title={t('menu.options')}>
             <MoreVertical color="white" />
@@ -116,16 +118,16 @@ export const Question: React.FC = (): React.ReactElement => {
               title={isTtsEnabled ? (isSpeaking ? t('audio.stop_reading') : t('audio.disable_reading')) : t('audio.enable_reading')}>
               {isTtsEnabled ? <Volume2 color="white" /> : <VolumeX color="white" />}
             </ActionIcon>
-            <DocumentPicker />
+            {hasVisionCapability && <ImagePicker />}
           </div>
         </Menu.Dropdown>
       </Menu>
 
-      {doc && <Chip
+      {image && <Chip
         icon={<X size={16} color="white" />}
-        onClick={() => setDoc(undefined)}
+        onClick={() => setImage(undefined)}
         checked={true}>
-        {doc.name}
+        {image.name}
       </Chip>}
       <Textarea
         className="questionArea"
@@ -143,7 +145,7 @@ export const Question: React.FC = (): React.ReactElement => {
       />
       <ActionIcon
         variant="subtle"
-        disabled={!model}
+        disabled={!currentModel?.model}
         onClick={() => loading ? stopRequest() : sendRequest(userPrompt)}>
         {loading ? <Loader className="spin-animation" color="white" /> : <Play color="white" />}
       </ActionIcon>

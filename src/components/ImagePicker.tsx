@@ -1,12 +1,12 @@
 import { MessageContext, MessageContextType } from "@/context/MessageContextDefinition";
-import { DocumentToSend } from "@/models/DocumentToSend";
+import { ImageToSend } from "@/models/ImageToSend";
 import { ActionIcon } from "@mantine/core";
 import React, { memo, useContext, useRef } from "react";
 import { Image } from "react-feather";
 
-const DocumentPicker = memo((): React.ReactElement => {
-  console.log('OOO DocumentPicker');
-  const { setDoc }: MessageContextType = useContext(MessageContext)!;
+const ImagePicker = memo((): React.ReactElement => {
+  console.log('OOO ImagePicker');
+  const { setImage }: MessageContextType = useContext(MessageContext)!;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const handleFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>
@@ -16,11 +16,11 @@ const DocumentPicker = memo((): React.ReactElement => {
 
     const reader: FileReader = new FileReader();
     reader.onload = (): void => {
-      setDoc({
+      setImage({
         name: file.name,
         size: file.size,
         data: reader.result as string
-      } as DocumentToSend);
+      } as ImageToSend);
     };
     reader.readAsDataURL(file);
     e.target.value = "";
@@ -29,9 +29,9 @@ const DocumentPicker = memo((): React.ReactElement => {
   return (
     <ActionIcon onClick={() => fileInputRef.current!.click()} color="white">
       <Image></Image>
-      <input ref={fileInputRef} type="file" onChange={handleFileChange} className="hidden"/>
+      <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden"/>
     </ActionIcon>
   );
 });
 
-export default DocumentPicker;
+export default ImagePicker;

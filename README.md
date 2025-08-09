@@ -105,7 +105,7 @@ Follow these steps to set up and launch the application:
 *   **Text Input:** Type your questions in the text box and press `Enter` to send.
 *   **Voice Transcription:** Click the microphone icon to record your voice. The transcribed text will appear in the input box and be sent to the model.
 *   **Text-to-Speech:** Enable/disable the reading of model responses via the volume icon. If a reading is in progress, clicking the icon will stop it.
-*   **Adding Documents:** Use the image icon to attach a file. Its content will be added to your prompt. (Right now, only images are considered).
+*   **Adding Documents:** Use the image icon to attach a file. Its content will be added to your prompt.
 
 ## Project Structure
 
@@ -115,7 +115,7 @@ Follow these steps to set up and launch the application:
     *   `ChatBubble.tsx`: Represents a message bubble in the chat.
     *   `ChatList.tsx`: Manages the list of conversations.
     *   `Collapsable.tsx`: A reusable accordion component.
-    *   `DocumentPicker.tsx`: Allows selecting documents to attach.
+    *   `ImagePicker.tsx`: Allows selecting images to attach.
     *   `LanguageSwitcher.tsx`: Allows changing the interface language.
     *   `LLMPicker.tsx`: Allows selecting the language model.
     *   `Question.tsx`: The input area for asking questions.
@@ -147,8 +147,15 @@ The project uses Vite for rapid development. The key commands are:
 *   Ensure that your Ollama server is accessible from the URL configured in `VITE_HOST` in your `.env` file.
 
 Todo:
-Add refresh models button
-auto scroll issue
-select list of system prompts
-dissociate models that can handle documents
 separate types and interfaces in /types folder
+system prompt auto update without button
+select list of system prompts
+auto scroll issue
+POST /api/embed ?
+update libs
+fleche du haut pour reprendre le précédent prompt
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application                                  │
+ │    - Use build.rollupOptions.output.manualChunks to improve chunking:                      │
+ │    https://rollupjs.org/configuration-options/#output-manualchunks                         │
+ │    - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.

@@ -1,8 +1,8 @@
 import { Message } from 'ollama';
-import { DocumentToSend } from './DocumentToSend';
+import { ImageToSend } from './ImageToSend';
 
 export type ChatText = Message & {
   date?: string;
   role: string; // 'user' | 'assistant' | 'system' | 'custom';
-  doc?: DocumentToSend;
+  image?: ImageToSend;
 };

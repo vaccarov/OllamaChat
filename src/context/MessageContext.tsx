@@ -1,6 +1,6 @@
 import { ChatHistory, ChatSession } from '@/models/ChatHistory';
 import { ChatText } from '@/models/ChatText';
-import { DocumentToSend } from '@/models/DocumentToSend';
+import { ImageToSend } from '@/models/ImageToSend';
 import { Message } from 'ollama';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -19,9 +19,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
     systemPrompt,
     model,
   }), [t]);
-  const modelContext = React.useContext(ModelContext);
-  const model: string = modelContext?.model || '';
-  const setModel: (newModel: string) => void = React.useMemo(() => modelContext?.setModel || (() => {}), [modelContext?.setModel]);
+  const { currentModel, setModel } = React.useContext(ModelContext)!;
   const [chatHistory, setChatHistory] = useState<ChatHistory>(() => {
     const savedHistory: string | null = localStorage.getItem('chatHistory');
     if (savedHistory) {
@@ -33,7 +31,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
   });
 
 
-  const [doc, setDoc] = useState<DocumentToSend | undefined>();
+  const [image, setImage] = useState<ImageToSend | undefined>();
   const conversation = useRef<Message[]>([]);
 
   useEffect(() => {
@@ -45,8 +43,8 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
         .map((m: ChatText) => ({
           role: m.role,
           content: m.content,
-          images: m.doc && m.doc.data.split(',')[1] !== undefined
-            ? [m.doc.data.split(',')[1] as string]
+          images: m.image?.data?.split(',')[1] !== undefined
+            ? [m.image.data.split(',')[1] as string]
             : undefined
         }));
       setModel(active.model);
@@ -55,10 +53,10 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
 
   const activeSession: ChatSession | undefined = chatHistory.sessions.find((s: ChatSession) => s.id === chatHistory.activeSessionId);
 
-  const addMessage = useCallback((role: string, content: string, doc?: DocumentToSend, sessionId?: string) => {
+  const addMessage = useCallback((role: string, content: string, image?: ImageToSend, sessionId?: string) => {
     setChatHistory((prev: ChatHistory) => {
       const targetSessionId = sessionId || prev.activeSessionId;
-      const newMsg: ChatText = { role, content, date: new Date().toISOString(), doc };
+      const newMsg: ChatText = { role, content, date: new Date().toISOString(), image };
       const sessions: ChatSession[] = prev.sessions.map((s: ChatSession) =>
         s.id === targetSessionId ? { ...s, messages: [...s.messages, newMsg] } : s
       );
@@ -90,10 +88,10 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
 
   const startNewSession = useCallback((name: string) => {
     setChatHistory((prev: ChatHistory) => {
-      const newSession: ChatSession = createNewSession(t('system_prompt.content'), model, name);
+      const newSession: ChatSession = createNewSession(t('system_prompt.content'), currentModel?.model || '', name);
       return { sessions: [...prev.sessions, newSession], activeSessionId: newSession.id };
     });
-  }, [createNewSession, model, t]);
+  }, [createNewSession, currentModel?.model, t]);
 
   const setActiveSessionId = useCallback((id: string) => {
     setChatHistory((prev: ChatHistory) => ({ ...prev, activeSessionId: id }));
@@ -144,7 +142,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
     setChatHistory((prev: ChatHistory) => {
       const sessions: ChatSession[] = prev.sessions.filter((s: ChatSession) => s.id !== id);
       if (sessions.length === 0) {
-        const newSession: ChatSession = createNewSession(t('system_prompt.content'), model, t('chat.new_chat_default_name'));
+        const newSession: ChatSession = createNewSession(t('system_prompt.content'), currentModel?.model || '', t('chat.new_chat_default_name'));
         return { sessions: [newSession], activeSessionId: newSession.id };
       }
       if (prev.activeSessionId === id) {
@@ -152,7 +150,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
       }
       return { ...prev, sessions };
     });
-  }, [createNewSession, model, t]);
+  }, [createNewSession, currentModel?.model, t]);
 
   const duplicateSession = useCallback((id: string) => {
     setChatHistory((prev: ChatHistory) => {
@@ -195,9 +193,9 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
     <MessageContext.Provider value={{
       activeSession,
       sessions: chatHistory.sessions,
-      doc,
+      image,
       conversation,
-      setDoc,
+      setImage,
       addMessage,
       addChunk,
       startNewSession,

@@ -21,8 +21,7 @@ const App: React.FC = (): React.ReactElement => {
   // Adapt height for mobile use in browser
   useEffect(() => {
     const setAppHeight = () => {
-      const doc = document.documentElement;
-      doc.style.setProperty('--app-height', `${window.innerHeight}px`);
+      document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
     };
     window.addEventListener('resize', setAppHeight);
     setAppHeight();

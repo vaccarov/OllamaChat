@@ -33,7 +33,12 @@
   },
   "model": {
     "select": "Sélectionner le Modèle",
-    "changed": "Modèle changé pour {{selectedModel}}"
+    "changed": "Modèle changé pour {{selectedModel}}",
+    "capabilities": {
+      "images": "Peut analyser des images",
+      "thinking": "Peut montrer son processus de raisonnement",
+      "insert": "Peut compléter du code partiel"
+    }
   },
   "audio": {
     "stop_reading": "Arrêter la lecture",
