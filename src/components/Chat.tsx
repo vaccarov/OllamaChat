@@ -31,16 +31,16 @@ export const Chat: React.FC = (): React.ReactElement => {
 
   useEffect(() => {
     scrollToBottom(true);
-  }, [activeSession]);
+  }, [activeSession?.id]);
 
   const scrollToTop = (): void => {
-    if (chatRef.current) chatRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    if (chatRef.current) chatRef.current.scrollTo({ top: 0, behavior: 'instant' });
   };
 
   const scrollToBottom = (force: boolean = false): void => {
     const el: HTMLDivElement | null = chatRef.current;
     if (!el) return;
-    const isNearBottom: boolean = el.scrollHeight - el.scrollTop - el.clientHeight < 90;
+    const isNearBottom: boolean = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
 
     if (isNearBottom || force) {
       el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });

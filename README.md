@@ -148,12 +148,7 @@ The project uses Vite for rapid development. The key commands are:
 
 Todo:
 separate types and interfaces in /types folder
-system prompt auto update without button
-select list of system prompts
-auto scroll issue
-POST /api/embed ?
 update libs
-fleche du haut pour reprendre le précédent prompt
 (!) Some chunks are larger than 500 kB after minification. Consider:
 - Using dynamic import() to code-split the application                                  │
  │    - Use build.rollupOptions.output.manualChunks to improve chunking:                      │
