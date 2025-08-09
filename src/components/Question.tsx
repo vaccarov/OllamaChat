@@ -2,11 +2,12 @@ import { MessageContext, MessageContextType } from "@/context/MessageContextDefi
 import { ModelContext, ModelContextType } from "@/context/ModelContextDefinition";
 import { useOllama } from "@/hooks/useOllama";
 import { useTts } from "@/hooks/useTts";
+import { ChatRole } from "@/models/ChatRoleDefinition";
 import { mapIsoToBcp47 } from "@/utils/tools";
-import { ActionIcon, Chip, Textarea, Menu } from "@mantine/core";
+import { ActionIcon, Chip, Menu, Textarea } from "@mantine/core";
 import { AbortableAsyncIterator, ChatResponse, Message } from "ollama";
 import React, { useContext, useState } from "react";
-import { Loader, Play, Volume2, VolumeX, X, MoreVertical } from "react-feather";
+import { Loader, MoreVertical, Play, Volume2, VolumeX, X } from "react-feather";
 import { useTranslation } from "react-i18next";
 import ImagePicker from "./ImagePicker";
 import "./Question.css";
@@ -138,6 +139,10 @@ export const Question: React.FC = (): React.ReactElement => {
           if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             sendRequest(userPrompt);
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            const lastMessage: string = conversation.current.filter((c: Message) => c.role === ChatRole.user).pop()?.content || '';
+            setUserPrompt(lastMessage);
           }
         }}
         maxRows={10}
