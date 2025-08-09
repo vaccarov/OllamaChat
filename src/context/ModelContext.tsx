@@ -1,7 +1,7 @@
+import { ModelContext } from '@/context/ModelContextDefinition';
+import { useOllama } from '@/hooks/useOllama';
 import { ListResponse, ModelResponse, ShowResponse } from 'ollama/browser';
-import React, { useCallback, useEffect, useState, useMemo } from 'react';
-import { useOllama } from '../hooks/useOllama';
-import { ModelContext } from './ModelContextDefinition';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 export const ModelProvider = ({ children }: { children: React.ReactNode }) => {
   const ollama = useOllama();
@@ -40,7 +40,7 @@ export const ModelProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     refreshModels();
-  }, [refreshModels]);
+  }, []);
 
   const currentModel = useMemo(() => {
     return models.find(m => m.model === model);

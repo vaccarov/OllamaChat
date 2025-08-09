@@ -1,13 +1,14 @@
-import { ChatHistory, ChatSession } from '@/models/ChatHistory';
-import { ChatText } from '@/models/ChatText';
-import { ImageToSend } from '@/models/ImageToSend';
+import { MessageContext } from '@/context/MessageContextDefinition';
+import { ModelContext } from '@/context/ModelContextDefinition';
+import { ChatHistory } from '@/types/ChatHistory';
+import { ChatRole } from '@/types/ChatRoleDefinition';
+import { ChatSession } from '@/types/ChatSession';
+import { ChatText } from '@/types/ChatText';
+import { ImageToSend } from '@/types/ImageToSend';
 import { Message } from 'ollama';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
-import { ModelContext } from './ModelContextDefinition';
-
-import { MessageContext } from './MessageContextDefinition';
 
 export const MessageProvider = ({ children }: { children: React.ReactNode }) => {
   const { t } = useTranslation();
@@ -15,7 +16,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
   const createNewSession = useCallback((model: string = '', name: string = t('chat.new_chat_default_name')): ChatSession => ({
     id: uuidv4(),
     name,
-    messages: [{ role: 'system', content: '', date: new Date().toISOString() }],
+    messages: [{ role: ChatRole.system, content: '', date: new Date().toISOString() }],
     systemPrompt: '',
     model,
   }), [t]);
@@ -53,7 +54,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
 
   const activeSession: ChatSession | undefined = chatHistory.sessions.find((s: ChatSession) => s.id === chatHistory.activeSessionId);
 
-  const addMessage = useCallback((role: string, content: string, image?: ImageToSend, sessionId?: string) => {
+  const addMessage = useCallback((role: ChatRole, content: string, image?: ImageToSend, sessionId?: string) => {
     setChatHistory((prev: ChatHistory) => {
       const targetSessionId = sessionId || prev.activeSessionId;
       const newMsg: ChatText = { role, content, date: new Date().toISOString(), image };
@@ -73,7 +74,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
           const prevLastMessage = messages[messages.length - 1];
           const lastMessage: ChatText = {
             ...prevLastMessage,
-            role: prevLastMessage?.role ?? '',
+            role: prevLastMessage?.role ?? ChatRole.user,
             content: (prevLastMessage?.content ?? '') + chunk,
             date: prevLastMessage?.date ?? new Date().toISOString()
           };
@@ -91,7 +92,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
       const newSession: ChatSession = createNewSession(currentModel?.model || '', name);
       return { sessions: [...prev.sessions, newSession], activeSessionId: newSession.id };
     });
-  }, [createNewSession, currentModel?.model, t]);
+  }, [createNewSession, currentModel?.model]);
 
   const setActiveSessionId = useCallback((id: string) => {
     setChatHistory((prev: ChatHistory) => ({ ...prev, activeSessionId: id }));

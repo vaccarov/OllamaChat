@@ -1,8 +1,4 @@
-export type Capability = {
-  id: string;
-  icon: string;
-  tooltipKey: string;
-};
+import { Capability } from '@/types/Capability';
 
 export const CAPABILITIES: Capability[] = [
   {

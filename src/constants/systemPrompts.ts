@@ -1,4 +1,4 @@
-import { SystemPromptItem } from '../models/SystemPromptDefinition';
+import { SystemPromptItem } from '@/types/SystemPromptDefinition';
 
 export const predefinedSystemPrompts: SystemPromptItem[] = [
   {

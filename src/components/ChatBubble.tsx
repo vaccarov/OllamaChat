@@ -1,17 +1,14 @@
-import { MessageContext, MessageContextType } from "@/context/MessageContextDefinition";
-import { ChatText } from "@/models/ChatText";
+import { Collapsible } from "@/components/Collapsable";
+import { MessageContext } from "@/context/MessageContextDefinition";
+import { ChatText } from "@/types/ChatText";
+import { MessageContextType } from "@/types/MessageContextDefinition";
 import { Modal } from "@mantine/core";
 import { useContext, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from 'rehype-raw';
 import "./ChatBubble.css";
-import { Collapsible } from "./Collapsable";
 
-type ChatProps = {
-  message: ChatText;
-};
-
-export default function ChatBubble({ message }: ChatProps): React.ReactElement | null {
+export default function ChatBubble({ message }: { message: ChatText }): React.ReactElement | null {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const messageContext: MessageContextType | undefined = useContext(MessageContext);
   if (!messageContext) return null;

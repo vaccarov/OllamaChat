@@ -1,11 +1,11 @@
+import ChatBubble from "@/components/ChatBubble";
 import { MessageContext } from "@/context/MessageContextDefinition";
-import { ChatSession } from "@/models/ChatHistory";
-import { ChatText } from "@/models/ChatText";
+import { ChatSession } from "@/types/ChatSession";
+import { ChatText } from "@/types/ChatText";
 import { ActionIcon } from "@mantine/core";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { ArrowDown, ArrowUp } from "react-feather";
 import "./Chat.css";
-import ChatBubble from "./ChatBubble";
 
 export const Chat: React.FC = (): React.ReactElement => {
   console.log('OOO Chat');

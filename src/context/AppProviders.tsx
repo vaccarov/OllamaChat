@@ -1,9 +1,9 @@
+import { MessageProvider } from '@/context/MessageContext';
+import { ModelProvider } from '@/context/ModelContext';
+import { OllamaProvider } from "@/context/OllamaContext";
 import { themeColors } from '@/utils/theme.ts';
 import { MantineProvider } from '@mantine/core';
 import '@mantine/core/styles.css';
-import { MessageProvider } from './MessageContext';
-import { ModelProvider } from './ModelContext';
-import { OllamaProvider } from "./OllamaContext";
 
 export const AppProviders = ({ children }: { children: React.ReactNode }) => {
   return (

@@ -1,11 +1,12 @@
-import { MessageContext, MessageContextType } from '@/context/MessageContextDefinition';
-import { ChatSession } from '@/models/ChatHistory';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { MessageContext } from '@/context/MessageContextDefinition';
+import { ChatSession } from '@/types/ChatSession';
+import { MessageContextType } from '@/types/MessageContextDefinition';
 import { ActionIcon, Button, Menu, NavLink } from '@mantine/core';
 import { useContext, useRef } from 'react';
 import { Copy, Download, Edit, MoreVertical, Plus, Trash2, Upload } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import './ChatList.css';
-import LanguageSwitcher from './LanguageSwitcher';
 
 export function ChatList(): React.ReactElement {
   const { t } = useTranslation();

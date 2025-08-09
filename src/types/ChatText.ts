@@ -1,6 +1,6 @@
+import { ChatRole } from '@/types/ChatRoleDefinition';
+import { ImageToSend } from '@/types/ImageToSend';
 import { Message } from 'ollama';
-import { ChatRole } from './ChatRoleDefinition'; // Import ChatRole
-import { ImageToSend } from './ImageToSend';
 
 export type ChatText = Message & {
   date?: string;

@@ -1,17 +1,19 @@
-import { MessageContext, MessageContextType } from "@/context/MessageContextDefinition";
-import { ModelContext, ModelContextType } from "@/context/ModelContextDefinition";
+import ImagePicker from "@/components/ImagePicker";
+import AudioRecorder from "@/components/Record";
+import { MessageContext } from "@/context/MessageContextDefinition";
+import { ModelContext } from "@/context/ModelContextDefinition";
 import { useOllama } from "@/hooks/useOllama";
 import { useTts } from "@/hooks/useTts";
-import { ChatRole } from "@/models/ChatRoleDefinition";
+import { ChatRole } from "@/types/ChatRoleDefinition";
+import { MessageContextType } from "@/types/MessageContextDefinition";
+import { ModelContextType } from "@/types/ModelContextDefinition";
 import { mapIsoToBcp47 } from "@/utils/tools";
 import { ActionIcon, Chip, Menu, Textarea } from "@mantine/core";
 import { AbortableAsyncIterator, ChatResponse, Message } from "ollama";
 import React, { useContext, useState } from "react";
 import { Loader, MoreVertical, Play, Volume2, VolumeX, X } from "react-feather";
 import { useTranslation } from "react-i18next";
-import ImagePicker from "./ImagePicker";
 import "./Question.css";
-import AudioRecorder from "./Record";
 
 export const Question: React.FC = (): React.ReactElement => {
   const { t } = useTranslation();
@@ -53,7 +55,7 @@ export const Question: React.FC = (): React.ReactElement => {
     ];
 
     setUserPrompt('');
-    addMessage('user', prompt, image, currentSessionId);
+    addMessage(ChatRole.user, prompt, image, currentSessionId);
     setImage(undefined);
     setLoading(true);
     let sentenceBuffer: string = "";
@@ -66,7 +68,7 @@ export const Question: React.FC = (): React.ReactElement => {
         stream: true,
       });
 
-      addMessage('assistant', '', undefined, currentSessionId);
+      addMessage(ChatRole.assistant, '', undefined, currentSessionId);
       for await (const part of stream) {
         const chunk: string = part.message.content;
         addChunk(chunk, currentSessionId);
@@ -89,7 +91,7 @@ export const Question: React.FC = (): React.ReactElement => {
       const errorMessage: string = (error as Error).name === 'AbortError'
         ? t('errors.request_aborted')
         : `${t('errors.prefix')}${(error as Error).message || t('errors.unknown')}`;
-      addMessage('custom', errorMessage, undefined, currentSessionId);
+      addMessage(ChatRole.custom, errorMessage, undefined, currentSessionId);
     } finally {
       setLoading(false);
     }

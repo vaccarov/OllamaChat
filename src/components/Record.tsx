@@ -4,11 +4,7 @@ import { Mic, MicOff } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import "./Record.css";
 
-type AudioRecorderProps = {
-  onTranscript: (text: string) => void;
-};
-
-export default function AudioRecorder({ onTranscript }: AudioRecorderProps): React.ReactElement {
+export default function AudioRecorder({ onTranscript }: { onTranscript: (text: string) => void }): React.ReactElement {
   const { t } = useTranslation();
   const [recording, setRecording] = useState<boolean>(false);
   const [lang, setLang] = useState<string>(localStorage.getItem('speechLang') || 'fr');

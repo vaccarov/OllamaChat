@@ -1,7 +1,12 @@
-import { CAPABILITIES, Capability } from '@/constants/capabilities';
-import { MessageContext, MessageContextType } from '@/context/MessageContextDefinition';
-import { ModelContext, ModelContextType } from '@/context/ModelContextDefinition';
+import { CAPABILITIES } from '@/constants/capabilities';
+import { MessageContext } from '@/context/MessageContextDefinition';
+import { ModelContext } from '@/context/ModelContextDefinition';
+import { Capability } from '@/types/Capability';
+import { ChatRole } from '@/types/ChatRoleDefinition';
+import { MessageContextType } from '@/types/MessageContextDefinition';
+import { ModelContextType } from '@/types/ModelContextDefinition';
 import { ActionIcon, Select, Tooltip } from '@mantine/core';
+import { ModelResponse } from 'ollama';
 import { ShowResponse } from 'ollama/browser';
 import React, { useContext } from 'react';
 import { HelpCircle, RefreshCw } from 'react-feather';
@@ -17,7 +22,7 @@ export const LLMPicker: React.FC = (): React.ReactElement => {
     if (selectedModel) {
       setModel(selectedModel);
       updateModel(selectedModel);
-      addMessage('custom', t('model.changed', { selectedModel }));
+      addMessage(ChatRole.custom, t('model.changed', { selectedModel }));
     }
   };
 
@@ -43,7 +48,7 @@ export const LLMPicker: React.FC = (): React.ReactElement => {
         value={currentModel?.model}
         onChange={handleModelChange}
         className='picker'
-        data={models.map((m) => {
+        data={models.map((m: ModelResponse & { show: ShowResponse }) => {
           const capabilities: Capability[] = getModelCapabilities(m.show);
           const icons: string = capabilities.map((c: Capability) => c.icon).join(' ');
           const label: string = `${m.name} (${(m.size / 1e9).toFixed(2)} GB)`;

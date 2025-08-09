@@ -1,6 +1,6 @@
 import { Ollama } from 'ollama';
 import React, { useMemo } from 'react';
-import { OllamaContext } from './OllamaContextDefinition';
+import { OllamaContext } from '@/context/OllamaContextDefinition';
 
 export const OllamaProvider = ({ children }: { children: React.ReactNode }) => {
   const ollama = useMemo(() => {

@@ -1,5 +1,6 @@
-import { MessageContext, MessageContextType } from "@/context/MessageContextDefinition";
-import { ImageToSend } from "@/models/ImageToSend";
+import { MessageContext } from "@/context/MessageContextDefinition";
+import { ImageToSend } from "@/types/ImageToSend";
+import { MessageContextType } from "@/types/MessageContextDefinition";
 import { ActionIcon } from "@mantine/core";
 import React, { memo, useContext, useRef } from "react";
 import { Image } from "react-feather";

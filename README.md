@@ -147,8 +147,6 @@ The project uses Vite for rapid development. The key commands are:
 *   Ensure that your Ollama server is accessible from the URL configured in `VITE_HOST` in your `.env` file.
 
 Todo:
-separate types and interfaces in /types folder
-update libs
 (!) Some chunks are larger than 500 kB after minification. Consider:
 - Using dynamic import() to code-split the application                                  │
  │    - Use build.rollupOptions.output.manualChunks to improve chunking:                      │

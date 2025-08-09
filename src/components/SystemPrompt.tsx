@@ -1,10 +1,11 @@
-import { MessageContext, MessageContextType } from "@/context/MessageContextDefinition";
+import { predefinedSystemPrompts } from '@/constants/systemPrompts';
+import { MessageContext } from "@/context/MessageContextDefinition";
+import { MessageContextType } from "@/types/MessageContextDefinition";
+import { SystemPromptItem } from '@/types/SystemPromptDefinition';
 import { ActionIcon, Menu, Textarea } from "@mantine/core";
 import React, { useContext, useEffect, useState } from "react";
 import { MousePointer } from "react-feather";
 import { useTranslation } from "react-i18next";
-import { predefinedSystemPrompts } from '../constants/systemPrompts';
-import { SystemPromptItem } from '../models/SystemPromptDefinition';
 import "./Systemprompt.css";
 
 export const SystemPrompt: React.FC = (): React.ReactElement => {

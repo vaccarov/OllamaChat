@@ -1,5 +1,5 @@
+import { OllamaContext } from '@/context/OllamaContextDefinition';
 import { useContext } from 'react';
-import { OllamaContext } from '../context/OllamaContextDefinition';
 
 export const useOllama = () => {
   const context = useContext(OllamaContext);
