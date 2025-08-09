@@ -1,8 +1,9 @@
 import { Message } from 'ollama';
+import { ChatRole } from './ChatRoleDefinition'; // Import ChatRole
 import { ImageToSend } from './ImageToSend';
 
 export type ChatText = Message & {
   date?: string;
-  role: string; // 'user' | 'assistant' | 'system' | 'custom';
+  role: ChatRole;
   image?: ImageToSend;
 };

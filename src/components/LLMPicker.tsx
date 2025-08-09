@@ -30,6 +30,9 @@ export const LLMPicker: React.FC = (): React.ReactElement => {
 
   return (
     <div className='pickerContainer'>
+      <ActionIcon variant='transparent' color='gray' onClick={refreshModels}>
+        <RefreshCw />
+      </ActionIcon>
       <Tooltip label={<div style={{ whiteSpace: 'pre-line' }}>{capabilitiesDescription}</div>} multiline>
         <ActionIcon variant='transparent' color='gray'>
           <HelpCircle />
@@ -52,9 +55,6 @@ export const LLMPicker: React.FC = (): React.ReactElement => {
         })}
         searchable
       />
-      <ActionIcon variant='transparent' color='gray' onClick={refreshModels}>
-        <RefreshCw />
-      </ActionIcon>
     </div>
   );
 };

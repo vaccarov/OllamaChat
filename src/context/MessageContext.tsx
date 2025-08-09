@@ -12,11 +12,11 @@ import { MessageContext } from './MessageContextDefinition';
 export const MessageProvider = ({ children }: { children: React.ReactNode }) => {
   const { t } = useTranslation();
 
-  const createNewSession = useCallback((systemPrompt: string, model: string = '', name: string = t('chat.new_chat_default_name')): ChatSession => ({
+  const createNewSession = useCallback((model: string = '', name: string = t('chat.new_chat_default_name')): ChatSession => ({
     id: uuidv4(),
     name,
-    messages: [{ role: 'system', content: systemPrompt, date: new Date().toISOString() }],
-    systemPrompt,
+    messages: [{ role: 'system', content: '', date: new Date().toISOString() }],
+    systemPrompt: '',
     model,
   }), [t]);
   const { currentModel, setModel } = React.useContext(ModelContext)!;
@@ -26,7 +26,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
       const parsedHistory: ChatHistory = JSON.parse(savedHistory);
       return parsedHistory;
     }
-    const newSession: ChatSession = createNewSession(t('system_prompt.content'), '', t('chat.new_chat_default_name')); 
+    const newSession: ChatSession = createNewSession('', t('chat.new_chat_default_name')); 
     return { sessions: [newSession], activeSessionId: newSession.id };
   });
 
@@ -88,7 +88,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
 
   const startNewSession = useCallback((name: string) => {
     setChatHistory((prev: ChatHistory) => {
-      const newSession: ChatSession = createNewSession(t('system_prompt.content'), currentModel?.model || '', name);
+      const newSession: ChatSession = createNewSession(currentModel?.model || '', name);
       return { sessions: [...prev.sessions, newSession], activeSessionId: newSession.id };
     });
   }, [createNewSession, currentModel?.model, t]);
@@ -142,7 +142,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
     setChatHistory((prev: ChatHistory) => {
       const sessions: ChatSession[] = prev.sessions.filter((s: ChatSession) => s.id !== id);
       if (sessions.length === 0) {
-        const newSession: ChatSession = createNewSession(t('system_prompt.content'), currentModel?.model || '', t('chat.new_chat_default_name'));
+        const newSession: ChatSession = createNewSession(currentModel?.model || '', t('chat.new_chat_default_name'));
         return { sessions: [newSession], activeSessionId: newSession.id };
       }
       if (prev.activeSessionId === id) {
