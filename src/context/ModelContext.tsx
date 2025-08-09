@@ -1,15 +1,17 @@
+import { STORAGE_KEYS } from '@/constants/storageKeys';
 import { ModelContext } from '@/context/ModelContextDefinition';
 import { useOllama } from '@/hooks/useOllama';
+import { OllamaModel } from '@/types/OllamaModel';
 import { ListResponse, ModelResponse, ShowResponse } from 'ollama/browser';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 export const ModelProvider = ({ children }: { children: React.ReactNode }) => {
   const ollama = useOllama();
   const [model, setModel] = useState<string>(() => {
-    const savedModel: string | null = localStorage.getItem('selectedModel');
+    const savedModel: string | null = localStorage.getItem(STORAGE_KEYS.selectedModel);
     return savedModel || '';
   });
-  const [models, setModels] = useState<(ModelResponse & { show: ShowResponse })[]>([]);
+  const [models, setModels] = useState<OllamaModel[]>([]);
 
   const refreshModels = useCallback(async (): Promise<void> => {
     try {
@@ -27,7 +29,7 @@ export const ModelProvider = ({ children }: { children: React.ReactNode }) => {
   }, [ollama]);
 
   useEffect(() => {
-    localStorage.setItem('selectedModel', model);
+    localStorage.setItem(STORAGE_KEYS.selectedModel, model);
   }, [model]);
 
   useEffect(() => {

@@ -1,8 +1,8 @@
-import { ModelResponse, ShowResponse } from 'ollama/browser';
+import { OllamaModel } from '@/types/OllamaModel';
 
-export type ModelContextType = {
-  setModel: (newModel: string) => void;
-  models: (ModelResponse & { show: ShowResponse })[];
-  currentModel: (ModelResponse & { show: ShowResponse }) | undefined;
+export interface ModelContextDefinition {
+  models: OllamaModel[];
+  currentModel: OllamaModel | undefined;
+  setModel: (model: string) => void;
   refreshModels: () => Promise<void>;
-};
+}

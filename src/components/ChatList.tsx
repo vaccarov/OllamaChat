@@ -1,7 +1,6 @@
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { MessageContext } from '@/context/MessageContextDefinition';
-import { ChatSession } from '@/types/ChatSession';
-import { MessageContextType } from '@/types/MessageContextDefinition';
+import { ChatSession, MessageContextType } from '@/types';
 import { ActionIcon, Button, Menu, NavLink } from '@mantine/core';
 import { useContext, useRef } from 'react';
 import { Copy, Download, Edit, MoreVertical, Plus, Trash2, Upload } from 'react-feather';

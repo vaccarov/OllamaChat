@@ -3,6 +3,7 @@ import { ChatList } from "@/components/ChatList";
 import { LLMPicker } from "@/components/LLMPicker";
 import { Question } from "@/components/Question";
 import { SystemPrompt } from "@/components/SystemPrompt";
+import { STORAGE_KEYS } from "@/constants/storageKeys";
 import { ActionIcon } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { Menu, X } from "react-feather";
@@ -10,12 +11,12 @@ import "./App.css";
 
 const App: React.FC = (): React.ReactElement => {
   const [showChatList, setShowChatList] = useState<boolean>(() => {
-    const saved = localStorage.getItem('showChatList');
+    const saved = localStorage.getItem(STORAGE_KEYS.showChatList);
     return saved ? JSON.parse(saved) : false;
   });
 
   useEffect(() => {
-    localStorage.setItem('showChatList', JSON.stringify(showChatList));
+    localStorage.setItem(STORAGE_KEYS.showChatList, JSON.stringify(showChatList));
   }, [showChatList]);
 
   // Adapt height for mobile use in browser

@@ -1,4 +1,4 @@
 import { createContext } from 'react';
-import { ModelContextType } from '@/types/ModelContextDefinition';
+import { ModelContextDefinition } from '@/types/ModelContextDefinition';
 
-export const ModelContext = createContext<ModelContextType | undefined>(undefined);
+export const ModelContext = createContext<ModelContextDefinition | undefined>(undefined);

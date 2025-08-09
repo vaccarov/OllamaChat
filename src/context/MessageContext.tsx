@@ -1,10 +1,6 @@
 import { MessageContext } from '@/context/MessageContextDefinition';
 import { ModelContext } from '@/context/ModelContextDefinition';
-import { ChatHistory } from '@/types/ChatHistory';
-import { ChatRole } from '@/types/ChatRoleDefinition';
-import { ChatSession } from '@/types/ChatSession';
-import { ChatText } from '@/types/ChatText';
-import { ImageToSend } from '@/types/ImageToSend';
+import { ChatHistory, ChatRole, ChatSession, ChatText, ImageToSend } from '@/types';
 import { Message } from 'ollama';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';

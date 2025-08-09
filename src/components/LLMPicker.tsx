@@ -1,21 +1,17 @@
 import { CAPABILITIES } from '@/constants/capabilities';
 import { MessageContext } from '@/context/MessageContextDefinition';
 import { ModelContext } from '@/context/ModelContextDefinition';
-import { Capability } from '@/types/Capability';
-import { ChatRole } from '@/types/ChatRoleDefinition';
-import { MessageContextType } from '@/types/MessageContextDefinition';
-import { ModelContextType } from '@/types/ModelContextDefinition';
+import { Capability, ChatRole, MessageContextType, ModelContextDefinition, OllamaModel } from '@/types';
 import { ActionIcon, Select, Tooltip } from '@mantine/core';
-import { ModelResponse } from 'ollama';
 import { ShowResponse } from 'ollama/browser';
-import React, { useContext } from 'react';
+import React, { useCallback, useContext, useMemo } from 'react';
 import { HelpCircle, RefreshCw } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import './LLMPicker.css';
 
 export const LLMPicker: React.FC = (): React.ReactElement => {
   const { t } = useTranslation();
-  const { setModel, models, currentModel, refreshModels }: ModelContextType = useContext(ModelContext)!;
+  const { setModel, models, currentModel, refreshModels }: ModelContextDefinition = useContext(ModelContext)!;
   const { updateModel, addMessage }: MessageContextType = useContext(MessageContext)!;
 
   const handleModelChange = (selectedModel: string | null): void => {
@@ -26,19 +22,36 @@ export const LLMPicker: React.FC = (): React.ReactElement => {
     }
   };
 
-  const getModelCapabilities = (m: ShowResponse): Capability[] =>
-    CAPABILITIES.filter((capability: Capability) => m.capabilities?.includes(capability.id));
+  const getModelCapabilities = useCallback((m: ShowResponse): Capability[] =>
+    CAPABILITIES.filter((capability: Capability) => m.capabilities?.includes(capability.id))
+  , []);
 
-  const capabilitiesDescription: string = CAPABILITIES.map(
-    (capability: Capability) => `${capability.icon}: ${t(capability.tooltipKey)}`
-  ).join('\n');
+  const capabilitiesDescription: string = useMemo(() =>
+    CAPABILITIES
+      .map((capability: Capability) => `${capability.icon}: ${t(capability.tooltipKey)}`)
+      .join('\n')
+  , [t]);
+
+  const selectData = useMemo(() =>
+    models.map((m: OllamaModel) => {
+      const capabilities: Capability[] = getModelCapabilities(m.show);
+      const icons: string = capabilities.map((c: Capability) => c.icon).join(' ');
+      const label: string = `${m.name} (${(m.size / 1e9).toFixed(2)} GB)`;
+      return {
+        value: m.model,
+        label: icons ? `${icons} ${label}` : label,
+        description: m.details?.family,
+      }
+    }), [models, getModelCapabilities, t]);
 
   return (
     <div className='pickerContainer'>
       <ActionIcon variant='transparent' color='gray' onClick={refreshModels}>
         <RefreshCw />
       </ActionIcon>
-      <Tooltip label={<div style={{ whiteSpace: 'pre-line' }}>{capabilitiesDescription}</div>} multiline>
+      <Tooltip
+        label={<div style={{ whiteSpace: 'pre-line' }}>{capabilitiesDescription}</div>}
+        multiline>
         <ActionIcon variant='transparent' color='gray'>
           <HelpCircle />
         </ActionIcon>
@@ -48,16 +61,7 @@ export const LLMPicker: React.FC = (): React.ReactElement => {
         value={currentModel?.model}
         onChange={handleModelChange}
         className='picker'
-        data={models.map((m: ModelResponse & { show: ShowResponse }) => {
-          const capabilities: Capability[] = getModelCapabilities(m.show);
-          const icons: string = capabilities.map((c: Capability) => c.icon).join(' ');
-          const label: string = `${m.name} (${(m.size / 1e9).toFixed(2)} GB)`;
-          return {
-            value: m.model,
-            label: icons ? `${icons} ${label}` : label,
-            description: m.details?.family,
-          };
-        })}
+        data={selectData}
         searchable
       />
     </div>
