@@ -17,6 +17,8 @@
 *   **Internationalization (i18n):** The interface is available in multiple languages thanks to `i18next`.
 *   **Markdown Rendering:** The model's responses are formatted in Markdown for rich display (lists, code, etc.). Reasoning is collapsable.
 *   **Customizable System Prompt:** Define a custom system prompt to guide the model's behavior.
+*   **System Prompt Presets:** Choose from a list of predefined system prompts to quickly set the context for the model.
+*   **LLM Capabilities:** The UI displays the capabilities of each LLM (e.g., vision, reasoning) to help you choose the right model for your task.
 *   **Strong Typing (TypeScript):** The project is fully typed for better maintainability and early error detection.
 
 ## Request Flow

@@ -4,6 +4,16 @@
     align-items: center;
     gap: 1rem;
 }
+
 .picker {
     flex: 1;
+}
+
+.rightSection {
+    display: flex;
+    gap: var(--mantine-spacing-xs);
+}
+
+.tooltip {
+    white-space: pre-line;
 }

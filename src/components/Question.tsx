@@ -4,9 +4,9 @@ import { MessageContext } from "@/context/MessageContextDefinition";
 import { ModelContext } from "@/context/ModelContextDefinition";
 import { useOllama } from "@/hooks/useOllama";
 import { useTts } from "@/hooks/useTts";
+import { OllamaModel } from "@/types";
 import { ChatRole } from "@/types/ChatRoleDefinition";
 import { MessageContextType } from "@/types/MessageContextDefinition";
-import { ModelContextType } from "@/types/ModelContextDefinition";
 import { mapIsoToBcp47 } from "@/utils/tools";
 import { ActionIcon, Chip, Menu, Textarea } from "@mantine/core";
 import { AbortableAsyncIterator, ChatResponse, Message } from "ollama";
@@ -18,7 +18,7 @@ import "./Question.css";
 export const Question: React.FC = (): React.ReactElement => {
   const { t } = useTranslation();
   const ollama = useOllama();
-  const { currentModel }: ModelContextType = useContext(ModelContext)!;
+  const { currentModel }: { currentModel: OllamaModel | undefined } = useContext(ModelContext)!;
   const { conversation, image, addMessage, addChunk, setImage, activeSession }: MessageContextType = useContext(MessageContext)!;
   const [userPrompt, setUserPrompt] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
@@ -111,7 +111,6 @@ export const Question: React.FC = (): React.ReactElement => {
             <MoreVertical color="white" />
           </ActionIcon>
         </Menu.Target>
-
         <Menu.Dropdown>
           <div className="menu-items-horizontal">
             <AudioRecorder onTranscript={handleTranscript} />
@@ -125,7 +124,6 @@ export const Question: React.FC = (): React.ReactElement => {
           </div>
         </Menu.Dropdown>
       </Menu>
-
       {image && <Chip
         icon={<X size={16} color="white" />}
         onClick={() => setImage(undefined)}
@@ -136,6 +134,14 @@ export const Question: React.FC = (): React.ReactElement => {
         className="questionArea"
         placeholder={t('chat.placeholder')}
         value={userPrompt}
+        rightSection={
+          <ActionIcon
+            variant="subtle"
+            disabled={!currentModel?.model}
+            onClick={() => loading ? stopRequest() : sendRequest(userPrompt)}>
+            {loading ? <Loader className="spin-animation" color="white" /> : <Play color="white" />}
+          </ActionIcon>
+        }
         onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setUserPrompt(event.currentTarget.value)}
         onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
           if (e.key === 'Enter' && !e.shiftKey) {
@@ -150,12 +156,6 @@ export const Question: React.FC = (): React.ReactElement => {
         maxRows={10}
         autosize
       />
-      <ActionIcon
-        variant="subtle"
-        disabled={!currentModel?.model}
-        onClick={() => loading ? stopRequest() : sendRequest(userPrompt)}>
-        {loading ? <Loader className="spin-animation" color="white" /> : <Play color="white" />}
-      </ActionIcon>
     </div>
   );
 };

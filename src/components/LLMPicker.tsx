@@ -46,16 +46,6 @@ export const LLMPicker: React.FC = (): React.ReactElement => {
 
   return (
     <div className='pickerContainer'>
-      <ActionIcon variant='transparent' color='gray' onClick={refreshModels}>
-        <RefreshCw />
-      </ActionIcon>
-      <Tooltip
-        label={<div style={{ whiteSpace: 'pre-line' }}>{capabilitiesDescription}</div>}
-        multiline>
-        <ActionIcon variant='transparent' color='gray'>
-          <HelpCircle />
-        </ActionIcon>
-      </Tooltip>
       <Select
         placeholder={t('model.select')}
         value={currentModel?.model}
@@ -63,6 +53,22 @@ export const LLMPicker: React.FC = (): React.ReactElement => {
         className='picker'
         data={selectData}
         searchable
+        rightSectionPointerEvents="visible"
+        rightSectionWidth={82}
+        rightSection={
+          <div className='rightSection'>
+            <ActionIcon color='gray' onClick={refreshModels}>
+              <RefreshCw />
+            </ActionIcon>
+            <Tooltip
+              label={<div className='tooltip'>{capabilitiesDescription}</div>}
+              multiline>
+              <ActionIcon color='gray'>
+                <HelpCircle />
+              </ActionIcon>
+            </Tooltip>
+          </div>
+        }
       />
     </div>
   );

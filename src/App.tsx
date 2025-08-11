@@ -6,7 +6,7 @@ import { SystemPrompt } from "@/components/SystemPrompt";
 import { STORAGE_KEYS } from "@/constants/storageKeys";
 import { ActionIcon } from "@mantine/core";
 import React, { useEffect, useState } from "react";
-import { Menu, X } from "react-feather";
+import { Sidebar } from "react-feather";
 import "./App.css";
 
 const App: React.FC = (): React.ReactElement => {
@@ -39,7 +39,7 @@ const App: React.FC = (): React.ReactElement => {
       <div className="mainPanel">
         <div className="header">
           <ActionIcon onClick={toggleChatList} variant="subtle" size="lg">
-            {showChatList ? <X /> : <Menu />}
+            <Sidebar />
           </ActionIcon>
           <LLMPicker />
         </div>
