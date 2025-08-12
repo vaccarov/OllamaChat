@@ -7,16 +7,16 @@
   flex: 1;
 }
 
-.arrowsChat {
+button.up {
   position: absolute;
   top: 1rem;
+  left: 1rem;
+}
+
+button.down {
+  position: absolute;
   bottom: 1rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 1rem;
 }
 
 .chat {

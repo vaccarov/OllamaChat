@@ -1,0 +1,1 @@
+export const SCROLL_ARROW_PADDING: number = 64;
