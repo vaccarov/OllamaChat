@@ -1,7 +1,7 @@
 import { MessageProvider } from '@/context/MessageContext';
 import { ModelProvider } from '@/context/ModelContext';
 import { OllamaProvider } from "@/context/OllamaContext";
-import { themeColors } from '@/utils/theme.ts';
+import { themeColors } from '@/constants/theme';
 import { MantineProvider } from '@mantine/core';
 import '@mantine/core/styles.css';
 

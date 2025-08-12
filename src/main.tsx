@@ -1,6 +1,6 @@
 import App from '@/App.tsx';
 import { AppProviders } from '@/context/AppProviders.tsx';
-import { themeColors } from '@/utils/theme.ts';
+import { themeColors } from '@/constants/theme.ts';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './i18n.ts';
