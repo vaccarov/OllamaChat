@@ -153,4 +153,4 @@ Todo:
 * stop llm but still receive an output
 * up and down button navigate chat history
 * sort chats by date
-* record error should not be a message
+* delete current conversation should reset id

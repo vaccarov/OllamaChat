@@ -4,7 +4,7 @@ import { Mic, MicOff } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import "./Record.css";
 
-export default function AudioRecorder({ onTranscript }: { onTranscript: (text: string) => void }): React.ReactElement {
+export default function AudioRecorder({ onTranscript }: { onTranscript: (text: string, error?: boolean) => void }): React.ReactElement {
   const { t } = useTranslation();
   const [recording, setRecording] = useState<boolean>(false);
   const [lang, setLang] = useState<string>(localStorage.getItem('speechLang') || 'fr');
@@ -40,7 +40,7 @@ export default function AudioRecorder({ onTranscript }: { onTranscript: (text: s
 
           if (!res.ok) {
             console.error(t('errors.server'), res.status, res.statusText);
-            onTranscript(t('errors.transcription_code', { code: res.status }));
+            onTranscript(t('errors.transcription_code', { code: res.status }), true);
             return;
           }
 
@@ -48,7 +48,7 @@ export default function AudioRecorder({ onTranscript }: { onTranscript: (text: s
           onTranscript(json.transcript);
         } catch (error) {
           console.error(t('errors.sending_audio'), error);
-          onTranscript(t('errors.contacting_transcription_server'));
+          onTranscript(t('errors.contacting_transcription_server'), true);
         }
       };
 

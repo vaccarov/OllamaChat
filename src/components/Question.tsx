@@ -97,8 +97,12 @@ export const Question: React.FC = (): React.ReactElement => {
     }
   };
 
-  const handleTranscript = (transcript: string): void => {
+  const handleTranscript = (transcript: string, error: boolean): void => {
     const newPrompt: string = userPrompt ? `${userPrompt} ${transcript}` : transcript;
+    if (error) {
+      addMessage(ChatRole.custom, newPrompt);
+      return;
+    }
     setUserPrompt(newPrompt);
     sendRequest(newPrompt);
   };
@@ -136,6 +140,9 @@ export const Question: React.FC = (): React.ReactElement => {
         value={userPrompt}
         rightSection={
           <ActionIcon
+            variant="transparent"
+            radius="xl"
+            size="lg"
             disabled={!currentModel?.model || !userPrompt && !loading}
             onClick={() => loading ? stopRequest() : sendRequest(userPrompt)}>
             {loading ? <Loader className="spin-animation" /> : <Play />}
