@@ -107,39 +107,38 @@ export const Question: React.FC = (): React.ReactElement => {
     <div className="questionContainer">
       <Menu shadow="md">
         <Menu.Target>
-          <ActionIcon variant="subtle" title={t('menu.options')}>
-            <MoreVertical color="white" />
+          <ActionIcon title={t('menu.options')}>
+            <MoreVertical />
           </ActionIcon>
         </Menu.Target>
         <Menu.Dropdown>
-          <div className="menu-items-horizontal">
+          <div className="questionMenu">
             <AudioRecorder onTranscript={handleTranscript} />
             <ActionIcon
-              variant="subtle"
               onClick={handleTtsButtonClick}
               title={isTtsEnabled ? (isSpeaking ? t('audio.stop_reading') : t('audio.disable_reading')) : t('audio.enable_reading')}>
-              {isTtsEnabled ? <Volume2 color="white" /> : <VolumeX color="white" />}
+              {isTtsEnabled ? <Volume2 /> : <VolumeX />}
             </ActionIcon>
             {hasVisionCapability && <ImagePicker />}
           </div>
         </Menu.Dropdown>
       </Menu>
       {image && <Chip
-        icon={<X size={16} color="white" />}
+        icon={<X size={16} />}
         onClick={() => setImage(undefined)}
         checked={true}>
         {image.name}
       </Chip>}
       <Textarea
         className="questionArea"
+        radius='xl'
         placeholder={t('chat.placeholder')}
         value={userPrompt}
         rightSection={
           <ActionIcon
-            variant="subtle"
-            disabled={!currentModel?.model}
+            disabled={!currentModel?.model || !userPrompt && !loading}
             onClick={() => loading ? stopRequest() : sendRequest(userPrompt)}>
-            {loading ? <Loader className="spin-animation" color="white" /> : <Play color="white" />}
+            {loading ? <Loader className="spin-animation" /> : <Play />}
           </ActionIcon>
         }
         onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setUserPrompt(event.currentTarget.value)}

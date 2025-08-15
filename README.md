@@ -1,6 +1,6 @@
 # OllamaChat
 
-`OllamaChat` is an interactive user interface based on React and TypeScript, designed to interact with local language models via Ollama and integrate real-time voice transcription. This project offers a smooth chat experience with advanced features like audio transcription, voice playback of model responses, and document management.
+`OllamaChat` is an interactive user interface based on React and TypeScript, designed to interact with local language models via Ollama and integrate real-time voice transcription. This project offers a smooth chat experience with advanced features like audio transcription, voice playback of model responses, and image analysis.
 
 ## Overview (desktop & mobile)
 
@@ -13,7 +13,7 @@
 *   **Import/Export Sessions:** Save and restore your chat sessions in JSON format, allowing for easy sharing or archiving.
 *   **Voice Transcription (STT):** Record your voice and have it transcribed into text via a dedicated backend (like `ChatServer`).
 *   **Text-to-Speech (TTS):** The model's responses are read aloud for a more immersive experience.
-*   **Document Management:** Attach documents to your requests for the model to analyze.
+*   **Image analysis:** Attach images to your requests for the model to analyze.
 *   **Internationalization (i18n):** The interface is available in multiple languages thanks to `i18next`.
 *   **Markdown Rendering:** The model's responses are formatted in Markdown for rich display (lists, code, etc.). Reasoning is collapsable.
 *   **Customizable System Prompt:** Define a custom system prompt to guide the model's behavior.
@@ -107,7 +107,7 @@ Follow these steps to set up and launch the application:
 *   **Text Input:** Type your questions in the text box and press `Enter` to send.
 *   **Voice Transcription:** Click the microphone icon to record your voice. The transcribed text will appear in the input box and be sent to the model.
 *   **Text-to-Speech:** Enable/disable the reading of model responses via the volume icon. If a reading is in progress, clicking the icon will stop it.
-*   **Adding Documents:** Use the image icon to attach a file. Its content will be added to your prompt.
+*   **Adding Images:** Use the image icon to attach a file. Its content will be added to your prompt.
 
 ## Project Structure
 
@@ -149,8 +149,8 @@ The project uses Vite for rapid development. The key commands are:
 *   Ensure that your Ollama server is accessible from the URL configured in `VITE_HOST` in your `.env` file.
 
 Todo:
-(!) Some chunks are larger than 500 kB after minification. Consider:
-- Using dynamic import() to code-split the application                                  │
- │    - Use build.rollupOptions.output.manualChunks to improve chunking:                      │
- │    https://rollupjs.org/configuration-options/#output-manualchunks                         │
- │    - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+* scroll follow stream response
+* stop llm but still receive an output
+* up and down button navigate chat history
+* sort chats by date
+* record error should not be a message

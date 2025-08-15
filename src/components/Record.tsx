@@ -88,7 +88,7 @@ export default function AudioRecorder({ onTranscript }: { onTranscript: (text: s
           setLang(e.target.value);
           localStorage.setItem('speechLang', e.target.value);
         }}
-        className="flagPicker"
+        className="voiceFlagPicker"
         title="Langue pour la transcription"
       >
         <option value="fr">🇫🇷</option>
@@ -100,8 +100,6 @@ export default function AudioRecorder({ onTranscript }: { onTranscript: (text: s
         <option value="it">🇮🇹</option>
       </select>
       <ActionIcon
-        variant="subtle"
-        color="white"
         onClick={handleRecordClick}
         title={recording ? t('audio.stop_recording') : t('audio.start_recording')}
       >

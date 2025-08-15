@@ -24,7 +24,8 @@
       "parsing_error": "Error importing chat history. Please ensure the file is a valid JSON.",
       "filename": "chat_history.json"
     },
-    "copy_suffix": " (copy)"
+    "copy_suffix": " (copy)",
+    "empty_chat_invitation": "Ask your first question to start the discussion."
   },
   "system_prompt": {
     "title": "System Prompt",

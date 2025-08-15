@@ -2,14 +2,23 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 1rem;
-  width: 250px;
+  width: 0;
+  overflow: hidden;
   flex-shrink: 0;
-  border-right: 1px solid;
+  background: var(--sidecolor);
+  transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
+  white-space: nowrap;
+
+  &.show {
+    width: var(--chatlist-width);
+  }
+}
+
+.addChat {
+  margin: 1rem;
 }
 
 .chatList {
-  margin-top: 1rem;
   overflow-y: auto;
 }
 
@@ -17,7 +26,30 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-right: 1rem;
+  padding: 0.8rem;
+  cursor: pointer;
+
+  .conversationLink {
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .moreVerticals {
+    visibility: hidden;
+  }
+
+  &:hover {
+    background-color: var(--backcolor);
+
+    & .moreVerticals {
+      visibility: visible;
+    }
+  }
+
+  &.active {
+    background-color: var(--lightcolor);
+  }
 }
 
 .sessionActions {
@@ -26,13 +58,27 @@
   justify-content: space-between;
   gap: 1rem;
   margin-top: auto;
-  padding-top: 1rem;
-  border-top: 1px solid var(--maincolor);
+  padding: 1rem;
+  border-top: 1px solid var(--lightcolor);
+
+  .importExport {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    height: 36px;
+  }
 }
 
-.importExport {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  height: 36px;
+@media (max-width: 768px) {
+  .chatListContainer {
+    position: absolute;
+    z-index: 3;
+    transform: translateX(-100%);
+    width: var(--chatlist-width);
+
+    &.show {
+      transform: translateX(0);
+    }
+  }
+
 }

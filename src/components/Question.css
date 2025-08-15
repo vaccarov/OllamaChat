@@ -3,12 +3,15 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-}
-.questionArea {
-  flex: 1;
+  padding: 1rem;
+  border-top: 1px solid var(--lightcolor);
+
+  .questionArea {
+    flex: 1;
+  }
 }
 
-.menu-items-horizontal {
+.questionMenu {
   display: flex;
   justify-content: space-between;
   gap: 1rem;

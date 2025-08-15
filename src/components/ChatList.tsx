@@ -1,13 +1,13 @@
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { MessageContext } from '@/context/MessageContextDefinition';
 import { ChatSession, MessageContextType } from '@/types';
-import { ActionIcon, Button, Menu, NavLink } from '@mantine/core';
+import { ActionIcon, Button, Menu, Text } from '@mantine/core';
 import { useContext, useRef } from 'react';
 import { Copy, Download, Edit, MoreVertical, Plus, Trash2, Upload } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import './ChatList.css';
 
-export function ChatList(): React.ReactElement {
+export function ChatList({ show }: { show: boolean }): React.ReactElement {
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const {
@@ -55,27 +55,29 @@ export function ChatList(): React.ReactElement {
   };
 
   return (
-    <div className="chatListContainer">
-      <Button onClick={handleNewChat} fullWidth color={'var(--maincolor)'} variant='light' leftSection={<Plus size={16} />}>
+    <div className={`chatListContainer ${show && 'show'}`}>
+      <Button
+        onClick={handleNewChat}
+        variant='light'
+        className='addChat'
+        leftSection={<Plus size={16} />}>
         {t('chat.new')}
       </Button>
       <div className="chatList">
         {sessions.map((session: ChatSession) => (
-          <div key={session.id} className="chatListItem">
-            <NavLink
-              label={session.name}
-              active={session.id === activeSession?.id}
-              onClick={() => setActiveSessionId(session.id)}
-              variant="subtle"
-              style={{ flexGrow: 1, color: session.id === activeSession?.id ? 'var(--maincolor)' : 'inherit' }}
-            />
+          <div
+            key={session.id}
+            className={`chatListItem ${session.id === activeSession?.id && 'active'}`}
+            onClick={() => setActiveSessionId(session.id)}>
+            <Text className='conversationLink'>
+              {session.name}
+            </Text>
             <Menu shadow="md" width={200}>
               <Menu.Target>
-                <ActionIcon variant="subtle" size="sm">
+                <ActionIcon className="moreVerticals" onClick={(e) => e.stopPropagation()}>
                   <MoreVertical size={16} />
                 </ActionIcon>
               </Menu.Target>
-
               <Menu.Dropdown>
                 <Menu.Item leftSection={<Edit size={14} />} onClick={() => handleRename(session.id)}>
                   {t('chat.rename')}
@@ -97,11 +99,16 @@ export function ChatList(): React.ReactElement {
         <div className="importExport">
           <ActionIcon
             onClick={exportSessions}
-            color={'var(--maincolor)'} variant="light"
+            color={'var(--maincolor)'}
+            variant="light"
             title={t('chat.export')}>
             <Download size={16} />
           </ActionIcon>
-          <ActionIcon onClick={handleImportClick} color={'var(--maincolor)'} variant="light" title={t('chat.import')}>
+          <ActionIcon
+            onClick={handleImportClick}
+            color={'var(--maincolor)'}
+            variant="light"
+            title={t('chat.import')}>
             <Upload size={16} />
           </ActionIcon>
           <input

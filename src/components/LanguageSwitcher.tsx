@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import './LanguageSwitcher.css';
 
 const LanguageSwitcher = () => {
   const { i18n } = useTranslation();
@@ -13,7 +14,7 @@ const LanguageSwitcher = () => {
         id="language"
         value={i18n.language}
         onChange={(e) => changeLanguage(e.target.value)}
-        className="flagPicker"
+        className="languageFlagPicker"
         title={t('common.language')}
       >
         <option value="fr">🇫🇷</option>

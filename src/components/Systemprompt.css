@@ -1,9 +1,5 @@
 .systemPromptContainer {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.systemPrompt {
-    flex: 1;
+    .systemPrompt {
+        flex: 1;
+    }
 }

@@ -4,9 +4,10 @@ import { LLMPicker } from "@/components/LLMPicker";
 import { Question } from "@/components/Question";
 import { SystemPrompt } from "@/components/SystemPrompt";
 import { STORAGE_KEYS } from "@/constants/storageKeys";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { ActionIcon } from "@mantine/core";
 import React, { useEffect, useState } from "react";
-import { Sidebar } from "react-feather";
+import { Settings, Sidebar } from "react-feather";
 import "./App.css";
 
 const App: React.FC = (): React.ReactElement => {
@@ -14,6 +15,8 @@ const App: React.FC = (): React.ReactElement => {
     const saved = localStorage.getItem(STORAGE_KEYS.showChatList);
     return saved ? JSON.parse(saved) : false;
   });
+  const [showSettings, setShowSettings] = useState<boolean>(false);
+  const isMobile: boolean = useMediaQuery();
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.showChatList, JSON.stringify(showChatList));
@@ -35,15 +38,23 @@ const App: React.FC = (): React.ReactElement => {
 
   return (
     <div className="appContainer">
-      {showChatList && <ChatList />}
-      <div className="mainPanel">
-        <div className="header">
-          <ActionIcon onClick={toggleChatList} variant="subtle" size="lg">
+      <ChatList show={showChatList} />
+      <div className={`mainPanel ${showChatList && 'shifted'}`}>
+        {isMobile && showChatList && <div className="backdrop" onClick={toggleChatList}></div>}
+        <div className='header'>
+          <ActionIcon onClick={toggleChatList}>
             <Sidebar />
           </ActionIcon>
-          <LLMPicker />
+          <ActionIcon onClick={() => setShowSettings(!showSettings)}>
+            <Settings />
+          </ActionIcon>
         </div>
-        <SystemPrompt />
+        {showSettings && (
+          <div className="settingsContainer">
+            <LLMPicker />
+            <SystemPrompt />
+          </div>
+        )}
         <Chat />
         <Question />
       </div>

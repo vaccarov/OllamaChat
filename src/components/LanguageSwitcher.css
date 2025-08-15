@@ -1,0 +1,5 @@
+.languageFlagPicker {
+    border: none;
+    cursor: pointer;
+    background: var(--sidecolor);
+}

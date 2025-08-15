@@ -4,7 +4,7 @@
     gap: 1rem;
 }
 
-.flagPicker {
+.voiceFlagPicker {
     border: none;
-    background: var(--backcolor);
+    background: var(--mantine-color-dark-6);
 }

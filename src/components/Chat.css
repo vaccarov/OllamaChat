@@ -1,7 +1,5 @@
 .chatContainer {
   position: relative;
-  border: 1px solid var(--maincolor);
-  border-radius: 5px;
   overflow: auto;
   display: flex;
   flex: 1;
@@ -9,7 +7,7 @@
 
 button.up {
   position: absolute;
-  top: 1rem;
+  bottom: 4rem;
   left: 1rem;
 }
 
@@ -23,7 +21,15 @@ button.down {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  padding: 1rem;
+  padding: 12rem 1rem 1rem;
   flex: 1;
   overflow: auto;
+  
+  .emptyChatMessage {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    text-align: center;
+  }
 }

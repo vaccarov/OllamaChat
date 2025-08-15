@@ -28,7 +28,7 @@ const ImagePicker = memo((): React.ReactElement => {
   };
 
   return (
-    <ActionIcon onClick={() => fileInputRef.current!.click()} color="white">
+    <ActionIcon onClick={() => fileInputRef.current!.click()}>
       <Image></Image>
       <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden"/>
     </ActionIcon>
