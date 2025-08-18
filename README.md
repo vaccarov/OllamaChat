@@ -151,6 +151,4 @@ The project uses Vite for rapid development. The key commands are:
 Todo:
 * scroll follow stream response
 * stop llm but still receive an output
-* up and down button navigate chat history
-* sort chats by date
 * delete current conversation should reset id

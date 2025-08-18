@@ -21,6 +21,8 @@
   border-radius: 1rem;
   line-height: 1.4;
   max-width: 80%;
+  overflow-x: auto;
+  flex-shrink: 0;
 }
 
 .custom {

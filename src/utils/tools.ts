@@ -25,3 +25,47 @@ export const mapIsoToBcp47 = (isoCode: string): string => {
         default: return 'fr-FR';
     }
 };
+
+export const getVisualLineCount = (textarea: HTMLTextAreaElement, text: string): number => {
+    if (text === '') return 1;
+    const canvas: HTMLCanvasElement = document.createElement('canvas');
+    const context: CanvasRenderingContext2D | null = canvas.getContext('2d');
+    if (!context) return text.split('\n').length; // If context fails, just count lines
+    const style: CSSStyleDeclaration = window.getComputedStyle(textarea);
+    context.font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+    const padding: number = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+    const textAreaWidth: number = textarea.clientWidth - padding;
+    if (textAreaWidth <= 0) return text.split('\n').length;
+    const lines: string[] = text.split('\n');
+    let visualLines: number = 0;
+    for (const line of lines) {
+        if (line === '') {
+            visualLines++;
+            continue;
+        }
+        let currentLineText: string = '';
+        const words: string[] = line.split(' ');
+        for (let i: number = 0; i < words.length; i++) {
+            const word: string = words[i]!;
+            const testLine: string = currentLineText + (currentLineText ? ' ' : '') + word;
+            const metrics: TextMetrics = context.measureText(testLine);
+            if (metrics.width > textAreaWidth && currentLineText !== '') {
+                visualLines++;
+                currentLineText = word;
+            } else {
+                currentLineText = testLine;
+            }
+        }
+        visualLines++;
+    }
+    return visualLines;
+}
+
+export const getLineNumber = (textarea: HTMLTextAreaElement): number => {
+    const textBeforeCursor: string = textarea.value.substring(0, textarea.selectionStart);
+    return getVisualLineCount(textarea, textBeforeCursor);
+}
+
+export const getTotalLines = (textarea: HTMLTextAreaElement): number => {
+    return getVisualLineCount(textarea, textarea.value);
+}

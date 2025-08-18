@@ -7,24 +7,24 @@ import { useTts } from "@/hooks/useTts";
 import { OllamaModel } from "@/types";
 import { ChatRole } from "@/types/ChatRoleDefinition";
 import { MessageContextType } from "@/types/MessageContextDefinition";
-import { mapIsoToBcp47 } from "@/utils/tools";
+import { getLineNumber, getTotalLines, mapIsoToBcp47 } from "@/utils/tools";
 import { ActionIcon, Chip, Menu, Textarea } from "@mantine/core";
-import { AbortableAsyncIterator, ChatResponse, Message } from "ollama";
-import React, { useContext, useState } from "react";
+import { AbortableAsyncIterator, ChatResponse, Message, Ollama } from "ollama";
+import { ReactElement, useContext, useState } from "react";
 import { Loader, MoreVertical, Play, Volume2, VolumeX, X } from "react-feather";
 import { useTranslation } from "react-i18next";
 import "./Question.css";
 
-export const Question: React.FC = (): React.ReactElement => {
+export const Question: React.FC = (): ReactElement => {
   const { t } = useTranslation();
-  const ollama = useOllama();
+  const ollama: Ollama = useOllama();
   const { currentModel }: { currentModel: OllamaModel | undefined } = useContext(ModelContext)!;
   const { conversation, image, addMessage, addChunk, setImage, activeSession }: MessageContextType = useContext(MessageContext)!;
   const [userPrompt, setUserPrompt] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const { isTtsEnabled, setIsTtsEnabled, isSpeaking, speak, cancel, start } = useTts();
-
-  const hasVisionCapability = currentModel?.show?.capabilities?.includes('vision');
+  const [historyIndex, setHistoryIndex] = useState<number | null>(null);
+  const [promptBeforeNav, setPromptBeforeNav] = useState<string | null>(null);
 
   const stopRequest = (): void => {
     ollama.abort();
@@ -43,7 +43,7 @@ export const Question: React.FC = (): React.ReactElement => {
     if (!prompt && !image) return;
     start();
 
-    const currentSessionId = activeSession?.id;
+    const currentSessionId: string | undefined = activeSession?.id;
 
     const messagesForApi: Message[] = [
       ...(conversation.current || []),
@@ -59,7 +59,7 @@ export const Question: React.FC = (): React.ReactElement => {
     setImage(undefined);
     setLoading(true);
     let sentenceBuffer: string = "";
-    const currentSpeechLang = mapIsoToBcp47(localStorage.getItem('speechLang') || 'fr');
+    const currentSpeechLang: string = mapIsoToBcp47(localStorage.getItem('speechLang') || 'fr');
 
     try {
       const stream: AbortableAsyncIterator<ChatResponse> = await ollama.chat({
@@ -87,7 +87,7 @@ export const Question: React.FC = (): React.ReactElement => {
         speak(sentenceBuffer, currentSpeechLang);
       }
 
-    } catch (error) {
+    } catch (error: unknown) {
       const errorMessage: string = (error as Error).name === 'AbortError'
         ? t('errors.request_aborted')
         : `${t('errors.prefix')}${(error as Error).message || t('errors.unknown')}`;
@@ -97,7 +97,7 @@ export const Question: React.FC = (): React.ReactElement => {
     }
   };
 
-  const handleTranscript = (transcript: string, error: boolean): void => {
+  const handleTranscript = (transcript: string, error: boolean = false): void => {
     const newPrompt: string = userPrompt ? `${userPrompt} ${transcript}` : transcript;
     if (error) {
       addMessage(ChatRole.custom, newPrompt);
@@ -106,6 +106,43 @@ export const Question: React.FC = (): React.ReactElement => {
     setUserPrompt(newPrompt);
     sendRequest(newPrompt);
   };
+
+  const onArrowPressed = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    const userMessages: Message[] = conversation.current.filter((c: Message) => c.role === ChatRole.user);
+    const textarea: EventTarget & HTMLTextAreaElement = e.currentTarget;
+    const currentLine: number = getLineNumber(textarea);
+    const totalLines: number = getTotalLines(textarea);
+    
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendRequest(userPrompt);
+      setHistoryIndex(null);
+      setPromptBeforeNav(null);
+    } else if (e.key === 'ArrowUp' && currentLine === 1 && userMessages.length > 0) {
+      e.preventDefault();
+      let newIndex: number;
+      if (historyIndex === null) {
+        setPromptBeforeNav(userPrompt);
+        newIndex = userMessages.length - 1;
+      } else {
+        newIndex = Math.max(0, historyIndex - 1);
+      }
+      setHistoryIndex(newIndex);
+      setUserPrompt(userMessages[newIndex]?.content || '');
+    } else if (e.key === 'ArrowDown' && currentLine === totalLines) {
+      if (historyIndex !== null && historyIndex < userMessages.length - 1) {
+        e.preventDefault();
+        const newIndex: number = historyIndex + 1;
+        setHistoryIndex(newIndex);
+        setUserPrompt(userMessages[newIndex]?.content || '');
+      } else if (historyIndex === userMessages.length - 1) {
+        e.preventDefault();
+        setHistoryIndex(null);
+        setUserPrompt(promptBeforeNav || '');
+        setPromptBeforeNav(null);
+      }
+    }
+  }
 
   return (
     <div className="questionContainer">
@@ -123,7 +160,7 @@ export const Question: React.FC = (): React.ReactElement => {
               title={isTtsEnabled ? (isSpeaking ? t('audio.stop_reading') : t('audio.disable_reading')) : t('audio.enable_reading')}>
               {isTtsEnabled ? <Volume2 /> : <VolumeX />}
             </ActionIcon>
-            {hasVisionCapability && <ImagePicker />}
+            {currentModel?.show?.capabilities?.includes('vision') && <ImagePicker />}
           </div>
         </Menu.Dropdown>
       </Menu>
@@ -148,17 +185,12 @@ export const Question: React.FC = (): React.ReactElement => {
             {loading ? <Loader className="spin-animation" /> : <Play />}
           </ActionIcon>
         }
-        onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setUserPrompt(event.currentTarget.value)}
-        onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-          if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendRequest(userPrompt);
-          } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            const lastMessage: string = conversation.current.filter((c: Message) => c.role === ChatRole.user).pop()?.content || '';
-            setUserPrompt(lastMessage);
-          }
+        onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => {
+          setUserPrompt(event.currentTarget.value);
+          setHistoryIndex(null);
+          setPromptBeforeNav(null);
         }}
+        onKeyDown={onArrowPressed}
         maxRows={10}
         autosize
       />

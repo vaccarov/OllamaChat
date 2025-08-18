@@ -27,7 +27,6 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
     return { sessions: [newSession], activeSessionId: newSession.id };
   });
 
-
   const [image, setImage] = useState<ImageToSend | undefined>();
   const conversation = useRef<Message[]>([]);
 
