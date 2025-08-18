@@ -10,7 +10,7 @@ import { MessageContextType } from "@/types/MessageContextDefinition";
 import { getLineNumber, getTotalLines, mapIsoToBcp47 } from "@/utils/tools";
 import { ActionIcon, Chip, Menu, Textarea } from "@mantine/core";
 import { AbortableAsyncIterator, ChatResponse, Message, Ollama } from "ollama";
-import { ReactElement, useContext, useState } from "react";
+import { ReactElement, RefObject, useContext, useRef, useState } from "react";
 import { Loader, MoreVertical, Play, Volume2, VolumeX, X } from "react-feather";
 import { useTranslation } from "react-i18next";
 import "./Question.css";
@@ -25,8 +25,10 @@ export const Question: React.FC = (): ReactElement => {
   const { isTtsEnabled, setIsTtsEnabled, isSpeaking, speak, cancel, start } = useTts();
   const [historyIndex, setHistoryIndex] = useState<number | null>(null);
   const [promptBeforeNav, setPromptBeforeNav] = useState<string | null>(null);
+  const abortRequestRef: RefObject<boolean> = useRef<boolean>(false);
 
   const stopRequest = (): void => {
+    abortRequestRef.current = true;
     ollama.abort();
     cancel();
     setLoading(false);
@@ -41,6 +43,7 @@ export const Question: React.FC = (): ReactElement => {
 
   const sendRequest = async (prompt: string): Promise<void> => {
     if (!prompt && !image) return;
+    abortRequestRef.current = false; // Prevent bug where stream keeps coming after aborting
     start();
 
     const currentSessionId: string | undefined = activeSession?.id;
@@ -67,6 +70,12 @@ export const Question: React.FC = (): ReactElement => {
         messages: messagesForApi,
         stream: true,
       });
+
+      if (abortRequestRef.current) {
+        addMessage(ChatRole.custom, t('errors.request_aborted'), undefined, currentSessionId);
+        setLoading(false);
+        return;
+      }
 
       addMessage(ChatRole.assistant, '', undefined, currentSessionId);
       for await (const part of stream) {
