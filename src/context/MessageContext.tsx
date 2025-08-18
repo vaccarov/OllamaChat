@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
 
 export const MessageProvider = ({ children }: { children: React.ReactNode }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const createNewSession = useCallback((model: string = '', name: string = t('chat.new_chat_default_name')): ChatSession => ({
     id: uuidv4(),
@@ -211,12 +211,12 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
       .reduce((acc: Record<string, ChatSession[]>, session: ChatSession) => {
         const lastMessage: ChatText | undefined = session.messages[session.messages.length - 1];
         const lastMessageDate: Date = new Date(lastMessage?.date || '');
-        const formattedDate: string = new Intl.DateTimeFormat(undefined, { dateStyle: 'long' }).format(lastMessageDate);
+        const formattedDate: string = new Intl.DateTimeFormat(i18n.language, { dateStyle: 'long' }).format(lastMessageDate);
         if (!acc[formattedDate]) acc[formattedDate] = [];
         acc[formattedDate].push(session);
         return acc;
       }, {} as Record<string, ChatSession[]>);
-  }, [sessions]);
+  }, [sessions, i18n.language]);
 
   return (
     <MessageContext.Provider value={{
