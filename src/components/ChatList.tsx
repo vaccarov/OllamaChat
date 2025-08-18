@@ -1,6 +1,6 @@
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { MessageContext } from '@/context/MessageContextDefinition';
-import { ChatSession, ChatText, MessageContextType } from '@/types';
+import { ChatSession, MessageContextType } from '@/types';
 import { ActionIcon, Button, Menu, Text } from '@mantine/core';
 import { useContext, useRef } from 'react';
 import { Copy, Download, Edit, MoreVertical, Plus, Trash2, Upload } from 'react-feather';
@@ -11,8 +11,8 @@ export function ChatList({ show }: { show: boolean }): React.ReactElement {
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const {
-    sessions,
     activeSession,
+    sessionsInGroup,
     setActiveSessionId,
     startNewSession,
     renameSession,
@@ -64,23 +64,7 @@ export function ChatList({ show }: { show: boolean }): React.ReactElement {
         {t('chat.new')}
       </Button>
       <div className="chatList">
-        {Object.entries(
-          sessions
-            .slice()
-            .sort((a: ChatSession, b: ChatSession) => {
-              const dateA: Date = new Date(a.messages[a.messages.length - 1]?.date || '');
-              const dateB: Date = new Date(b.messages[b.messages.length - 1]?.date || '');
-              return dateB.getTime() - dateA.getTime();
-            })
-            .reduce((acc: Record<string, ChatSession[]>, session: ChatSession) => {
-              const lastMessage: ChatText | undefined = session.messages[session.messages.length - 1];
-              const lastMessageDate: Date = new Date(lastMessage?.date || '');
-              const formattedDate: string = new Intl.DateTimeFormat(undefined, { dateStyle: 'long' }).format(lastMessageDate);
-              if (!acc[formattedDate]) acc[formattedDate] = [];
-              acc[formattedDate].push(session);
-              return acc;
-            }, {} as Record<string, ChatSession[]>)
-        ).map(([date, sessionsInGroup]: [string, ChatSession[]]) => (
+        {Object.entries(sessionsInGroup).map(([date, sessionsInGroup]: [string, ChatSession[]]) => (
           <div key={date}>
             <Text
               size="xs"
@@ -104,14 +88,14 @@ export function ChatList({ show }: { show: boolean }): React.ReactElement {
                     </ActionIcon>
                   </Menu.Target>
                   <Menu.Dropdown>
-                    <Menu.Item leftSection={<Edit size={14} />} onClick={() => handleRename(session.id)}>
+                    <Menu.Item leftSection={<Edit size={14} />} onClick={(e) => { e.stopPropagation(); handleRename(session.id); }}>
                       {t('chat.rename')}
                     </Menu.Item>
-                    <Menu.Item leftSection={<Copy size={14} />} onClick={() => duplicateSession(session.id)}>
+                    <Menu.Item leftSection={<Copy size={14} />} onClick={(e) => { e.stopPropagation(); duplicateSession(session.id); }}>
                       {t('chat.duplicate')}
                     </Menu.Item>
                     <Menu.Divider />
-                    <Menu.Item color="red" leftSection={<Trash2 size={14} />} onClick={() => deleteSession(session.id)}>
+                    <Menu.Item color="red" leftSection={<Trash2 size={14} />} onClick={(e) => { e.stopPropagation(); deleteSession(session.id); }}>
                       {t('chat.delete')}
                     </Menu.Item>
                   </Menu.Dropdown>

@@ -151,4 +151,3 @@ The project uses Vite for rapid development. The key commands are:
 Todo:
 * scroll follow stream response
 * stop llm but still receive an output
-* delete current conversation should reset id
