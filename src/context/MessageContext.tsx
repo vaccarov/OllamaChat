@@ -188,8 +188,19 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
     try {
       const importedHistory: ChatHistory = JSON.parse(jsonString);
       if (importedHistory && Array.isArray(importedHistory.sessions) && typeof importedHistory.activeSessionId === 'string') {
-        setSessions(importedHistory.sessions);
-        setActiveSessionId(importedHistory.activeSessionId);
+        setSessions((prevSessions: ChatSession[]) => {
+          const mergedSessions: ChatSession[] = [...prevSessions];
+          importedHistory.sessions.forEach((newSession: ChatSession) => {
+            if (!mergedSessions.some((session: ChatSession) => session.id === newSession.id)) {
+              mergedSessions.push(newSession);
+            }
+          });
+          return mergedSessions;
+        });
+
+        if (!activeSessionId) {
+          setActiveSessionId(importedHistory.activeSessionId);
+        }
       } else {
         console.error(t('chat.history.invalid_format'), importedHistory);
         alert(t('chat.history.invalid_format'));
