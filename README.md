@@ -4,7 +4,7 @@
 
 ## Overview (desktop & mobile)
 
-<img src="./public/screenshot.png" />
+<img src="./public/desktop.png" />
 <img src="./public/mobile.png" height="400" />
 
 ## Features

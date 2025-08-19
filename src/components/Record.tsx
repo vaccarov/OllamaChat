@@ -82,7 +82,7 @@ export default function AudioRecorder({ onTranscript }: { onTranscript: (text: s
   return (
     <div className="langContainer">
       <select
-        id="language"
+        id="voiceFlagPicker"
         value={lang}
         onChange={(e) => {
           setLang(e.target.value);

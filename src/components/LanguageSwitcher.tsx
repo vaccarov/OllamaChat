@@ -11,7 +11,7 @@ const LanguageSwitcher = () => {
 
   return (
     <select
-        id="language"
+        id="languageFlagPicker"
         value={i18n.language}
         onChange={(e) => changeLanguage(e.target.value)}
         className="languageFlagPicker"

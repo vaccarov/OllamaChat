@@ -41,3 +41,14 @@
   background-color: var(--assistantBubble);
   border-top-left-radius: 0;
 }
+
+.imageBubble {
+  max-width: 100%;
+  max-height: 200px;
+  cursor: 'pointer';
+  padding-top: 1rem;;
+}
+
+.imageModal {
+  width: 100%;
+}

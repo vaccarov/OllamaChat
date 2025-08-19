@@ -12,6 +12,9 @@ export default defineConfig(({ mode }) => {
       hmr: {
         host: env.VITE_HOST,
       },
+      allowedHosts: [
+        env.VITE_HOST
+      ],
       proxy: {
         '/api': {
           target: `http://${env.VITE_HOST}:${env.VITE_OLLAMA_PORT}`,

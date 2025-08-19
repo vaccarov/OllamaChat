@@ -125,7 +125,7 @@ export function ChatList({ show }: { show: boolean }): React.ReactElement {
           <input
             type="file"
             ref={fileInputRef}
-            style={{ display: 'none' }}
+            className='hidden'
             accept=".json"
             onChange={handleFileChange}
           />
