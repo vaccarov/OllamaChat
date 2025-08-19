@@ -3,33 +3,33 @@
   overflow: auto;
   display: flex;
   flex: 1;
-}
 
-button.up {
-  position: absolute;
-  bottom: 4rem;
-  left: 1rem;
-}
+  .up {
+    position: absolute;
+    bottom: 4rem;
+    left: 1rem;
+  }
 
-button.down {
-  position: absolute;
-  bottom: 1rem;
-  left: 1rem;
-}
+  .down {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+  }
 
-.chat {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 12rem 1rem 1rem;
-  flex: 1;
-  overflow: auto;
-  
-  .emptyChatMessage {
+  .chat {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    text-align: center;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 12rem 1rem 1rem;
+    flex: 1;
+    overflow: auto;
+    
+    .emptyChatMessage {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      text-align: center;
+    }
   }
 }

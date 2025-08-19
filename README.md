@@ -149,5 +149,4 @@ The project uses Vite for rapid development. The key commands are:
 *   Ensure that your Ollama server is accessible from the URL configured in `VITE_HOST` in your `.env` file.
 
 Todo:
-* scroll follow stream response
-* stop llm but still receive an output
+All clear, suggestions are welcome !
