@@ -2,12 +2,12 @@ import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { MessageContext } from '@/context/MessageContextDefinition';
 import { ChatSession, MessageContextType } from '@/types';
 import { ActionIcon, Button, Menu, Text } from '@mantine/core';
-import { useContext, useRef } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { Copy, Download, Edit, MoreVertical, Plus, Trash2, Upload } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import './ChatList.css';
 
-export function ChatList({ show }: { show: boolean }): React.ReactElement {
+export function ChatList({ show }: { show: boolean }): React.ReactElement | null {
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const {
@@ -21,6 +21,9 @@ export function ChatList({ show }: { show: boolean }): React.ReactElement {
     exportSessions,
     importSessions,
   }: MessageContextType = useContext(MessageContext)!;
+  const [isClient, setIsClient] = useState<boolean>(false);
+
+  useEffect(() => setIsClient(true), []);
 
   const handleRename = (id: string) => {
     const newName = prompt(t('chat.name_prompt'));
@@ -54,7 +57,7 @@ export function ChatList({ show }: { show: boolean }): React.ReactElement {
     }
   };
 
-  return (
+  return !isClient ? null : (
     <div className={`chatListContainer ${show && 'show'}`}>
       <Button
         onClick={handleNewChat}

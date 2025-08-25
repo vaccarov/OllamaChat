@@ -8,12 +8,13 @@ import { ChevronDown, ChevronUp } from "react-feather";
 import { useTranslation } from "react-i18next";
 import "./Chat.css";
 
-export const Chat: React.FC = (): React.ReactElement => {
+export const Chat: React.FC = (): React.ReactElement | null => {
   const { t } = useTranslation();
   const { activeSession }: { activeSession: ChatSession | undefined } = useContext(MessageContext)!;
   const chatRef: React.RefObject<HTMLDivElement | null> = useRef<HTMLDivElement>(null);
   const [isAtBottom, setIsAtBottom] = useState<boolean>(true);
   const [showTopArrow, setShowTopArrow] = useState<boolean>(false);
+  const [isClient, setIsClient] = useState<boolean>(false);
 
   const scrollToBottom = (): void => {
     const el: HTMLDivElement | null = chatRef.current;
@@ -25,6 +26,7 @@ export const Chat: React.FC = (): React.ReactElement => {
   };
 
   useEffect(() => {
+    setIsClient(true);
     const el: HTMLDivElement | null = chatRef.current;
     if (!el) return;
     const handleScroll = (): void => {
@@ -44,7 +46,7 @@ export const Chat: React.FC = (): React.ReactElement => {
 
   useEffect(() => scrollToBottom(), [activeSession?.id]);
 
-  return (
+  return !isClient ? null : (
     <div className="chatContainer">
       {showTopArrow && (
         <ActionIcon onClick={scrollToTop} className="up">

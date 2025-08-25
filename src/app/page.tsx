@@ -1,3 +1,5 @@
+'use client';
+
 import { Chat } from "@/components/Chat";
 import { ChatList } from "@/components/ChatList";
 import { LLMPicker } from "@/components/LLMPicker";
@@ -6,35 +8,35 @@ import { SystemPrompt } from "@/components/SystemPrompt";
 import { STORAGE_KEYS } from "@/constants/storageKeys";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { ActionIcon } from "@mantine/core";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Settings, Sidebar } from "react-feather";
-import "./App.css";
 
-const App: React.FC = (): React.ReactElement => {
-  const [showChatList, setShowChatList] = useState<boolean>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.showChatList);
-    return saved ? JSON.parse(saved) : false;
-  });
+const HomePage: React.FC = (): React.ReactElement => {
+  const [showChatList, setShowChatList] = useState<boolean>(false);
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const isMobile: boolean = useMediaQuery();
+  const isInitialMount: React.MutableRefObject<boolean> = useRef(true);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.showChatList, JSON.stringify(showChatList));
-  }, [showChatList]);
-
-  // Adapt height for mobile use in browser
-  useEffect(() => {
-    const setAppHeight = () => {
-      document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
-    };
+    const saved: string | null = localStorage.getItem(STORAGE_KEYS.showChatList);
+    if (saved) {
+      setShowChatList(JSON.parse(saved));
+    }
+    const setAppHeight = (): void => document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
     window.addEventListener('resize', setAppHeight);
     setAppHeight();
     return () => window.removeEventListener('resize', setAppHeight);
   }, []);
 
-  const toggleChatList = () => {
-    setShowChatList(!showChatList);
-  };
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+    } else {
+      localStorage.setItem(STORAGE_KEYS.showChatList, JSON.stringify(showChatList));
+    }
+  }, [showChatList]);
+
+  const toggleChatList = (): void => setShowChatList(!showChatList);
 
   return (
     <div className="appContainer">
@@ -62,4 +64,4 @@ const App: React.FC = (): React.ReactElement => {
   );
 };
 
-export default App;
+export default HomePage;

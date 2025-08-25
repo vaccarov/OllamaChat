@@ -18,8 +18,7 @@ export default function ChatBubble({ message }: { message: ChatText }): React.Re
   const isCollapsibleOpen: boolean = collapsibleStates.get(message.date) || false;
   const handleToggleCollapsible = (): void => toggleCollapsible(message.date);
 
-  const content: string = message.content;
-  const parts: string[] = content.split(/<think>(.*?)<\/think>/s);
+  const parts: string[] = message.content.split(/<think>(.*?)<\/think>/s);
 
   const renderContent = (): React.ReactElement | React.ReactElement[] => {
     const contentParts: React.ReactElement[] = parts.map((part: string, index: number) => {

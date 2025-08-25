@@ -1,6 +1,6 @@
 # OllamaChat
 
-`OllamaChat` is an interactive user interface based on React and TypeScript, designed to interact with local language models via Ollama and integrate real-time voice transcription. This project offers a smooth chat experience with advanced features like audio transcription, voice playback of model responses, and image analysis.
+`OllamaChat` is an interactive user interface built with Next.js, React, and TypeScript, designed to interact with local language models via Ollama. This project offers a smooth chat experience with advanced features like audio transcription, voice playback of model responses, and image analysis.
 
 ## Overview (desktop & mobile)
 
@@ -9,144 +9,78 @@
 
 ## Features
 
-*   **Chat with Ollama:** Interact with local LLM via Ollama.
-*   **Import/Export Sessions:** Save and restore your chat sessions in JSON format, allowing for easy sharing or archiving.
-*   **Voice Transcription (STT):** Record your voice and have it transcribed into text via a dedicated backend (like `ChatServer`).
-*   **Text-to-Speech (TTS):** The model's responses are read aloud for a more immersive experience.
-*   **Image analysis:** Attach images to your requests for the model to analyze.
-*   **Internationalization (i18n):** The interface is available in multiple languages thanks to `i18next`.
-*   **Markdown Rendering:** The model's responses are formatted in Markdown for rich display (lists, code, etc.). Reasoning is collapsable.
-*   **Customizable System Prompt:** Define a custom system prompt to guide the model's behavior.
-*   **System Prompt Presets:** Choose from a list of predefined system prompts to quickly set the context for the model.
-*   **LLM Capabilities:** The UI displays the capabilities of each LLM (e.g., vision, reasoning) to help you choose the right model for your task.
-*   **Strong Typing (TypeScript):** The project is fully typed for better maintainability and early error detection.
+*   **Chat with Ollama:** Interact with any local LLM available through Ollama.
+*   **Multi-Session Management:** Your chat history is saved and organized into distinct sessions.
+*   **Import/Export Sessions:** Save and restore your chat sessions in JSON format.
+*   **Voice Transcription (STT):** Record your voice to have it transcribed as text input.
+*   **Text-to-Speech (TTS):** Model responses are read aloud for a more immersive experience.
+*   **Image Analysis:** Attach images to your prompts for vision-capable models to analyze.
+*   **Internationalization (i18n):** The interface is available in multiple languages.
+*   **Markdown & Collapsible Reasoning:** Responses are rendered in Markdown, with `<think>` tags automatically displayed in a collapsible section.
+*   **Customizable System Prompt:** Define a custom system prompt to guide the model's behavior, with presets available.
+*   **LLM Capabilities Display:** The UI shows the capabilities of each LLM (e.g., vision) to help you choose the right model.
 
-## Request Flow
+## Tech Stack
 
-### Chat Request Flow (to Ollama)
-
-The Vite server acts as a proxy to avoid CORS issues when communicating with the Ollama server.
-
-```
-  Client/Browser          Vite Server (Proxy)            Ollama Server
-       |--- 1. Chat Request ------>|                           |
-       |                           |-- 2. Forwarded Request -->|
-       |                           |                           |---[ 3. Process request ]
-       |                           |                           |          |
-       |                           |                           |<---------+
-       |<-- 5. Streamed Response --|<--- 4. LLM Response ------|
-       
-```
-
-### Audio Transcription Flow (with Whisper)
-
-The backend `ChatServer` uses a **Whisper** model to perform audio transcription.
-You can find it here : https://github.com/vaccarov/ChatServer
-
-```
-  Client/Browser        Backend (ChatServer)
-       |--- 1. Record Audio ------>|
-       | (send audio blob)         |
-       |                           |--- [ 2. Transcribe ]
-       |                           |             |
-       |                           |<------------+
-       |<-- 3. Transcribed Text ---|
-```
-
-## Technologies Used
-
-*   **React:** A JavaScript library for building user interfaces.
-*   **Vite:** A fast frontend build tool.
+*   **Next.js:** A React framework for building full-stack web applications.
+*   **React & TypeScript:** For building the user interface with strong typing.
 *   **Mantine:** A React component library for an elegant UI.
+*   **React Feather:** For icons.
 *   **Ollama JS:** A JavaScript client for interacting with Ollama models.
-*   **i18next:** An internationalization framework for React.
-*   **React Markdown:** For rendering model responses in Markdown.
-*   **Web Speech API:** For audio recording (`getUserMedia`) and speech synthesis (`SpeechSynthesis`).
+*   **i18next:** An internationalization framework.
+
+## Architecture
+
+This project is built on the **Next.js App Router**, which uses **Server Components** by default for performance and fetches data on the server. Interactive parts of the UI are explicitly marked as **Client Components** (`'use client'`).
+
+- **Server Actions** (`src/app/actions.ts`) are used to securely fetch data from the Ollama server without exposing it to the client.
+- **API Routes** (`src/app/api/`) are used to act as a secure proxy between the client and external backends. This is used for the voice transcription service to avoid CORS issues and hide the backend URL.
 
 ## Prerequisites
 
-Before starting the application, ensure you have the following:
+Before starting, ensure you have the following:
 
-*   **Node.js (version 18 or higher recommended)**
-*   **npm** or **Yarn** (package manager)
-*   **A running Ollama server** with the models of your choice (e.g., `ollama pull mistral`).
-*   **The `ChatServer` backend running** (for voice transcription), available at https://github.com/vaccarov/ChatServer.
+*   **Node.js** (version 18 or higher recommended)
+*   **npm** (or another package manager like yarn, pnpm)
+*   **A running Ollama server** with your desired models (e.g., `ollama pull mistral`).
+*   **A running Python backend for transcription.** The one this UI was designed for is available at [https://github.com/vaccarov/ChatServer](https://github.com/vaccarov/ChatServer).
 
 ## Installation and Startup
 
-Follow these steps to set up and launch the application:
-
-1.  **Navigate to the project directory:**
+1.  **Clone the repository:**
     ```bash
-    cd ./OllamaChat
+    git clone https://github.com/vaccarov/OllamaChat
+    cd OllamaChat
     ```
 
 2.  **Install dependencies:**
     ```bash
-    npm install # or yarn install
+    npm install
     ```
 
 3.  **Configure environment variables:**
-    Create a `.env` file at the root of the project (`/Users/victor/Projets/AnswR/OllamaChat/.env`) and add the following variables:
-    ```
-    VITE_HOST=localhost
-    VITE_SERVER_PORT=8000
-    VITE_OLLAMA_PORT=11434
-    ```
-    *(`VITE_HOST` is used for proxying Ollama requests, and in my case match the address where your `ChatServer` is running, but is not mandatory if you don't use speech to text)*
+    Create a `.env.local` file at the root of the project and add the following variables. This file should **not** be committed to Git.
+    ```env
+    NEXT_PUBLIC_HOST=localhost
+    NEXT_PUBLIC_OLLAMA_PORT=11434
 
-4.  **Start the development server:**
+    # (Optional) The URL/port for your Audio transcription server
+    NEXT_PUBLIC_SERVER_HOST=http://localhost
+    NEXT_PUBLIC_SERVER_PORT=8000
+
+    # (Optional) The public Next.js https URL (I'm using tailscale but it could be your VPS server). This is mandatory if you want to use audio recording from your phone, since https is required for audio record permissions.
+    NEXT_PUBLIC_TAILSCALE_HOST=XXX
+    ```
+
+4.  **Run the development server:**
     ```bash
-    npm run dev # or yarn dev
+    npm run dev
     ```
-    The application will be accessible at `http://localhost:5173` (or another port if specified by Vite).
+    The application will be accessible at [http://localhost:3000](http://localhost:3000).
 
-## Usage
-
-*   **Model Selection:** Choose the Ollama model you want to interact with via the selector at the top.
-*   **Text Input:** Type your questions in the text box and press `Enter` to send.
-*   **Voice Transcription:** Click the microphone icon to record your voice. The transcribed text will appear in the input box and be sent to the model.
-*   **Text-to-Speech:** Enable/disable the reading of model responses via the volume icon. If a reading is in progress, clicking the icon will stop it.
-*   **Adding Images:** Use the image icon to attach a file. Its content will be added to your prompt.
-
-## Project Structure
-
-*   `src/App.tsx`: The root component of the application.
-*   `src/components/`: Contains reusable components:
-    *   `Chat.tsx`: Displays the current conversation.
-    *   `ChatBubble.tsx`: Represents a message bubble in the chat.
-    *   `ChatList.tsx`: Manages the list of conversations.
-    *   `Collapsable.tsx`: A reusable accordion component.
-    *   `ImagePicker.tsx`: Allows selecting images to attach.
-    *   `LanguageSwitcher.tsx`: Allows changing the interface language.
-    *   `LLMPicker.tsx`: Allows selecting the language model.
-    *   `Question.tsx`: The input area for asking questions.
-    *   `Record.tsx`: Manages audio recording.
-    *   `SystemPrompt.tsx`: Allows setting a system prompt.
-*   `src/context/`: Manages React contexts for state sharing:
-    *   `AppProviders.tsx`: A component that wraps all context providers.
-    *   `MessageContext.tsx`: Manages messages in the active conversation.
-    *   `ModelContext.tsx`: Manages the selected language model.
-    *   `OllamaContext.tsx`: Manages the connection with the Ollama server.
-*   `src/hooks/`: Contains custom hooks:
-    *   `useTts.ts`: Manages Text-to-Speech.
-*   `src/locales/`: Contains translation files for internationalization.
-*   `src/models/`: TypeScript type definitions.
-*   `src/utils/`: Utility functions.
-
-## Development
-
-The project uses Vite for rapid development. The key commands are:
+## Development Scripts
 
 *   `npm run dev`: Starts the development server.
 *   `npm run build`: Compiles the application for production.
-*   `npm run lint`: Runs ESLint to check the code.
-*   `npm run preview`: Previews the production build.
-
-## Notes
-
-*   In development mode, you might observe some side effects (like duplicate logs) due to React's `StrictMode`. This behavior is normal and does not affect the production version.
-*   Ensure that your Ollama server is accessible from the URL configured in `VITE_HOST` in your `.env` file.
-
-Todo:
-All clear, suggestions are welcome !
+*   `npm run start`: Starts the production server.
+*   `npm run lint`: Runs ESLint to check for code quality issues.

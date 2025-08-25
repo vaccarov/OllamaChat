@@ -6,7 +6,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
 
-export const MessageProvider = ({ children }: { children: React.ReactNode }) => {
+export const MessageProvider = ({ children }: { children: React.ReactNode }): React.JSX.Element => {
   const { t, i18n } = useTranslation();
 
   const createNewSession = useCallback((model: string = '', name: string = t('chat.new_chat_default_name')): ChatSession => ({
@@ -53,10 +53,13 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
   , [sessions, activeSessionId]);
 
   useEffect(() => {
+    if (activeSession && activeSession.model !== currentModel?.model) {
+      setModel(activeSession.model);
+    }
+  }, [activeSession, currentModel, setModel]);
+
+  useEffect(() => {
     if (activeSession) {
-      if (currentModel?.model !== activeSession.model) {
-        setModel(activeSession.model);
-      }
       conversation.current = activeSession.messages
         .filter((m: ChatText) => m.role !== 'custom')
         .map((m: ChatText) => ({
@@ -67,10 +70,9 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
             : undefined
         }));
     }
-  }, [activeSession, currentModel, setModel]);
+  }, [activeSession]);
 
-
-  const addMessage = useCallback((role: ChatRole, content: string, image?: ImageToSend, sessionId?: string) => {
+  const addMessage = useCallback((role: ChatRole, content: string, image?: ImageToSend, sessionId?: string): void => {
     const targetSessionId: string = sessionId || activeSessionId;
     const newMsg: ChatText = { role, content, date: new Date().toISOString(), image };
     setSessions((prevSessions: ChatSession[]) =>
@@ -80,7 +82,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
     );
   }, [activeSessionId]);
 
-  const addChunk = useCallback((chunk: string, sessionId?: string) => {
+  const addChunk = useCallback((chunk: string, sessionId?: string): void => {
     const targetSessionId: string = sessionId || activeSessionId;
     setSessions((prevSessions: ChatSession[]) =>
       prevSessions.map((s: ChatSession) => {
@@ -100,13 +102,13 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
     }));
   }, [activeSessionId]);
 
-  const startNewSession = useCallback((name: string) => {
+  const startNewSession = useCallback((name: string): void => {
     const newSession: ChatSession = createNewSession(currentModel?.model || '', name);
     setSessions((prevSessions: ChatSession[]) => [...prevSessions, newSession]);
     setActiveSessionId(newSession.id);
   }, [createNewSession, currentModel?.model]);
 
-  const updateSystemPrompt = useCallback((systemPrompt: string) => {
+  const updateSystemPrompt = useCallback((systemPrompt: string): void => {
     setSessions((prevSessions: ChatSession[]) =>
       prevSessions.map((s: ChatSession) => {
         if (s.id !== activeSessionId) return s;
@@ -118,7 +120,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
     );
   }, [activeSessionId]);
 
-  const updateModel = useCallback((model: string) => {
+  const updateModel = useCallback((model: string): void => {
     setSessions((prevSessions: ChatSession[]) =>
       prevSessions.map((s: ChatSession) =>
         s.id === activeSessionId ? { ...s, model } : s
@@ -128,7 +130,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
 
   const [collapsibleStates, setCollapsibleStates] = useState<Map<string | undefined, boolean>>(new Map());
 
-  const toggleCollapsible = (messageDate: string | undefined) => {
+  const toggleCollapsible = (messageDate: string | undefined): void => {
     setCollapsibleStates((prevStates: Map<string | undefined, boolean>) => {
       const newStates: Map<string | undefined, boolean> = new Map(prevStates);
       newStates.set(messageDate, !newStates.get(messageDate));
@@ -136,7 +138,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
     });
   };
 
-  const renameSession = useCallback((id: string, name: string) => {
+  const renameSession = useCallback((id: string, name: string): void => {
     setSessions((prevSessions: ChatSession[]) =>
       prevSessions.map((s: ChatSession) =>
         s.id === id ? { ...s, name } : s
@@ -144,7 +146,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
     );
   }, []);
 
-  const deleteSession = useCallback((id: string) => {
+  const deleteSession = useCallback((id: string): void => {
     const remainingSessions: ChatSession[] = sessions.filter((s: ChatSession) => s.id !== id);
     if (remainingSessions.length === 0) {
       const newSession = createNewSession(currentModel?.model || '', t('chat.new_chat_default_name'));
@@ -163,7 +165,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
     }
   }, [sessions, activeSessionId, createNewSession, currentModel?.model, t]);
 
-  const duplicateSession = useCallback((id: string) => {
+  const duplicateSession = useCallback((id: string): void => {
     const sessionToDuplicate: ChatSession | undefined = sessions.find((s: ChatSession) => s.id === id);
     if (!sessionToDuplicate) return;
     const newSession: ChatSession = { ...sessionToDuplicate, id: uuidv4(), name: `${sessionToDuplicate.name}${t('chat.copy_suffix')}` };
@@ -184,7 +186,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
     URL.revokeObjectURL(url);
   }, [sessions, activeSessionId, t]);
 
-  const importSessions = useCallback((jsonString: string) => {
+  const importSessions = useCallback((jsonString: string): void => {
     try {
       const importedHistory: ChatHistory = JSON.parse(jsonString);
       if (importedHistory && Array.isArray(importedHistory.sessions) && typeof importedHistory.activeSessionId === 'string') {
@@ -211,7 +213,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }) => 
     }
   }, [t]);
 
-  const sessionsInGroup = useMemo(() => {
+  const sessionsInGroup: Record<string, ChatSession[]> = useMemo(() => {
     return sessions
       .slice()
       .sort((a: ChatSession, b: ChatSession) => {

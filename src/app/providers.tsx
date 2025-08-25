@@ -1,12 +1,15 @@
+'use client';
+
 import { MessageProvider } from '@/context/MessageContext';
 import { ModelProvider } from '@/context/ModelContext';
-import { OllamaProvider } from "@/context/OllamaContext";
+import '@/i18n';
 import { MantineProvider } from '@mantine/core';
-import '@mantine/core/styles.css';
+import React from 'react';
 
-export const AppProviders = ({ children }: { children: React.ReactNode }) => {
+export const AppProviders = ({ children }: { children: React.ReactNode }): React.JSX.Element => {
   return (
-    <MantineProvider defaultColorScheme="dark"
+    <MantineProvider
+      defaultColorScheme="dark"
       theme={{
         components: {
           ActionIcon: {
@@ -17,13 +20,11 @@ export const AppProviders = ({ children }: { children: React.ReactNode }) => {
           },
         },
       }}>
-      <OllamaProvider>
         <ModelProvider>
           <MessageProvider>
             {children}
           </MessageProvider>
         </ModelProvider>
-      </OllamaProvider>
     </MantineProvider>
   );
 };

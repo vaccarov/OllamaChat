@@ -4,7 +4,10 @@ import { Mic, MicOff } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import "./Record.css";
 
-export default function AudioRecorder({ onTranscript }: { onTranscript: (text: string, error?: boolean) => void }): React.ReactElement {
+export default function AudioRecorder({ onTranscript, setLoading }: {
+  onTranscript: (text: string, error?: boolean) => void,
+  setLoading: (loading: boolean) => void
+}): React.ReactElement {
   const { t } = useTranslation();
   const [recording, setRecording] = useState<boolean>(false);
   const [lang, setLang] = useState<string>(localStorage.getItem('speechLang') || 'fr');
@@ -33,7 +36,8 @@ export default function AudioRecorder({ onTranscript }: { onTranscript: (text: s
         formData.append("language", lang);
 
         try {
-          const res: Response = await fetch(`${import.meta.env.VITE_HOST}:${import.meta.env.VITE_SERVER_PORT}/transcribe`, {
+          setLoading(true);
+          const res: Response = await fetch("/api/transcribe", {
             method: "POST",
             body: formData,
           });

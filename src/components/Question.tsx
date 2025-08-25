@@ -1,35 +1,39 @@
+'use client';
+
 import ImagePicker from "@/components/ImagePicker";
 import AudioRecorder from "@/components/Record";
 import { MessageContext } from "@/context/MessageContextDefinition";
 import { ModelContext } from "@/context/ModelContextDefinition";
-import { useOllama } from "@/hooks/useOllama";
 import { useTts } from "@/hooks/useTts";
 import { OllamaModel } from "@/types";
 import { ChatRole } from "@/types/ChatRoleDefinition";
 import { MessageContextType } from "@/types/MessageContextDefinition";
 import { getLineNumber, getTotalLines, mapIsoToBcp47 } from "@/utils/tools";
 import { ActionIcon, Chip, Menu, Textarea } from "@mantine/core";
-import { AbortableAsyncIterator, ChatResponse, Message, Ollama } from "ollama";
-import { ReactElement, RefObject, useContext, useRef, useState } from "react";
+import { Message } from "ollama";
+import { ReactElement, useContext, useEffect, useRef, useState } from "react";
 import { Loader, MoreVertical, Play, Volume2, VolumeX, X } from "react-feather";
 import { useTranslation } from "react-i18next";
 import "./Question.css";
 
-export const Question: React.FC = (): ReactElement => {
+export const Question: React.FC = (): ReactElement | null => {
   const { t } = useTranslation();
-  const ollama: Ollama = useOllama();
   const { currentModel }: { currentModel: OllamaModel | undefined } = useContext(ModelContext)!;
   const { conversation, image, addMessage, addChunk, setImage, activeSession }: MessageContextType = useContext(MessageContext)!;
   const [userPrompt, setUserPrompt] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
-  const { isTtsEnabled, setIsTtsEnabled, isSpeaking, speak, cancel, start } = useTts();
+  const { isTtsEnabled, setIsTtsEnabled, isSpeaking, speak, cancel } = useTts();
   const [historyIndex, setHistoryIndex] = useState<number | null>(null);
   const [promptBeforeNav, setPromptBeforeNav] = useState<string | null>(null);
-  const abortRequestRef: RefObject<boolean> = useRef<boolean>(false);
+  const [isClient, setIsClient] = useState<boolean>(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  useEffect(() => setIsClient(true), []);
 
   const stopRequest = (): void => {
-    abortRequestRef.current = true;
-    ollama.abort();
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
     cancel();
     setLoading(false);
   };
@@ -43,8 +47,6 @@ export const Question: React.FC = (): ReactElement => {
 
   const sendRequest = async (prompt: string): Promise<void> => {
     if (!prompt && !image) return;
-    abortRequestRef.current = false; // Prevent bug where stream keeps coming after aborting
-    start();
 
     const currentSessionId: string | undefined = activeSession?.id;
 
@@ -65,30 +67,43 @@ export const Question: React.FC = (): ReactElement => {
     const currentSpeechLang: string = mapIsoToBcp47(localStorage.getItem('speechLang') || 'fr');
 
     try {
-      const stream: AbortableAsyncIterator<ChatResponse> = await ollama.chat({
-        model: currentModel!.model,
-        messages: messagesForApi,
-        stream: true,
+      abortControllerRef.current = new AbortController();
+      const response: Response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: currentModel!.model, messages: messagesForApi }),
+        signal: abortControllerRef.current.signal,
       });
 
-      if (abortRequestRef.current) {
-        addMessage(ChatRole.custom, t('errors.request_aborted'), undefined, currentSessionId);
-        setLoading(false);
-        return;
+      if (!response.ok || !response.body) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Unknown error');
       }
 
       addMessage(ChatRole.assistant, '', undefined, currentSessionId);
-      for await (const part of stream) {
-        const chunk: string = part.message.content;
-        addChunk(chunk, currentSessionId);
-        sentenceBuffer += chunk;
+      const reader: ReadableStreamDefaultReader<Uint8Array> = response.body.getReader();
+      const decoder: TextDecoder = new TextDecoder();
+      let buffer: string = '';
 
-        const sentenceEndIndex: number = sentenceBuffer.search(/[.!?]/);
+      while (true) {
+        const { done, value }: ReadableStreamReadResult<Uint8Array> = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines: string[] = buffer.split('\n');
+        buffer = lines.pop() || '';
+        for (const line of lines) {
+          if (line.trim() === '') continue;
+          const content: string = JSON.parse(line).message.content;
+          addChunk(content, currentSessionId);
+          sentenceBuffer += content;
 
-        if (sentenceEndIndex !== -1) {
-          const sentence: string = sentenceBuffer.substring(0, sentenceEndIndex + 1);
-          speak(sentence, currentSpeechLang);
-          sentenceBuffer = sentenceBuffer.substring(sentenceEndIndex + 1);
+          const sentenceEndIndex: number = sentenceBuffer.search(/[.!?]/);
+
+          if (sentenceEndIndex !== -1) {
+            const sentence: string = sentenceBuffer.substring(0, sentenceEndIndex + 1);
+            speak(sentence, currentSpeechLang);
+            sentenceBuffer = sentenceBuffer.substring(sentenceEndIndex + 1);
+          }
         }
       }
 
@@ -103,12 +118,14 @@ export const Question: React.FC = (): ReactElement => {
       addMessage(ChatRole.custom, errorMessage, undefined, currentSessionId);
     } finally {
       setLoading(false);
+      abortControllerRef.current = null;
     }
   };
 
   const handleTranscript = (transcript: string, error: boolean = false): void => {
     const newPrompt: string = userPrompt ? `${userPrompt} ${transcript}` : transcript;
     if (error) {
+      setLoading(false);
       addMessage(ChatRole.custom, newPrompt);
       return;
     }
@@ -116,8 +133,8 @@ export const Question: React.FC = (): ReactElement => {
     sendRequest(newPrompt);
   };
 
-  const onArrowPressed = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    const userMessages: Message[] = conversation.current.filter((c: Message) => c.role === ChatRole.user);
+  const onArrowPressed = (e: React.KeyboardEvent<HTMLTextAreaElement>): void => {
+    const userMessages: Message[] = conversation.current?.filter((c: Message) => c.role === ChatRole.user) || [];
     const textarea: EventTarget & HTMLTextAreaElement = e.currentTarget;
     const currentLine: number = getLineNumber(textarea);
     const totalLines: number = getTotalLines(textarea);
@@ -153,7 +170,7 @@ export const Question: React.FC = (): ReactElement => {
     }
   }
 
-  return (
+  return !isClient ? null : (
     <div className="questionContainer">
       <Menu shadow="md">
         <Menu.Target>
@@ -163,7 +180,7 @@ export const Question: React.FC = (): ReactElement => {
         </Menu.Target>
         <Menu.Dropdown>
           <div className="questionMenu">
-            <AudioRecorder onTranscript={handleTranscript} />
+            <AudioRecorder onTranscript={handleTranscript} setLoading={setLoading} />
             <ActionIcon
               onClick={handleTtsButtonClick}
               title={isTtsEnabled ? (isSpeaking ? t('audio.stop_reading') : t('audio.disable_reading')) : t('audio.enable_reading')}>
@@ -189,7 +206,7 @@ export const Question: React.FC = (): ReactElement => {
             variant="transparent"
             radius="xl"
             size="lg"
-            disabled={!currentModel?.model || !userPrompt && !loading}
+            disabled={!currentModel?.model || !(userPrompt || image) && !loading}
             onClick={() => loading ? stopRequest() : sendRequest(userPrompt)}>
             {loading ? <Loader className="spin-animation" /> : <Play />}
           </ActionIcon>
