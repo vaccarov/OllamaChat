@@ -1,6 +1,9 @@
+import { STORAGE_KEYS } from '@/constants/storageKeys';
 import { MessageContext } from '@/context/MessageContextDefinition';
 import { ModelContext } from '@/context/ModelContextDefinition';
+import usePersistentState from '@/hooks/usePersistentState';
 import { ChatHistory, ChatRole, ChatSession, ChatText, ImageToSend } from '@/types';
+import { sortSessionsByDate } from '@/utils/tools';
 import { Message } from 'ollama';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -8,6 +11,13 @@ import { v4 as uuidv4 } from 'uuid';
 
 export const MessageProvider = ({ children }: { children: React.ReactNode }): React.JSX.Element => {
   const { t, i18n } = useTranslation();
+  const { currentModel, setModel } = React.useContext(ModelContext)!;
+  const [history, setHistory] = usePersistentState<ChatHistory>(STORAGE_KEYS.chatHistory, { sessions: [], activeSessionId: '' });
+  const { sessions, activeSessionId }: ChatHistory = history;
+  const [image, setImage] = useState<ImageToSend | undefined>();
+  const conversation = useRef<Message[]>([]);
+  const historyRef: React.MutableRefObject<ChatHistory> = useRef<ChatHistory>(history);
+  historyRef.current = history;
 
   const createNewSession = useCallback((model: string = '', name: string = t('chat.new_chat_default_name')): ChatSession => ({
     id: uuidv4(),
@@ -16,37 +26,35 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
     systemPrompt: '',
     model,
   }), [t]);
-  const { currentModel, setModel } = React.useContext(ModelContext)!;
-  const [sessions, setSessions] = useState<ChatSession[]>([]);
-  const [activeSessionId, setActiveSessionId] = useState<string>('');
-  const [image, setImage] = useState<ImageToSend | undefined>();
-  const conversation = useRef<Message[]>([]);
 
   useEffect(() => {
-    try {
-      const savedHistory: string | null = localStorage.getItem('chatHistory');
-      if (savedHistory) {
-        const parsed: ChatHistory = JSON.parse(savedHistory) as ChatHistory;
-        if (parsed.sessions && parsed.activeSessionId) {
-          setSessions(parsed.sessions);
-          setActiveSessionId(parsed.activeSessionId);
-          return;
-        }
-      }
-    } catch (e) {
-      console.error("Failed to parse chat history from localStorage", e);
+    if (sessions.length === 0) {
+      const newSession: ChatSession = createNewSession('', t('chat.new_chat_default_name'));
+      setHistory({ sessions: [newSession], activeSessionId: newSession.id });
     }
-    const newSession: ChatSession = createNewSession('', t('chat.new_chat_default_name'));
-    setSessions([newSession]);
-    setActiveSessionId(newSession.id);
-  }, [createNewSession, t]);
+  }, [sessions.length, createNewSession, setHistory, t]);
 
-  useEffect(() => {
-    if (sessions.length > 0 && activeSessionId) {
-      const chatHistory: ChatHistory = { sessions, activeSessionId };
-      localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
-    }
-  }, [sessions, activeSessionId]);
+  const setSessions = useCallback((updater: React.SetStateAction<ChatSession[]>) => {
+    setHistory((prev: ChatHistory) => {
+      const newSessions: ChatSession[] = typeof updater === 'function' ? updater(prev.sessions) : updater;
+      return { ...prev, sessions: newSessions };
+    });
+  }, [setHistory]);
+
+  const setActiveSessionId = useCallback((updater: React.SetStateAction<string | null>) => {
+    setHistory((prev: ChatHistory) => {
+      const newId: string | null = typeof updater === 'function' ? updater(prev.activeSessionId) : updater;
+      return { ...prev, activeSessionId: newId };
+    });
+  }, [setHistory]);
+
+  // Centralized helper to update a session
+  const findAndUpdateSession = useCallback((updater: (session: ChatSession) => ChatSession, sessionIdToUpdate?: string) => {
+    const targetSessionId: string | null = sessionIdToUpdate || activeSessionId;
+    setSessions((prevSessions: ChatSession[]) =>
+      prevSessions.map((s: ChatSession) => (s.id === targetSessionId ? updater(s) : s))
+    );
+  }, [activeSessionId, setSessions]);
 
   const activeSession: ChatSession | undefined = useMemo(() =>
     sessions.find((s: ChatSession) => s.id === activeSessionId)
@@ -73,107 +81,76 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
   }, [activeSession]);
 
   const addMessage = useCallback((role: ChatRole, content: string, image?: ImageToSend, sessionId?: string): void => {
-    const targetSessionId: string = sessionId || activeSessionId;
     const newMsg: ChatText = { role, content, date: new Date().toISOString(), image };
-    setSessions((prevSessions: ChatSession[]) =>
-      prevSessions.map((s: ChatSession) =>
-        s.id === targetSessionId ? { ...s, messages: [...s.messages, newMsg] } : s
-      )
-    );
-  }, [activeSessionId]);
+    findAndUpdateSession((s: ChatSession) => ({ ...s, messages: [...s.messages, newMsg] }), sessionId);
+  }, [findAndUpdateSession]);
 
   const addChunk = useCallback((chunk: string, sessionId?: string): void => {
-    const targetSessionId: string = sessionId || activeSessionId;
-    setSessions((prevSessions: ChatSession[]) =>
-      prevSessions.map((s: ChatSession) => {
-      if (s.id === targetSessionId) {
-        const messages: ChatText[] = [...s.messages];
-        const prevLastMessage: ChatText | undefined = messages[messages.length - 1];
-        const lastMessage: ChatText = {
-          ...prevLastMessage,
-          role: prevLastMessage?.role ?? ChatRole.user,
-          content: (prevLastMessage?.content ?? '') + chunk,
-          date: prevLastMessage?.date ?? new Date().toISOString()
-        };
-        messages[messages.length - 1] = lastMessage;
-        return { ...s, messages };
-      }
-      return s;
-    }));
-  }, [activeSessionId]);
+    findAndUpdateSession((s: ChatSession) => {
+      const messages: ChatText[] = [...s.messages];
+      const lastMessage: ChatText | undefined = messages[messages.length - 1];
+      messages[messages.length - 1] = {
+        ...lastMessage,
+        role: lastMessage?.role ?? ChatRole.user,
+        content: (lastMessage?.content ?? '') + chunk,
+        date: lastMessage?.date ?? new Date().toISOString()
+      };
+      return { ...s, messages };
+    }, sessionId);
+  }, [findAndUpdateSession]);
 
   const startNewSession = useCallback((name: string): void => {
     const newSession: ChatSession = createNewSession(currentModel?.model || '', name);
     setSessions((prevSessions: ChatSession[]) => [...prevSessions, newSession]);
     setActiveSessionId(newSession.id);
-  }, [createNewSession, currentModel?.model]);
+  }, [createNewSession, currentModel?.model, setActiveSessionId, setSessions]);
 
   const updateSystemPrompt = useCallback((systemPrompt: string): void => {
-    setSessions((prevSessions: ChatSession[]) =>
-      prevSessions.map((s: ChatSession) => {
-        if (s.id !== activeSessionId) return s;
-        const messages: ChatText[] = s.messages.map((msg: ChatText) => {
-          return { ...msg, content: msg.role === ChatRole.system ? systemPrompt : msg.content };
-        });
-        return { ...s, systemPrompt, messages };
-      })
-    );
-  }, [activeSessionId]);
+    findAndUpdateSession((s: ChatSession) => ({
+      ...s,
+      systemPrompt,
+      messages: s.messages.map((msg: ChatText) => 
+        msg.role === ChatRole.system ? { ...msg, content: systemPrompt } : msg
+      ),
+    }));
+  }, [findAndUpdateSession]);
 
   const updateModel = useCallback((model: string): void => {
-    setSessions((prevSessions: ChatSession[]) =>
-      prevSessions.map((s: ChatSession) =>
-        s.id === activeSessionId ? { ...s, model } : s
-      )
-    );
-  }, [activeSessionId]);
-
-  const [collapsibleStates, setCollapsibleStates] = useState<Map<string | undefined, boolean>>(new Map());
-
-  const toggleCollapsible = (messageDate: string | undefined): void => {
-    setCollapsibleStates((prevStates: Map<string | undefined, boolean>) => {
-      const newStates: Map<string | undefined, boolean> = new Map(prevStates);
-      newStates.set(messageDate, !newStates.get(messageDate));
-      return newStates;
-    });
-  };
+    findAndUpdateSession((s: ChatSession) => ({ ...s, model }));
+  }, [findAndUpdateSession]);
 
   const renameSession = useCallback((id: string, name: string): void => {
-    setSessions((prevSessions: ChatSession[]) =>
-      prevSessions.map((s: ChatSession) =>
-        s.id === id ? { ...s, name } : s
-      )
-    );
-  }, []);
+    findAndUpdateSession((s: ChatSession) => ({ ...s, name }), id);
+  }, [findAndUpdateSession]);
 
   const deleteSession = useCallback((id: string): void => {
-    const remainingSessions: ChatSession[] = sessions.filter((s: ChatSession) => s.id !== id);
-    if (remainingSessions.length === 0) {
-      const newSession = createNewSession(currentModel?.model || '', t('chat.new_chat_default_name'));
-      setSessions([newSession]);
-      setActiveSessionId(newSession.id);
-      return;
-    }
-    setSessions(remainingSessions);
-    if (activeSessionId === id) {
-      const sortedSessions: ChatSession[] = remainingSessions.slice().sort((a, b) => {
-        const dateA: number = new Date(a.messages[a.messages.length - 1]?.date || 0).getTime();
-        const dateB: number = new Date(b.messages[b.messages.length - 1]?.date || 0).getTime();
-        return dateB - dateA;
-      });
-      setActiveSessionId(sortedSessions[0]!.id);
-    }
-  }, [sessions, activeSessionId, createNewSession, currentModel?.model, t]);
+    setHistory((prev: ChatHistory) => {
+      const remainingSessions: ChatSession[] = prev.sessions.filter((s: ChatSession) => s.id !== id);
+      if (remainingSessions.length === 0) {
+        const newSession: ChatSession = createNewSession(currentModel?.model || '', t('chat.new_chat_default_name'));
+        return { sessions: [newSession], activeSessionId: newSession.id };
+      }
+      const newActiveId: string | null = prev.activeSessionId === id
+          ? sortSessionsByDate(remainingSessions)[0]!.id
+          : prev.activeSessionId;
+      return { sessions: remainingSessions, activeSessionId: newActiveId };
+    });
+  }, [createNewSession, currentModel?.model, t, setHistory]);
 
   const duplicateSession = useCallback((id: string): void => {
-    const sessionToDuplicate: ChatSession | undefined = sessions.find((s: ChatSession) => s.id === id);
-    if (!sessionToDuplicate) return;
-    const newSession: ChatSession = { ...sessionToDuplicate, id: uuidv4(), name: `${sessionToDuplicate.name}${t('chat.copy_suffix')}` };
-    setSessions(prevSessions => [...prevSessions, newSession]);
-    setActiveSessionId(newSession.id);
-  }, [sessions, t]);
+    setHistory((prev: ChatHistory) => {
+      const sessionToDuplicate: ChatSession | undefined = prev.sessions.find((s: ChatSession) => s.id === id);
+      if (!sessionToDuplicate) return prev;
+      const newSession: ChatSession = { ...sessionToDuplicate, id: uuidv4(), name: `${sessionToDuplicate.name}${t('chat.copy_suffix')}` };
+      return {
+        sessions: [...prev.sessions, newSession],
+        activeSessionId: newSession.id
+      };
+    });
+  }, [t, setHistory]);
 
   const exportSessions = useCallback((): void => {
+    const { sessions, activeSessionId }: ChatHistory = historyRef.current;
     const json: string = JSON.stringify({ sessions, activeSessionId }, null, 2);
     const blob: Blob = new Blob([json], { type: 'application/json' });
     const url: string = URL.createObjectURL(blob);
@@ -184,25 +161,21 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  }, [sessions, activeSessionId, t]);
+  }, [t]);
 
   const importSessions = useCallback((jsonString: string): void => {
     try {
       const importedHistory: ChatHistory = JSON.parse(jsonString);
       if (importedHistory && Array.isArray(importedHistory.sessions) && typeof importedHistory.activeSessionId === 'string') {
-        setSessions((prevSessions: ChatSession[]) => {
-          const mergedSessions: ChatSession[] = [...prevSessions];
-          importedHistory.sessions.forEach((newSession: ChatSession) => {
-            if (!mergedSessions.some((session: ChatSession) => session.id === newSession.id)) {
-              mergedSessions.push(newSession);
-            }
-          });
-          return mergedSessions;
+        setHistory((prev: ChatHistory) => {
+          const existingIds: Set<string> = new Set(prev.sessions.map((s: ChatSession) => s.id));
+          const newSessions: ChatSession[] = importedHistory.sessions.filter((s: ChatSession) => !existingIds.has(s.id));
+          return {
+            ...prev,
+            sessions: [...prev.sessions, ...newSessions],
+            activeSessionId: prev.activeSessionId || importedHistory.activeSessionId
+          };
         });
-
-        if (!activeSessionId) {
-          setActiveSessionId(importedHistory.activeSessionId);
-        }
       } else {
         console.error(t('chat.history.invalid_format'), importedHistory);
         alert(t('chat.history.invalid_format'));
@@ -211,16 +184,10 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
       console.error(t('chat.history.parsing_error'), error);
       alert(t('chat.history.parsing_error'));
     }
-  }, [t]);
+  }, [t, setHistory]);
 
   const sessionsInGroup: Record<string, ChatSession[]> = useMemo(() => {
-    return sessions
-      .slice()
-      .sort((a: ChatSession, b: ChatSession) => {
-        const dateA: Date = new Date(a.messages[a.messages.length - 1]?.date || '');
-        const dateB: Date = new Date(b.messages[b.messages.length - 1]?.date || '');
-        return dateB.getTime() - dateA.getTime();
-      })
+    return sortSessionsByDate(sessions)
       .reduce((acc: Record<string, ChatSession[]>, session: ChatSession) => {
         const lastMessage: ChatText | undefined = session.messages[session.messages.length - 1];
         const lastMessageDate: Date = new Date(lastMessage?.date || '');
@@ -237,7 +204,6 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
       sessionsInGroup,
       image,
       conversation,
-      collapsibleStates,
       setImage,
       addMessage,
       addChunk,
@@ -245,7 +211,6 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
       setActiveSessionId,
       updateSystemPrompt,
       updateModel,
-      toggleCollapsible,
       renameSession,
       deleteSession,
       duplicateSession,

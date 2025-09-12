@@ -1,20 +1,13 @@
 'use client';
 
+import { STORAGE_KEYS } from '@/constants/storageKeys';
 import { UseTtsReturn } from '@/types/Tts';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
+import usePersistentState from './usePersistentState';
 
 export const useTts = (): UseTtsReturn => {
-  const [isTtsEnabled, setIsTtsEnabled] = useState<boolean>(false);
+  const [isTtsEnabled, setIsTtsEnabled] = usePersistentState<boolean>(STORAGE_KEYS.ttsEnabled, false);
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
-
-  useEffect(() => {
-    const saved: string | null = localStorage.getItem('tts-enabled');
-    setIsTtsEnabled(saved ? JSON.parse(saved) : false);
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('tts-enabled', JSON.stringify(isTtsEnabled));
-  }, [isTtsEnabled]);
 
   const speak = useCallback((text: string, lang: string): void => {
     if (!isTtsEnabled || !window.speechSynthesis) return;

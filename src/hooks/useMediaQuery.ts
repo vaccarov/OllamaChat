@@ -2,17 +2,16 @@
 
 import { useEffect, useState } from 'react';
 
-export function useMediaQuery(): boolean {
-  const mediaQuery: string = `(max-width: 768px)`;
+export function useMediaQuery(query: string): boolean {
   const [matches, setMatches] = useState<boolean>(false);
 
   useEffect(() => {
-    const mediaQueryList: MediaQueryList = window.matchMedia(mediaQuery);
+    const mediaQueryList: MediaQueryList = window.matchMedia(query);
     setMatches(mediaQueryList.matches);
-    const listener = (event: MediaQueryListEvent) => setMatches(event.matches);
+    const listener = (event: MediaQueryListEvent): void => setMatches(event.matches);
     mediaQueryList.addEventListener('change', listener);
-    return () => mediaQueryList.removeEventListener('change', listener);
-  }, [mediaQuery]);
+    return (): void => mediaQueryList.removeEventListener('change', listener);
+  }, [query]);
 
   return matches;
 }
