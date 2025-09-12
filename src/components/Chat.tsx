@@ -1,4 +1,5 @@
 import ChatBubble from "@/components/ChatBubble";
+import { SCROLL_TOLERANCE, TOP_ARROW_THRESHOLD } from "@/constants/list";
 import { MessageContext } from "@/context/MessageContextDefinition";
 import { ChatSession } from "@/types/ChatSession";
 import { ChatText } from "@/types/ChatText";
@@ -11,7 +12,7 @@ import "./Chat.css";
 export const Chat: React.FC = (): React.ReactElement | null => {
   const { t } = useTranslation();
   const { activeSession }: { activeSession: ChatSession | undefined } = useContext(MessageContext)!;
-  const chatRef: React.RefObject<HTMLDivElement | null> = useRef<HTMLDivElement>(null);
+  const chatRef: React.RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
   const [isAtBottom, setIsAtBottom] = useState<boolean>(true);
   const [showTopArrow, setShowTopArrow] = useState<boolean>(false);
   const [isClient, setIsClient] = useState<boolean>(false);
@@ -30,10 +31,9 @@ export const Chat: React.FC = (): React.ReactElement | null => {
     const el: HTMLDivElement | null = chatRef.current;
     if (!el) return;
     const handleScroll = (): void => {
-      const scrollTolerance: number = 10;
-      const isScrolledToBottom: boolean = el.scrollHeight - el.scrollTop - el.clientHeight < scrollTolerance;
+      const isScrolledToBottom: boolean = el.scrollHeight - el.scrollTop - el.clientHeight < SCROLL_TOLERANCE;
       setIsAtBottom(isScrolledToBottom);
-      setShowTopArrow(el.scrollTop > 64);
+      setShowTopArrow(el.scrollTop > TOP_ARROW_THRESHOLD);
     };
     el.addEventListener('scroll', handleScroll);
     handleScroll();
@@ -42,7 +42,7 @@ export const Chat: React.FC = (): React.ReactElement | null => {
 
   useEffect(() => {
     if (isAtBottom) scrollToBottom();
-  }, [activeSession?.messages]);
+  }, [activeSession?.messages, isAtBottom]);
 
   useEffect(() => scrollToBottom(), [activeSession?.id]);
 

@@ -5,36 +5,25 @@ import { ChatList } from "@/components/ChatList";
 import { LLMPicker } from "@/components/LLMPicker";
 import { Question } from "@/components/Question";
 import { SystemPrompt } from "@/components/SystemPrompt";
+import { MQ_MAX_WIDTH } from "@/constants/list";
 import { STORAGE_KEYS } from "@/constants/storageKeys";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import usePersistentState from "@/hooks/usePersistentState";
 import { ActionIcon } from "@mantine/core";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Settings, Sidebar } from "react-feather";
 
 const HomePage: React.FC = (): React.ReactElement => {
-  const [showChatList, setShowChatList] = useState<boolean>(false);
+  const [showChatList, setShowChatList] = usePersistentState<boolean>(STORAGE_KEYS.showChatList, false);
   const [showSettings, setShowSettings] = useState<boolean>(false);
-  const isMobile: boolean = useMediaQuery();
-  const isInitialMount: React.MutableRefObject<boolean> = useRef(true);
+  const isMobile: boolean = useMediaQuery(`(max-width: ${MQ_MAX_WIDTH}px)`);
 
   useEffect(() => {
-    const saved: string | null = localStorage.getItem(STORAGE_KEYS.showChatList);
-    if (saved) {
-      setShowChatList(JSON.parse(saved));
-    }
     const setAppHeight = (): void => document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
     window.addEventListener('resize', setAppHeight);
     setAppHeight();
     return () => window.removeEventListener('resize', setAppHeight);
   }, []);
-
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-    } else {
-      localStorage.setItem(STORAGE_KEYS.showChatList, JSON.stringify(showChatList));
-    }
-  }, [showChatList]);
 
   const toggleChatList = (): void => setShowChatList(!showChatList);
 

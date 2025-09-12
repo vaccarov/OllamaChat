@@ -1,0 +1,13 @@
+.systemPrompt {
+  padding-top: 5px;
+
+  ::-webkit-input-placeholder {
+      padding-top: 5px;
+  }
+  ::-moz-placeholder {
+      padding-top: 5px;
+  }
+  ::-ms-input-placeholder {
+      padding-top: 5px;
+  }
+}

@@ -1,5 +1,8 @@
+import { DEFAULT_LANG } from '@/constants/list';
+import { STORAGE_KEYS } from '@/constants/storageKeys';
+import usePersistentState from '@/hooks/usePersistentState';
 import { ActionIcon } from '@mantine/core';
-import { useRef, useState } from 'react';
+import { ChangeEvent, useRef, useState } from 'react';
 import { Mic, MicOff } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import "./Record.css";
@@ -10,7 +13,7 @@ export default function AudioRecorder({ onTranscript, setLoading }: {
 }): React.ReactElement {
   const { t } = useTranslation();
   const [recording, setRecording] = useState<boolean>(false);
-  const [lang, setLang] = useState<string>(localStorage.getItem('speechLang') || 'fr');
+  const [lang, setLang] = usePersistentState<string>(STORAGE_KEYS.speechLang, DEFAULT_LANG);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
@@ -88,10 +91,7 @@ export default function AudioRecorder({ onTranscript, setLoading }: {
       <select
         id="voiceFlagPicker"
         value={lang}
-        onChange={(e) => {
-          setLang(e.target.value);
-          localStorage.setItem('speechLang', e.target.value);
-        }}
+        onChange={(e: ChangeEvent<HTMLSelectElement>) => setLang(e.target.value)}
         className="voiceFlagPicker"
         title="Langue pour la transcription"
       >

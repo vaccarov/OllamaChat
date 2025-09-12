@@ -1,24 +1,24 @@
 import { Collapsible } from "@/components/Collapsable";
-import { MessageContext } from "@/context/MessageContextDefinition";
 import { ChatText } from "@/types/ChatText";
-import { MessageContextType } from "@/types/MessageContextDefinition";
 import { Modal } from "@mantine/core";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from 'rehype-raw';
 import "./ChatBubble.css";
 
 export default function ChatBubble({ message }: { message: ChatText }): React.ReactElement | null {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const messageContext: MessageContextType | undefined = useContext(MessageContext);
-  if (!messageContext) return null;
-
-  const { collapsibleStates, toggleCollapsible } = messageContext;
-
+  const [collapsibleStates, setCollapsibleStates] = useState<Map<string | undefined, boolean>>(new Map());
   const isCollapsibleOpen: boolean = collapsibleStates.get(message.date) || false;
-  const handleToggleCollapsible = (): void => toggleCollapsible(message.date);
-
   const parts: string[] = message.content.split(/<think>(.*?)<\/think>/s);
+
+  const handleToggleCollapsible = (): void => {
+    setCollapsibleStates((prevStates: Map<string | undefined, boolean>) => {
+      const newStates: Map<string | undefined, boolean> = new Map(prevStates);
+      newStates.set(message.date, !newStates.get(message.date));
+      return newStates;
+    });
+  };
 
   const renderContent = (): React.ReactElement | React.ReactElement[] => {
     const contentParts: React.ReactElement[] = parts.map((part: string, index: number) => {

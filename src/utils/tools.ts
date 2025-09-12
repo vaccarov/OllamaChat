@@ -1,3 +1,5 @@
+import { ChatSession } from "@/types";
+
 export const formatSize = (bytes: number): string => {
     const units: string[] = ['octets', 'Ko', 'Mo', 'Go', 'To'];
     let i: number = 0;
@@ -69,3 +71,10 @@ export const getLineNumber = (textarea: HTMLTextAreaElement): number => {
 export const getTotalLines = (textarea: HTMLTextAreaElement): number => {
     return getVisualLineCount(textarea, textarea.value);
 }
+
+export const sortSessionsByDate = (sessions: ChatSession[]): ChatSession[] =>
+    [...sessions].sort((a: ChatSession, b: ChatSession) => {
+        const dateA: number = new Date(a.messages[a.messages.length - 1]?.date || 0).getTime();
+        const dateB: number = new Date(b.messages[b.messages.length - 1]?.date || 0).getTime();
+        return dateB - dateA;
+    });
