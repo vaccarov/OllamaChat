@@ -1,13 +1,9 @@
-import { MessageContext } from "@/context/MessageContextDefinition";
 import { ImageToSend } from "@/types/ImageToSend";
-import { MessageContextType } from "@/types/MessageContextDefinition";
 import { ActionIcon } from "@mantine/core";
-import React, { memo, useContext, useRef } from "react";
+import React, { memo, useRef } from "react";
 import { Image } from "react-feather";
 
-const ImagePicker = memo((): React.ReactElement => {
-  console.log('OOO ImagePicker');
-  const { setImage }: MessageContextType = useContext(MessageContext)!;
+const ImagePicker = memo(({ onImageSelect }: { onImageSelect: (image: ImageToSend) => void }): React.ReactElement => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const handleFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>
@@ -17,7 +13,7 @@ const ImagePicker = memo((): React.ReactElement => {
 
     const reader: FileReader = new FileReader();
     reader.onload = (): void => {
-      setImage({
+      onImageSelect({
         name: file.name,
         size: file.size,
         data: reader.result as string

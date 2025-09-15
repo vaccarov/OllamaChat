@@ -7,6 +7,7 @@ import { ModelContext } from "@/context/ModelContextDefinition";
 import { useTts } from "@/hooks/useTts";
 import { OllamaModel } from "@/types";
 import { ChatRole } from "@/types/ChatRoleDefinition";
+import { ImageToSend } from "@/types/ImageToSend";
 import { MessageContextType } from "@/types/MessageContextDefinition";
 import { getLineNumber, getTotalLines, mapIsoToBcp47 } from "@/utils/tools";
 import { ActionIcon, Chip, Menu, Textarea } from "@mantine/core";
@@ -19,8 +20,9 @@ import "./Question.css";
 export const Question: React.FC = (): ReactElement | null => {
   const { t } = useTranslation();
   const { currentModel }: { currentModel: OllamaModel | undefined } = useContext(ModelContext)!;
-  const { conversation, image, addMessage, addChunk, setImage, activeSession }: MessageContextType = useContext(MessageContext)!;
+  const { conversation, addMessage, addChunk, activeSession }: MessageContextType = useContext(MessageContext)!;
   const [userPrompt, setUserPrompt] = useState<string>('');
+  const [image, setImage] = useState<ImageToSend | undefined>();
   const [loading, setLoading] = useState<boolean>(false);
   const { isTtsEnabled, setIsTtsEnabled, isSpeaking, speak, cancel } = useTts();
   const [historyIndex, setHistoryIndex] = useState<number | null>(null);
@@ -186,7 +188,7 @@ export const Question: React.FC = (): ReactElement | null => {
               title={isTtsEnabled ? (isSpeaking ? t('audio.stop_reading') : t('audio.disable_reading')) : t('audio.enable_reading')}>
               {isTtsEnabled ? <Volume2 /> : <VolumeX />}
             </ActionIcon>
-            {currentModel?.show?.capabilities?.includes('vision') && <ImagePicker />}
+            {currentModel?.show?.capabilities?.includes('vision') && <ImagePicker onImageSelect={setImage} />}
           </div>
         </Menu.Dropdown>
       </Menu>

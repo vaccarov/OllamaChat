@@ -14,7 +14,6 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
   const { currentModel, setModel } = React.useContext(ModelContext)!;
   const [history, setHistory] = usePersistentState<ChatHistory>(STORAGE_KEYS.chatHistory, { sessions: [], activeSessionId: '' });
   const { sessions, activeSessionId }: ChatHistory = history;
-  const [image, setImage] = useState<ImageToSend | undefined>();
   const conversation = useRef<Message[]>([]);
   const historyRef: React.MutableRefObject<ChatHistory> = useRef<ChatHistory>(history);
   historyRef.current = history;
@@ -81,6 +80,8 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
   }, [activeSession]);
 
   const addMessage = useCallback((role: ChatRole, content: string, image?: ImageToSend, sessionId?: string): void => {
+    // todo: Handle large images
+    // const messageToStore: ImageToSend | undefined = image ? { ...image, data: '' } : undefined;
     const newMsg: ChatText = { role, content, date: new Date().toISOString(), image };
     findAndUpdateSession((s: ChatSession) => ({ ...s, messages: [...s.messages, newMsg] }), sessionId);
   }, [findAndUpdateSession]);
@@ -202,9 +203,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
     <MessageContext.Provider value={{
       activeSession,
       sessionsInGroup,
-      image,
       conversation,
-      setImage,
       addMessage,
       addChunk,
       startNewSession,

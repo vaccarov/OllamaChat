@@ -84,3 +84,8 @@ Before starting, ensure you have the following:
 *   `npm run build`: Compiles the application for production.
 *   `npm run start`: Starts the production server.
 *   `npm run lint`: Runs ESLint to check for code quality issues.
+
+## Bugfixes and improvements
+
+* Handle large image (use local DB instead of localstorage)
+* Show reasoning collapse even if reasoning isn't finished

@@ -17,8 +17,10 @@ const HomePage: React.FC = (): React.ReactElement => {
   const [showChatList, setShowChatList] = usePersistentState<boolean>(STORAGE_KEYS.showChatList, false);
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const isMobile: boolean = useMediaQuery(`(max-width: ${MQ_MAX_WIDTH}px)`);
+  const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
   useEffect(() => {
+    setIsLoaded(true);
     const setAppHeight = (): void => document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
     window.addEventListener('resize', setAppHeight);
     setAppHeight();
@@ -30,7 +32,7 @@ const HomePage: React.FC = (): React.ReactElement => {
   return (
     <div className="appContainer">
       <ChatList show={showChatList} />
-      <div className={`mainPanel ${showChatList && 'shifted'}`}>
+      <div className={`mainPanel ${isLoaded && showChatList && 'shifted'}`}>
         {isMobile && showChatList && <div className="backdrop" onClick={toggleChatList}></div>}
         <div className='header'>
           <ActionIcon onClick={toggleChatList}>

@@ -2,14 +2,12 @@ import { ChatRole } from '@/types/ChatRoleDefinition';
 import { ChatSession } from '@/types/ChatSession';
 import { ImageToSend } from '@/types/ImageToSend';
 import { Message } from 'ollama';
-import { Dispatch, RefObject, SetStateAction } from 'react';
+import { RefObject } from 'react';
 
 export type MessageContextType = {
   activeSession: ChatSession | undefined;
   sessionsInGroup: Record<string, ChatSession[]>;
-  image: ImageToSend | undefined;
   conversation: RefObject<Message[]>;
-  setImage: Dispatch<SetStateAction<ImageToSend | undefined>>;
   addMessage: (role: ChatRole, content: string, image?: ImageToSend, sessionId?: string) => void;
   addChunk: (chunk: string, sessionId?: string) => void;
   startNewSession: (name: string) => void;
