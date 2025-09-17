@@ -1,19 +1,26 @@
 'use client';
 
-import { listModels } from '@/app/actions';
 import { STORAGE_KEYS } from '@/constants/storageKeys';
 import { ModelContext } from '@/context/ModelContextDefinition';
+import usePersistentState from '@/hooks/usePersistentState';
+import { listModels } from '@/services/api';
 import { OllamaModel } from '@/types';
 import React, { useCallback, useEffect, useState } from 'react';
 
 export const ModelProvider = ({ children }: { children: React.ReactNode }): React.JSX.Element => {
   const [models, setModels] = useState<OllamaModel[]>([]);
   const [currentModel, setCurrentModel] = useState<OllamaModel | undefined>();
+  const [ollamaServerUrl] = usePersistentState<string>(
+    STORAGE_KEYS.ollamaServerUrl,
+    `${process.env.NEXT_PUBLIC_HOST}:${process.env.NEXT_PUBLIC_OLLAMA_PORT}`
+  );
+  const [savedModelName, setSavedModelName] = usePersistentState<string | null>(STORAGE_KEYS.selectedModel, null);
 
   const refreshModels = useCallback(async (): Promise<void> => {
-    const fetchedModels: OllamaModel[] = await listModels();
+    if (!ollamaServerUrl) return;
+    const fetchedModels: OllamaModel[] = await listModels(ollamaServerUrl);
     setModels(fetchedModels);
-  }, []);
+  }, [ollamaServerUrl]);
 
   useEffect(() => {
     refreshModels();
@@ -21,17 +28,16 @@ export const ModelProvider = ({ children }: { children: React.ReactNode }): Reac
 
   useEffect(() => {
     if (models.length > 0) {
-      const savedModelName: string | null = localStorage.getItem(STORAGE_KEYS.selectedModel);
       const savedModel: OllamaModel | undefined = models.find((m: OllamaModel) => m.model === savedModelName);
       setCurrentModel(savedModel || models[0]);
     }
-  }, [models]);
+  }, [models, savedModelName]);
 
   const setModel = (model: string): void => {
     const selectedModel: OllamaModel | undefined = models.find((m: OllamaModel) => m.model === model);
     if (selectedModel) {
       setCurrentModel(selectedModel);
-      localStorage.setItem(STORAGE_KEYS.selectedModel, selectedModel.model);
+      setSavedModelName(selectedModel.model);
     }
   };
 

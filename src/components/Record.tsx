@@ -1,6 +1,7 @@
 import { DEFAULT_LANG } from '@/constants/list';
 import { STORAGE_KEYS } from '@/constants/storageKeys';
 import usePersistentState from '@/hooks/usePersistentState';
+import { transcribe } from '@/services/api';
 import { ActionIcon } from '@mantine/core';
 import { ChangeEvent, useRef, useState } from 'react';
 import { Mic, MicOff } from 'react-feather';
@@ -14,6 +15,10 @@ export default function AudioRecorder({ onTranscript, setLoading }: {
   const { t } = useTranslation();
   const [recording, setRecording] = useState<boolean>(false);
   const [lang, setLang] = usePersistentState<string>(STORAGE_KEYS.speechLang, DEFAULT_LANG);
+  const [transcribeServerUrl] = usePersistentState<string>(
+    STORAGE_KEYS.transcribeServerUrl,
+    `${process.env.NEXT_PUBLIC_SERVER_HOST}:${process.env.NEXT_PUBLIC_SERVER_PORT}`
+  );
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
@@ -33,26 +38,11 @@ export default function AudioRecorder({ onTranscript, setLoading }: {
 
       mediaRecorderRef.current.onstop = async (): Promise<void> => {
         const audioBlob: Blob = new Blob(chunks, { type: 'audio/webm' });
-        
-        const formData: FormData = new FormData();
-        formData.append("file", audioBlob, "audio.webm");
-        formData.append("language", lang);
 
         try {
           setLoading(true);
-          const res: Response = await fetch("/api/transcribe", {
-            method: "POST",
-            body: formData,
-          });
-
-          if (!res.ok) {
-            console.error(t('errors.server'), res.status, res.statusText);
-            onTranscript(t('errors.transcription_code', { code: res.status }), true);
-            return;
-          }
-
-          const json: { transcript: string } = await res.json();
-          onTranscript(json.transcript);
+          const { transcript }: {transcript: string } = await transcribe(audioBlob, lang, transcribeServerUrl);
+          onTranscript(transcript);
         } catch (error) {
           console.error(t('errors.sending_audio'), error);
           onTranscript(t('errors.contacting_transcription_server'), true);

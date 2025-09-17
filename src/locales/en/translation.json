@@ -60,5 +60,19 @@
     "microphone_access": "Could not access microphone:",
     "microphone_required": "Microphone access is required for recording. Please allow access in your browser settings.",
     "use_ollama_error": "useOllama must be used within an OllamaProvider"
+  },
+  "ollama_server": {
+    "url": "Ollama Server URL",
+    "placeholder": "e.g. http://localhost:11434"
+  },
+  "settings": {
+    "title": "Settings",
+    "ollama_url": "Ollama Server URL",
+    "transcribe_url": "Transcription Server URL",
+    "tabs": {
+      "servers": "Servers",
+      "language": "Language",
+      "data": "Data"
+    }
   }
 }

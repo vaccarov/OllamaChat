@@ -60,5 +60,19 @@
     "microphone_access": "Impossible d'accéder au microphone:",
     "microphone_required": "L'accès au microphone est nécessaire pour l'enregistrement. Veuillez autoriser l'accès dans les paramètres de votre navigateur.",
     "use_ollama_error": "useOllama must be used within an OllamaProvider"
+  },
+  "ollama_server": {
+    "url": "URL du serveur Ollama",
+    "placeholder": "ex: http://localhost:11434"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "ollama_url": "URL du serveur Ollama",
+    "transcribe_url": "URL du serveur de transcription",
+    "tabs": {
+      "servers": "Serveurs",
+      "language": "Langue",
+      "data": "Données"
+    }
   }
 }

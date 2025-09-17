@@ -29,7 +29,7 @@ function usePersistentState<T>(key: string, initialState: T): [T, React.Dispatch
       try {
         setState(JSON.parse(event.newValue));
       } catch (error) {
-        console.error(`Error parsing storage value for key "${key}":`, error);
+        setState(event.newValue as T);
       }
     }
   }, [key]);

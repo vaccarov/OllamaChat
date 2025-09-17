@@ -2,9 +2,12 @@
 
 import ImagePicker from "@/components/ImagePicker";
 import AudioRecorder from "@/components/Record";
+import { STORAGE_KEYS } from "@/constants/storageKeys";
 import { MessageContext } from "@/context/MessageContextDefinition";
 import { ModelContext } from "@/context/ModelContextDefinition";
+import usePersistentState from "@/hooks/usePersistentState";
 import { useTts } from "@/hooks/useTts";
+import { streamChat } from "@/services/api";
 import { OllamaModel } from "@/types";
 import { ChatRole } from "@/types/ChatRoleDefinition";
 import { ImageToSend } from "@/types/ImageToSend";
@@ -29,6 +32,11 @@ export const Question: React.FC = (): ReactElement | null => {
   const [promptBeforeNav, setPromptBeforeNav] = useState<string | null>(null);
   const [isClient, setIsClient] = useState<boolean>(false);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const [ollamaServerUrl] = usePersistentState<string>(
+    STORAGE_KEYS.ollamaServerUrl,
+    `${process.env.NEXT_PUBLIC_HOST}:${process.env.NEXT_PUBLIC_OLLAMA_PORT}`
+  );
+  const [speechLang] = usePersistentState<string>(STORAGE_KEYS.speechLang, 'fr');
 
   useEffect(() => setIsClient(true), []);
 
@@ -66,62 +74,40 @@ export const Question: React.FC = (): ReactElement | null => {
     setImage(undefined);
     setLoading(true);
     let sentenceBuffer: string = "";
-    const currentSpeechLang: string = mapIsoToBcp47(localStorage.getItem('speechLang') || 'fr');
+    const currentSpeechLang: string = mapIsoToBcp47(speechLang || 'fr');
 
-    try {
-      abortControllerRef.current = new AbortController();
-      const response: Response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model: currentModel!.model, messages: messagesForApi }),
-        signal: abortControllerRef.current.signal,
-      });
-
-      if (!response.ok || !response.body) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Unknown error');
-      }
-
-      addMessage(ChatRole.assistant, '', undefined, currentSessionId);
-      const reader: ReadableStreamDefaultReader<Uint8Array> = response.body.getReader();
-      const decoder: TextDecoder = new TextDecoder();
-      let buffer: string = '';
-
-      while (true) {
-        const { done, value }: ReadableStreamReadResult<Uint8Array> = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines: string[] = buffer.split('\n');
-        buffer = lines.pop() || '';
-        for (const line of lines) {
-          if (line.trim() === '') continue;
-          const content: string = JSON.parse(line).message.content;
-          addChunk(content, currentSessionId);
-          sentenceBuffer += content;
-
+    addMessage(ChatRole.assistant, '', undefined, currentSessionId);
+    abortControllerRef.current = streamChat(
+      ollamaServerUrl,
+      { model: currentModel!.model, messages: messagesForApi },
+      {
+        onChunk: (chunk: string) => {
+          addChunk(chunk, currentSessionId);
+          sentenceBuffer += chunk;
           const sentenceEndIndex: number = sentenceBuffer.search(/[.!?]/);
-
           if (sentenceEndIndex !== -1) {
             const sentence: string = sentenceBuffer.substring(0, sentenceEndIndex + 1);
             speak(sentence, currentSpeechLang);
             sentenceBuffer = sentenceBuffer.substring(sentenceEndIndex + 1);
           }
+        },
+        onComplete: () => {
+          if (sentenceBuffer.trim()) {
+            speak(sentenceBuffer, currentSpeechLang);
+          }
+          setLoading(false);
+          abortControllerRef.current = null;
+        },
+        onError: (error: Error) => {
+          const errorMessage: string = (error as Error).name === 'AbortError'
+            ? t('errors.request_aborted')
+            : `${t('errors.prefix')}${(error as Error).message || t('errors.unknown')}`;
+          addMessage(ChatRole.custom, errorMessage, undefined, currentSessionId);
+          setLoading(false);
+          abortControllerRef.current = null;
         }
       }
-
-      if (sentenceBuffer.trim()) {
-        speak(sentenceBuffer, currentSpeechLang);
-      }
-
-    } catch (error: unknown) {
-      const errorMessage: string = (error as Error).name === 'AbortError'
-        ? t('errors.request_aborted')
-        : `${t('errors.prefix')}${(error as Error).message || t('errors.unknown')}`;
-      addMessage(ChatRole.custom, errorMessage, undefined, currentSessionId);
-    } finally {
-      setLoading(false);
-      abortControllerRef.current = null;
-    }
+    );
   };
 
   const handleTranscript = (transcript: string, error: boolean = false): void => {

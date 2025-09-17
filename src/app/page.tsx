@@ -11,10 +11,10 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 import usePersistentState from "@/hooks/usePersistentState";
 import { ActionIcon } from "@mantine/core";
 import React, { useEffect, useState } from "react";
-import { Settings, Sidebar } from "react-feather";
+import { Sidebar, Tool } from "react-feather";
 
 const HomePage: React.FC = (): React.ReactElement => {
-  const [showChatList, setShowChatList] = usePersistentState<boolean>(STORAGE_KEYS.showChatList, false);
+  const [showChatList, setShowChatList] = usePersistentState<boolean>(STORAGE_KEYS.showChatList, true);
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const isMobile: boolean = useMediaQuery(`(max-width: ${MQ_MAX_WIDTH}px)`);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
@@ -39,7 +39,7 @@ const HomePage: React.FC = (): React.ReactElement => {
             <Sidebar />
           </ActionIcon>
           <ActionIcon onClick={() => setShowSettings(!showSettings)}>
-            <Settings />
+            <Tool />
           </ActionIcon>
         </div>
         {showSettings && (
