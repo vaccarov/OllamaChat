@@ -3,7 +3,8 @@
     "title": "Ollama Chat"
   },
   "common": {
-    "language": "Language",
+    "app_language": "Application language",
+    "speech_language": "Speech language",
     "settings": "Settings",
     "hide": "Hide",
     "reasoning": "Reasoning"
@@ -68,11 +69,31 @@
   "settings": {
     "title": "Settings",
     "ollama_url": "Ollama Server URL",
-    "transcribe_url": "Transcription Server URL",
+    "transcribe_url": "Transcription Server URL (optionnal)",
     "tabs": {
       "servers": "Servers",
       "language": "Language",
       "data": "Data"
+    },
+    "urls": {
+      "title": "How to configure the URLs",
+      "intro1": "Using <1>localhost</1> server can only work locally. This is a security measure from modern browsers, <2>HTTPS</2> pages cannot request <3>HTTP</3> URLs.",
+      "intro2": "In order to use it from the Vercel URL, you have 2 solutions:",
+      "solution1": "Use your public Ollama (and/or transcription) server URL using <1>HTTPS</1>",
+      "solution2": "Set your <1>localhost</1> into an <2>HTTPS</2> URL (follow the steps below).",
+      "step1Title": "Step 1: Get a network URL for your server",
+      "step1Text": "Use a free private VPN like <1>Tailscale</1> to create an <2>HTTPS</2> URL (e.g. <3>https://YOUR_PRIVATE_URL.ts.net</3>)",
+      "step2Title": "Step 2: Configure the reverse proxy",
+      "step2Text": "Use a reverse proxy like <1>Caddy</1>. Create a file <2>Caddyfile</2>, here is an example configuration:",
+      "step2Subtext": "Go in the folder of the <1>Caddyfile</1> and run <2>caddy run</2>",
+      "step3Title": "Step 3: Configure Ollama to accept remote connections",
+      "step3Text": "By default, Ollama only listens for requests on <1>localhost</1>. You must configure 2 variables.",
+      "step3Link": "How do I configure Ollama .env variables?",
+      "step3Var1": "Set <1>OLLAMA_HOST=0.0.0.0</1> OR, in Ollama settings, check <2>Expose Ollama to the network</2>",
+      "step3Var2": "Set <1>OLLAMA_ORIGINS='{{url}}'</1> to accept requests from this URL to prevent CORS errors.",
+      "step4Title": "Step 4: Use your local <1>HTTPS</1> URLs in the inputs above",
+      "step4Url1": "<1>https://YOUR_PRIVATE_URL.ts.net/ollama</1> → redirects to <2>localhost:11434</2>",
+      "step4Url2": "<1>https://YOUR_PRIVATE_URL.ts.net/transcribe</1> → redirects to <2>localhost:8000</2>"
     }
   }
 }

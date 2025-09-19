@@ -10,9 +10,13 @@ import React, { useCallback, useEffect, useState } from 'react';
 export const ModelProvider = ({ children }: { children: React.ReactNode }): React.JSX.Element => {
   const [models, setModels] = useState<OllamaModel[]>([]);
   const [currentModel, setCurrentModel] = useState<OllamaModel | undefined>();
-  const [ollamaServerUrl] = usePersistentState<string>(
+  const [ollamaServerUrl, setOllamaServerUrl] = usePersistentState<string>(
     STORAGE_KEYS.ollamaServerUrl,
-    `${process.env.NEXT_PUBLIC_HOST}:${process.env.NEXT_PUBLIC_OLLAMA_PORT}`
+    `${process.env.NEXT_PUBLIC_OLLAMA_URL ?? ''}`
+  );
+  const [transcribeServerUrl, setTranscribeServerUrl] = usePersistentState<string>(
+    STORAGE_KEYS.transcribeServerUrl,
+    `${process.env.NEXT_PUBLIC_TRANSCRIBE_URL ?? ''}`
   );
   const [savedModelName, setSavedModelName] = usePersistentState<string | null>(STORAGE_KEYS.selectedModel, null);
 
@@ -42,7 +46,7 @@ export const ModelProvider = ({ children }: { children: React.ReactNode }): Reac
   };
 
   return (
-    <ModelContext.Provider value={{ setModel, models, currentModel, refreshModels }}>
+    <ModelContext.Provider value={{ setModel, models, currentModel, refreshModels, ollamaServerUrl, setOllamaServerUrl, transcribeServerUrl, setTranscribeServerUrl }}>
       {children}
     </ModelContext.Provider>
   );

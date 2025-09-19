@@ -2,13 +2,10 @@
 
 import ImagePicker from "@/components/ImagePicker";
 import AudioRecorder from "@/components/Record";
-import { STORAGE_KEYS } from "@/constants/storageKeys";
 import { MessageContext } from "@/context/MessageContextDefinition";
 import { ModelContext } from "@/context/ModelContextDefinition";
-import usePersistentState from "@/hooks/usePersistentState";
 import { useTts } from "@/hooks/useTts";
 import { streamChat } from "@/services/api";
-import { OllamaModel } from "@/types";
 import { ChatRole } from "@/types/ChatRoleDefinition";
 import { ImageToSend } from "@/types/ImageToSend";
 import { MessageContextType } from "@/types/MessageContextDefinition";
@@ -22,8 +19,8 @@ import "./Question.css";
 
 export const Question: React.FC = (): ReactElement | null => {
   const { t } = useTranslation();
-  const { currentModel }: { currentModel: OllamaModel | undefined } = useContext(ModelContext)!;
-  const { conversation, addMessage, addChunk, activeSession }: MessageContextType = useContext(MessageContext)!;
+  const { currentModel, ollamaServerUrl } = useContext(ModelContext)!;
+  const { conversation, addMessage, addChunk, activeSession, speechLang }: MessageContextType = useContext(MessageContext)!;
   const [userPrompt, setUserPrompt] = useState<string>('');
   const [image, setImage] = useState<ImageToSend | undefined>();
   const [loading, setLoading] = useState<boolean>(false);
@@ -32,11 +29,6 @@ export const Question: React.FC = (): ReactElement | null => {
   const [promptBeforeNav, setPromptBeforeNav] = useState<string | null>(null);
   const [isClient, setIsClient] = useState<boolean>(false);
   const abortControllerRef = useRef<AbortController | null>(null);
-  const [ollamaServerUrl] = usePersistentState<string>(
-    STORAGE_KEYS.ollamaServerUrl,
-    `${process.env.NEXT_PUBLIC_HOST}:${process.env.NEXT_PUBLIC_OLLAMA_PORT}`
-  );
-  const [speechLang] = usePersistentState<string>(STORAGE_KEYS.speechLang, 'fr');
 
   useEffect(() => setIsClient(true), []);
 
@@ -74,7 +66,7 @@ export const Question: React.FC = (): ReactElement | null => {
     setImage(undefined);
     setLoading(true);
     let sentenceBuffer: string = "";
-    const currentSpeechLang: string = mapIsoToBcp47(speechLang || 'fr');
+    const currentSpeechLang: string = mapIsoToBcp47(speechLang);
 
     addMessage(ChatRole.assistant, '', undefined, currentSessionId);
     abortControllerRef.current = streamChat(

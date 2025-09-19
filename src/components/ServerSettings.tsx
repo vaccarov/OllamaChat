@@ -1,0 +1,161 @@
+import { DEBOUNCE_SERVER_URL_MS } from '@/constants/list';
+import { ModelContext } from '@/context/ModelContextDefinition';
+import { checkOllamaServer, checkTranscribeServer } from '@/services/api';
+import { ModelContextDefinition } from '@/types';
+import { ApiStatus } from '@/types/api';
+import { removeTrailingSlash } from '@/utils/tools';
+import { Anchor, Code, List, Text, TextInput, Title } from '@mantine/core';
+import { TFunction } from 'i18next';
+import { ChangeEvent, ReactElement, useContext, useEffect, useState } from 'react';
+import { CheckCircle, Loader, XCircle } from 'react-feather';
+import { Trans, useTranslation } from 'react-i18next';
+import './SettingsModal.css';
+
+interface ServerSettingsProps {
+  opened: boolean;
+}
+
+export function ServerSettings({ opened }: ServerSettingsProps): ReactElement {
+  const { t }: { t: TFunction } = useTranslation();
+  const modelContext: ModelContextDefinition | undefined = useContext(ModelContext);
+  if (!modelContext) throw new Error('ServerSettings must be used within a ModelProvider');
+  const [ollamaServerStatus, setOllamaServerStatus] = useState<ApiStatus>(ApiStatus.UNKNOWN);
+  const [transcribeServerStatus, setTranscribeServerStatus] = useState<ApiStatus>(ApiStatus.UNKNOWN);
+  const { ollamaServerUrl, setOllamaServerUrl, transcribeServerUrl, setTranscribeServerUrl }: ModelContextDefinition = modelContext;
+
+  useEffect(() => {
+    if (opened && ollamaServerUrl) {
+      setOllamaServerStatus(ApiStatus.CHECKING);
+      const handler: NodeJS.Timeout = setTimeout(() => {
+        checkOllamaServer(ollamaServerUrl).then((result: { success: boolean }) => {
+          setOllamaServerStatus(result.success ? ApiStatus.VALID : ApiStatus.INVALID);
+        });
+      }, DEBOUNCE_SERVER_URL_MS);
+      return () => clearTimeout(handler);
+    }
+  }, [opened, ollamaServerUrl]);
+
+  useEffect(() => {
+    if (opened && transcribeServerUrl) {
+      setTranscribeServerStatus(ApiStatus.CHECKING);
+      const handler: NodeJS.Timeout = setTimeout(() => {
+        checkTranscribeServer(transcribeServerUrl).then((result: { success: boolean }) => {
+          setTranscribeServerStatus(result.success ? ApiStatus.VALID : ApiStatus.INVALID);
+        });
+      }, DEBOUNCE_SERVER_URL_MS);
+      return () => clearTimeout(handler);
+    }
+  }, [opened, transcribeServerUrl]);
+
+  return (
+    <div className="settingsContainer">
+      <TextInput
+        label={t('settings.ollama_url')}
+        value={ollamaServerUrl}
+        onChange={(event: ChangeEvent<HTMLInputElement>) => setOllamaServerUrl(removeTrailingSlash(event.currentTarget.value))}
+        rightSection={<StatusIcon status={ollamaServerStatus} />}
+      />
+      <TextInput
+        label={t('settings.transcribe_url')}
+        value={transcribeServerUrl}
+        onChange={(event: ChangeEvent<HTMLInputElement>) => setTranscribeServerUrl(removeTrailingSlash(event.currentTarget.value))}
+        rightSection={<StatusIcon status={transcribeServerStatus} />}
+      />
+      <div style={{ marginTop: 'var(--mantine-spacing-lg)' }}>
+        <Title order={4}>{t('settings.urls.title')}</Title>
+        <Text component="div" size="sm" mt="sm">
+          <Trans i18nKey="settings.urls.intro1" components={{ 1: <Code />, 2: <Code />, 3: <Code /> }} />
+        </Text>
+        <Text size="sm" mt="xs">
+          {t('settings.urls.intro2')}
+        </Text>
+        <List size="sm" withPadding mt="sm">
+          <List.Item>
+            <Trans i18nKey="settings.urls.solution1" components={{ 1: <Code /> }} />
+          </List.Item>
+          <List.Item>
+            <Trans i18nKey="settings.urls.solution2" components={{ 1: <Code />, 2: <Code /> }} />
+          </List.Item>
+        </List>
+        <Title order={5} mt="md">{t('settings.urls.step1Title')}</Title>
+        <Text component="div" size="sm" mt="xs">
+          <Trans
+            i18nKey="settings.urls.step1Text"
+            components={{
+              1: <Anchor href="https://tailscale.com/download" target="_blank" rel="noopener noreferrer" size="sm" />,
+              2: <Code />,
+              3: <Code />,
+            }}
+          />
+        </Text>
+        <Title order={5} mt="md">{t('settings.urls.step2Title')}</Title>
+        <Text component="div" size="sm" mt="xs">
+          <Trans
+            i18nKey="settings.urls.step2Text"
+            components={{
+              1: <Anchor href="https://caddyserver.com/docs/install" target="_blank" rel="noopener noreferrer" size="sm" />,
+              2: <Code />,
+            }}
+          />
+        </Text>
+        <Code block mt="xs">
+{`YOUR_PRIVATE_URL.ts.net {
+  tls internal
+  handle_path /ollama* {
+    reverse_proxy localhost:11434
+  }
+  handle_path /transcribe* {
+    reverse_proxy localhost:8000
+  }
+}`}
+        </Code>
+        <Text component="div" size="sm" mt="xs">
+          <Trans i18nKey="settings.urls.step2Subtext" components={{ 1: <Code />, 2: <Code /> }} />
+        </Text>
+        <Title order={5} mt="md">{t('settings.urls.step3Title')}</Title>
+        <Text component="div" size="sm" mt="xs">
+          <Trans i18nKey="settings.urls.step3Text" components={{ 1: <Code /> }} />
+        </Text>
+        <Anchor href="https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server" target="_blank" rel="noopener noreferrer" size="sm" mt="xs">
+          {t('settings.urls.step3Link')}
+        </Anchor>
+        <List size="sm" withPadding mt="sm">
+          <List.Item>
+            <Trans i18nKey="settings.urls.step3Var1" components={{ 1: <Code />, 2: <Code /> }} />
+          </List.Item>
+          <List.Item>
+            <Trans
+              i18nKey="settings.urls.step3Var2"
+              values={{ url: window.location.href }}
+              components={{ 1: <Code /> }}
+            />
+          </List.Item>
+        </List>
+        <Title order={5} mt="md">
+          <Trans i18nKey="settings.urls.step4Title" components={{ 1: <Code /> }} />
+        </Title>
+        <List size="sm" withPadding mt="sm">
+          <List.Item>
+            <Trans i18nKey="settings.urls.step4Url1" components={{ 1: <Code />, 2: <Code /> }} />
+          </List.Item>
+          <List.Item>
+            <Trans i18nKey="settings.urls.step4Url2" components={{ 1: <Code />, 2: <Code /> }} />
+          </List.Item>
+        </List>
+      </div>
+    </div>
+  );
+}
+
+const StatusIcon = ({ status }: { status: ApiStatus }): ReactElement | null => {
+  switch (status) {
+    case ApiStatus.VALID:
+      return <CheckCircle color="green" />;
+    case ApiStatus.INVALID:
+      return <XCircle color="red" />;
+    case ApiStatus.CHECKING:
+      return <Loader className="spin-animation" />;
+    default:
+      return null;
+  }
+};

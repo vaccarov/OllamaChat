@@ -1,3 +1,4 @@
+import { DEFAULT_SPEECH_LANG } from '@/constants/langs';
 import { STORAGE_KEYS } from '@/constants/storageKeys';
 import { MessageContext } from '@/context/MessageContextDefinition';
 import { ModelContext } from '@/context/ModelContextDefinition';
@@ -5,7 +6,7 @@ import usePersistentState from '@/hooks/usePersistentState';
 import { ChatHistory, ChatRole, ChatSession, ChatText, ImageToSend } from '@/types';
 import { sortSessionsByDate } from '@/utils/tools';
 import { Message } from 'ollama';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -13,6 +14,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
   const { t, i18n } = useTranslation();
   const { currentModel, setModel } = React.useContext(ModelContext)!;
   const [history, setHistory] = usePersistentState<ChatHistory>(STORAGE_KEYS.chatHistory, { sessions: [], activeSessionId: '' });
+  const [speechLang, setSpeechLang] = usePersistentState<string>(STORAGE_KEYS.speechLang, DEFAULT_SPEECH_LANG);
   const { sessions, activeSessionId }: ChatHistory = history;
   const conversation = useRef<Message[]>([]);
   const historyRef: React.MutableRefObject<ChatHistory> = useRef<ChatHistory>(history);
@@ -214,7 +216,9 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
       deleteSession,
       duplicateSession,
       exportSessions,
-      importSessions
+      importSessions,
+      speechLang,
+      setSpeechLang
     }}>
       {children}
     </MessageContext.Provider>

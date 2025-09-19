@@ -1,8 +1,9 @@
+import { DEFAULT_APP_LANG } from "@/constants/langs";
+import translationEN from "@/locales/en/translation.json";
+import translationFR from "@/locales/fr/translation.json";
 import i18n from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import { initReactI18next } from "react-i18next";
-import translationEN from "@/locales/en/translation.json";
-import translationFR from "@/locales/fr/translation.json";
 
 const resources = {
   en: {
@@ -18,7 +19,7 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    fallbackLng: "en",
+    fallbackLng: DEFAULT_APP_LANG,
     interpolation: {
       escapeValue: false,
     },

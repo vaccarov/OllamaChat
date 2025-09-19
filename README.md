@@ -58,18 +58,19 @@ Before starting, ensure you have the following:
     npm install
     ```
 
-3.  **Configure environment variables:**
-    Create a `.env.local` file at the root of the project and add the following variables. This file should **not** be committed to Git.
+3.  **Configure .env.local (can be configured in the app directly):**
+    Create a `.env.local` file at the root of the project. This file should **not** be committed to Git. Add the following variables, pointing to the servers you want to use.
+
+    *Example using a local setup:*
     ```env
-    NEXT_PUBLIC_HOST=localhost
-    NEXT_PUBLIC_OLLAMA_PORT=11434
+    NEXT_PUBLIC_OLLAMA_URL=http://localhost:11434
+    NEXT_PUBLIC_TRANSCRIBE_URL=http://localhost:8000
+    ```
 
-    # (Optional) The URL/port for your Audio transcription server
-    NEXT_PUBLIC_SERVER_HOST=http://localhost
-    NEXT_PUBLIC_SERVER_PORT=8000
-
-    # (Optional) The public Next.js https URL (I'm using tailscale but it could be your VPS server). This is mandatory if you want to use audio recording from your phone, since https is required for audio record permissions.
-    NEXT_PUBLIC_TAILSCALE_HOST=XXX
+    *Example using a remote or secured setup like with Tailscale and Caddy:*
+    ```env
+    NEXT_PUBLIC_OLLAMA_URL=https://YOUR_PRIVATE_URL.ts.net/ollama
+    NEXT_PUBLIC_TRANSCRIBE_URL=https://YOUR_PRIVATE_URL.ts.net/transcribe
     ```
 
 4.  **Run the development server:**
