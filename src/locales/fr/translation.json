@@ -3,7 +3,8 @@
     "title": "Ollama Chat"
   },
   "common": {
-    "language": "Langue",
+    "app_language": "Langue de l'application",
+    "speech_language": "Langue de la transcription vocale",
     "settings": "Paramètres",
     "hide": "Masquer",
     "reasoning": "Raisonnement"
@@ -60,5 +61,39 @@
     "microphone_access": "Impossible d'accéder au microphone:",
     "microphone_required": "L'accès au microphone est nécessaire pour l'enregistrement. Veuillez autoriser l'accès dans les paramètres de votre navigateur.",
     "use_ollama_error": "useOllama must be used within an OllamaProvider"
+  },
+  "ollama_server": {
+    "url": "URL du serveur Ollama",
+    "placeholder": "ex: http://localhost:11434"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "ollama_url": "URL du serveur Ollama",
+    "transcribe_url": "URL du serveur de transcription (optionnel)",
+    "tabs": {
+      "servers": "Serveurs",
+      "language": "Langue",
+      "data": "Données"
+    },
+    "urls": {
+      "title": "Comment configurer les URLs",
+      "intro1": "Utiliser un serveur <1>localhost</1> ne fonctionne que localement. C'est une mesure de sécurité des navigateurs modernes, les pages <2>HTTPS</2> ne peuvent pas requêter des URLs <3>HTTP</3>.",
+      "intro2": "Pour l'utiliser depuis l'URL Vercel, vous avez 2 solutions :",
+      "solution1": "Utilisez l'URL de votre serveur public Ollama (et/ou de transcription) en <1>HTTPS</1>",
+      "solution2": "Transformez votre <1>localhost</1> en une URL <2>HTTPS</2> (suivez les étapes ci-dessous).",
+      "step1Title": "Étape 1 : Obtenez une URL réseau pour votre serveur",
+      "step1Text": "Utilisez un VPN privé gratuit comme <1>Tailscale</1> pour créer une URL <2>HTTPS</2> (ex: <3>https://VOTRE_URL_PRIVEE.ts.net</3>)",
+      "step2Title": "Étape 2 : Configurez le reverse proxy",
+      "step2Text": "Utilisez un reverse proxy comme <1>Caddy</1>. Créez un fichier <2>Caddyfile</2>, voici un exemple de configuration :",
+      "step2Subtext": "Allez dans le dossier du <1>Caddyfile</1> et exécutez <2>caddy run</2>",
+      "step3Title": "Étape 3 : Configurez Ollama pour accepter les connexions distantes",
+      "step3Text": "Par défaut, Ollama n'écoute que les requêtes sur <1>localhost</1>. Vous devez configurer 2 variables.",
+      "step3Link": "Comment configurer les variables .env d'Ollama ?",
+      "step3Var1": "Définissez <1>OLLAMA_HOST=0.0.0.0</1> OU, dans les paramètres d'Ollama, cochez <2>Expose Ollama to the network</2>",
+      "step3Var2": "Définissez <1>OLLAMA_ORIGINS='{{url}}'</1> pour accepter les requêtes de cette URL afin d'éviter les erreurs CORS.",
+      "step4Title": "Étape 4 : Utilisez vos URLs <1>HTTPS</1> locales dans les champs ci-dessus",
+      "step4Url1": "<1>https://VOTRE_URL_PRIVEE.ts.net/ollama</1> → redirige vers <2>localhost:11434</2>",
+      "step4Url2": "<1>https://VOTRE_URL_PRIVEE.ts.net/transcribe</1> → redirige vers <2>localhost:8000</2>"
+    }
   }
 }

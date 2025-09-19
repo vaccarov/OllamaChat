@@ -1,11 +1,10 @@
-import { DEFAULT_LANG } from '@/constants/list';
-import { STORAGE_KEYS } from '@/constants/storageKeys';
-import usePersistentState from '@/hooks/usePersistentState';
+import { MessageContext } from '@/context/MessageContextDefinition';
+import { ModelContext } from '@/context/ModelContextDefinition';
+import { transcribe } from '@/services/api';
 import { ActionIcon } from '@mantine/core';
-import { ChangeEvent, useRef, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 import { Mic, MicOff } from 'react-feather';
 import { useTranslation } from 'react-i18next';
-import "./Record.css";
 
 export default function AudioRecorder({ onTranscript, setLoading }: {
   onTranscript: (text: string, error?: boolean) => void,
@@ -13,7 +12,8 @@ export default function AudioRecorder({ onTranscript, setLoading }: {
 }): React.ReactElement {
   const { t } = useTranslation();
   const [recording, setRecording] = useState<boolean>(false);
-  const [lang, setLang] = usePersistentState<string>(STORAGE_KEYS.speechLang, DEFAULT_LANG);
+  const { transcribeServerUrl } = useContext(ModelContext)!;
+  const { speechLang } = useContext(MessageContext)!;
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
@@ -33,26 +33,10 @@ export default function AudioRecorder({ onTranscript, setLoading }: {
 
       mediaRecorderRef.current.onstop = async (): Promise<void> => {
         const audioBlob: Blob = new Blob(chunks, { type: 'audio/webm' });
-        
-        const formData: FormData = new FormData();
-        formData.append("file", audioBlob, "audio.webm");
-        formData.append("language", lang);
-
         try {
           setLoading(true);
-          const res: Response = await fetch("/api/transcribe", {
-            method: "POST",
-            body: formData,
-          });
-
-          if (!res.ok) {
-            console.error(t('errors.server'), res.status, res.statusText);
-            onTranscript(t('errors.transcription_code', { code: res.status }), true);
-            return;
-          }
-
-          const json: { transcript: string } = await res.json();
-          onTranscript(json.transcript);
+          const { transcript }: {transcript: string } = await transcribe(audioBlob, speechLang, transcribeServerUrl);
+          onTranscript(transcript);
         } catch (error) {
           console.error(t('errors.sending_audio'), error);
           onTranscript(t('errors.contacting_transcription_server'), true);
@@ -87,28 +71,11 @@ export default function AudioRecorder({ onTranscript, setLoading }: {
   };
 
   return (
-    <div className="langContainer">
-      <select
-        id="voiceFlagPicker"
-        value={lang}
-        onChange={(e: ChangeEvent<HTMLSelectElement>) => setLang(e.target.value)}
-        className="voiceFlagPicker"
-        title="Langue pour la transcription"
-      >
-        <option value="fr">🇫🇷</option>
-        <option value="en">🇬🇧</option>
-        <option value="zh">🇨🇳</option>
-        <option value="ja">🇯🇵</option>
-        <option value="es">🇪🇸</option>
-        <option value="de">🇩🇪</option>
-        <option value="it">🇮🇹</option>
-      </select>
-      <ActionIcon
-        onClick={handleRecordClick}
-        title={recording ? t('audio.stop_recording') : t('audio.start_recording')}
-      >
-        {recording ? <MicOff color="red"/> : <Mic />}
-      </ActionIcon>
-    </div>
+    <ActionIcon
+      onClick={handleRecordClick}
+      title={recording ? t('audio.stop_recording') : t('audio.start_recording')}
+    >
+      {recording ? <MicOff color="red"/> : <Mic />}
+    </ActionIcon>
   );
 }

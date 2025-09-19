@@ -20,11 +20,11 @@ export const AppProviders = ({ children }: { children: React.ReactNode }): React
           },
         },
       }}>
-        <ModelProvider>
-          <MessageProvider>
-            {children}
-          </MessageProvider>
-        </ModelProvider>
+      <ModelProvider>
+        <MessageProvider>
+          {children}
+        </MessageProvider>
+      </ModelProvider>
     </MantineProvider>
   );
 };
