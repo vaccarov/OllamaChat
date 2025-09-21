@@ -1,8 +1,8 @@
 import { MessageContext } from '@/context/MessageContextDefinition';
 import { ChatSession, MessageContextType } from '@/types';
-import { ActionIcon, Button, Menu, Text } from '@mantine/core';
-import { useContext, useEffect, useState } from 'react';
-import { Copy, Edit, MoreVertical, Plus, Settings, Trash2 } from 'react-feather';
+import { ActionIcon, Menu, Text } from '@mantine/core';
+import { useContext, useState } from 'react';
+import { Copy, Edit, MessageCircle, MoreVertical, Settings, Trash2 } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import './ChatList.css';
 import { SettingsModal } from './SettingsModal';
@@ -18,10 +18,7 @@ export function ChatList({ show }: { show: boolean }): React.ReactElement | null
     deleteSession,
     duplicateSession,
   }: MessageContextType = useContext(MessageContext)!;
-  const [isClient, setIsClient] = useState<boolean>(false);
   const [settingsOpened, setSettingsOpened] = useState<boolean>(false);
-
-  useEffect(() => setIsClient(true), []);
 
   const handleRename = (id: string) => {
     const newName = prompt(t('chat.name_prompt'));
@@ -31,22 +28,30 @@ export function ChatList({ show }: { show: boolean }): React.ReactElement | null
   };
 
   const handleNewChat = () => {
-    const newName = prompt(t('chat.name_prompt'));
+    const newName: string | null = prompt(t('chat.name_prompt'));
     if (newName) {
       startNewSession(newName);
     }
   };
 
-  return !isClient ? null : (
+  return (
     <div className={`chatListContainer ${show && 'show'}`}>
-      <div className="chatList">
+      <div className='sessionActions'>
+        <ActionIcon onClick={() => setSettingsOpened(true)}>
+          <Settings />
+        </ActionIcon>
+        <ActionIcon onClick={handleNewChat}>
+          <MessageCircle />
+        </ActionIcon>
+      </div>
+      <div className='chatList'>
         {Object.entries(sessionsInGroup).map(([date, sessionsInGroup]: [string, ChatSession[]]) => (
           <div key={date}>
             <Text
-              size="xs"
-              fs="italic"
-              ta="center"
-              c="var(--lightcolor)">
+              size='xs'
+              fs='italic'
+              ta='center'
+              c='var(--lightcolor)'>
               {date}
             </Text>
             {sessionsInGroup.map((session: ChatSession) => (
@@ -57,9 +62,9 @@ export function ChatList({ show }: { show: boolean }): React.ReactElement | null
                   <Text className='conversationLink'>
                     {session.name}
                   </Text>
-                <Menu shadow="md" width={200}>
+                <Menu width={200}>
                   <Menu.Target>
-                    <ActionIcon className="moreVerticals" onClick={(e) => e.stopPropagation()}>
+                    <ActionIcon className='moreVerticals' onClick={(e) => e.stopPropagation()}>
                       <MoreVertical size={16} />
                     </ActionIcon>
                   </Menu.Target>
@@ -71,7 +76,7 @@ export function ChatList({ show }: { show: boolean }): React.ReactElement | null
                       {t('chat.duplicate')}
                     </Menu.Item>
                     <Menu.Divider />
-                    <Menu.Item color="red" leftSection={<Trash2 size={14} />} onClick={(e) => { e.stopPropagation(); deleteSession(session.id); }}>
+                    <Menu.Item color='red' leftSection={<Trash2 size={14} />} onClick={(e) => { e.stopPropagation(); deleteSession(session.id); }}>
                       {t('chat.delete')}
                     </Menu.Item>
                   </Menu.Dropdown>
@@ -80,18 +85,6 @@ export function ChatList({ show }: { show: boolean }): React.ReactElement | null
             ))}
           </div>
         ))}
-      </div>
-      <div className="sessionActions">
-        <ActionIcon onClick={() => setSettingsOpened(true)} size='xs'>
-          <Settings />
-        </ActionIcon>
-        <Button
-          onClick={handleNewChat}
-          variant='light'
-          className='addChat'
-          leftSection={<Plus size={16} />}>
-          {t('chat.new')}
-        </Button>
       </div>
       <SettingsModal opened={settingsOpened} onClose={() => setSettingsOpened(false)} />
     </div>

@@ -1,26 +1,24 @@
 'use client';
 
-import { Chat } from "@/components/Chat";
-import { ChatList } from "@/components/ChatList";
-import { LLMPicker } from "@/components/LLMPicker";
-import { Question } from "@/components/Question";
-import { SystemPrompt } from "@/components/SystemPrompt";
-import { MQ_MAX_WIDTH } from "@/constants/list";
-import { STORAGE_KEYS } from "@/constants/storageKeys";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
-import usePersistentState from "@/hooks/usePersistentState";
-import { ActionIcon } from "@mantine/core";
-import React, { useEffect, useState } from "react";
-import { Sidebar, Tool } from "react-feather";
+import { Chat } from '@/components/Chat';
+import { ChatList } from '@/components/ChatList';
+import { LLMPicker } from '@/components/LLMPicker';
+import { Question } from '@/components/Question';
+import { SystemPrompt } from '@/components/SystemPrompt';
+import { MQ_MAX_WIDTH } from '@/constants/list';
+import { STORAGE_KEYS } from '@/constants/storageKeys';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
+import usePersistentState from '@/hooks/usePersistentState';
+import { ActionIcon } from '@mantine/core';
+import React, { useEffect, useState } from 'react';
+import { Sidebar, Tool } from 'react-feather';
 
 const HomePage: React.FC = (): React.ReactElement => {
   const [showChatList, setShowChatList] = usePersistentState<boolean>(STORAGE_KEYS.showChatList, true);
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const isMobile: boolean = useMediaQuery(`(max-width: ${MQ_MAX_WIDTH}px)`);
-  const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
   useEffect(() => {
-    setIsLoaded(true);
     const setAppHeight = (): void => document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
     window.addEventListener('resize', setAppHeight);
     setAppHeight();
@@ -30,10 +28,10 @@ const HomePage: React.FC = (): React.ReactElement => {
   const toggleChatList = (): void => setShowChatList(!showChatList);
 
   return (
-    <div className="appContainer">
+    <div className='appContainer'>
       <ChatList show={showChatList} />
-      <div className={`mainPanel ${isLoaded && showChatList && 'shifted'}`}>
-        {isMobile && showChatList && <div className="backdrop" onClick={toggleChatList}></div>}
+      <div className={`mainPanel ${showChatList && 'shifted'}`}>
+        {isMobile && showChatList && <div className='backdrop' onClick={toggleChatList}></div>}
         <div className='header'>
           <ActionIcon onClick={toggleChatList}>
             <Sidebar />
@@ -43,7 +41,7 @@ const HomePage: React.FC = (): React.ReactElement => {
           </ActionIcon>
         </div>
         {showSettings && (
-          <div className="settingsContainer">
+          <div className='configContainer'>
             <LLMPicker />
             <SystemPrompt />
           </div>

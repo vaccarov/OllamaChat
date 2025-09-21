@@ -15,23 +15,23 @@ export function SettingsModal({ opened, onClose }: SettingsModalProps): ReactEle
   const { t }: { t: TFunction } = useTranslation();
 
   return (
-    <Modal opened={opened} onClose={onClose} title={t('settings.title')} size="xl">
-      <Tabs defaultValue="servers">
+    <Modal opened={opened} onClose={onClose} title={t('settings.title')} size='xl'>
+      <Tabs defaultValue='servers'>
         <Tabs.List>
-          <Tabs.Tab value="servers">{t('settings.tabs.servers')}</Tabs.Tab>
-          <Tabs.Tab value="language">{t('settings.tabs.language')}</Tabs.Tab>
-          <Tabs.Tab value="data">{t('settings.tabs.data')}</Tabs.Tab>
+          <Tabs.Tab value='servers'>{t('settings.tabs.servers')}</Tabs.Tab>
+          <Tabs.Tab value='language'>{t('settings.tabs.language')}</Tabs.Tab>
+          <Tabs.Tab value='data'>{t('settings.tabs.data')}</Tabs.Tab>
         </Tabs.List>
 
-        <Tabs.Panel value="servers" pt="md">
+        <Tabs.Panel value='servers' pt='md'>
           <ServerSettings opened={opened} />
         </Tabs.Panel>
 
-        <Tabs.Panel value="language" pt="md">
+        <Tabs.Panel value='language' pt='md'>
           <LanguageSettings />
         </Tabs.Panel>
 
-        <Tabs.Panel value="data" pt="md">
+        <Tabs.Panel value='data' pt='md'>
           <DataSettings />
         </Tabs.Panel>
       </Tabs>

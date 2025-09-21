@@ -1,11 +1,11 @@
-import { ComboboxData } from "@mantine/core";
+import { ComboboxData } from '@mantine/core';
 
 export const DEFAULT_SPEECH_LANG: string = 'en';
-export const DEFAULT_APP_LANG: string = 'en-GB';
+export const DEFAULT_APP_LANG: string = 'en';
 
 export const APP_LANGS: ComboboxData = [
-  { value: 'fr-FR', label: '🇫🇷 Français' },
-  { value: 'en-GB', label: '🇬🇧 English' },
+  { value: 'fr', label: '🇫🇷 Français' },
+  { value: 'en', label: '🇬🇧 English' },
 ];
 
 export const SPEECH_LANGS: ComboboxData = [

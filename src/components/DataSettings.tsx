@@ -29,24 +29,22 @@ export function DataSettings(): ReactElement {
   };
 
   return (
-    <div className="importExport">
+    <div className='importExport'>
       <Button
         onClick={exportSessions}
-        variant="light"
         leftSection={<Download size={16} />}>
         {t('chat.export')}
       </Button>
       <Button
         onClick={() => fileInputRef.current?.click()}
-        variant="light"
         leftSection={<Upload size={16} />}>
         {t('chat.import')}
       </Button>
       <input
-        type="file"
+        type='file'
         ref={fileInputRef}
         className='hidden'
-        accept=".json"
+        accept='.json'
         onChange={handleFileChange}
       />
     </div>

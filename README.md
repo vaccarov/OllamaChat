@@ -90,4 +90,4 @@ Before starting, ensure you have the following:
 
 * Handle large image (use local DB instead of localstorage)
 * Show reasoning collapse even if reasoning isn't finished
-* MessageContext.tsx:37 Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.
+* The tag <think> is unrecognized in this browser. If you meant to render a React component, start its name with an uppercase letter.

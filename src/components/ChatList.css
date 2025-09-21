@@ -14,19 +14,17 @@
   }
 }
 
-.addChat {
-  flex-grow: 1;
-  margin: 0;
-}
-
 .chatList {
   overflow-y: auto;
+  padding: 1rem 0;
+  flex: 1;
 }
 
 .chatListItem {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin: 0.5rem 0;
   padding: 0.8rem;
   cursor: pointer;
 
@@ -58,8 +56,8 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 1rem;
-  margin-top: auto;
-  border-top: 1px solid var(--lightcolor);
+  margin-bottom: auto;
+  border-bottom: 1px solid var(--lightcolor);
 }
 
 @media (max-width: 768px) {

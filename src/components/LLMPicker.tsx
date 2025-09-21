@@ -53,17 +53,17 @@ export const LLMPicker: React.FC = (): React.ReactElement => {
         className='picker'
         data={selectData}
         searchable
-        rightSectionPointerEvents="visible"
-        rightSectionWidth={82}
+        rightSectionPointerEvents='visible'
+        rightSectionWidth={90}
         rightSection={
           <div className='rightSection'>
-            <ActionIcon color='gray' onClick={refreshModels}>
+            <ActionIcon onClick={refreshModels}>
               <RefreshCw />
             </ActionIcon>
             <Tooltip
               label={<div className='tooltip'>{capabilitiesDescription}</div>}
               multiline>
-              <ActionIcon color='gray'>
+              <ActionIcon>
                 <HelpCircle />
               </ActionIcon>
             </Tooltip>

@@ -1,17 +1,16 @@
 import { predefinedSystemPrompts } from '@/constants/systemPrompts';
-import { MessageContext } from "@/context/MessageContextDefinition";
-import { MessageContextType } from "@/types/MessageContextDefinition";
+import { MessageContext } from '@/context/MessageContextDefinition';
+import { MessageContextType } from '@/types/MessageContextDefinition';
 import { SystemPromptItem } from '@/types/SystemPromptDefinition';
-import { ActionIcon, Menu, Textarea } from "@mantine/core";
-import React, { useContext, useEffect, useState } from "react";
-import { List } from "react-feather";
-import { useTranslation } from "react-i18next";
-import "./SystemPrompt.css";
+import { ActionIcon, Menu, Textarea } from '@mantine/core';
+import React, { useContext, useEffect, useState } from 'react';
+import { List } from 'react-feather';
+import { useTranslation } from 'react-i18next';
 
 export const SystemPrompt: React.FC = (): React.ReactElement => {
   const { t } = useTranslation();
   const { activeSession, updateSystemPrompt }: MessageContextType = useContext(MessageContext)!;
-  const [prompt, setPrompt] = useState<string>("");
+  const [prompt, setPrompt] = useState<string>('');
 
   useEffect(() => {
     if (activeSession) {
@@ -29,7 +28,6 @@ export const SystemPrompt: React.FC = (): React.ReactElement => {
 
   return (
     <Textarea
-      className="systemPrompt"
       value={prompt}
       placeholder={t('system_prompt.title')}
       autosize
@@ -40,9 +38,9 @@ export const SystemPrompt: React.FC = (): React.ReactElement => {
       }}
       leftSectionWidth={52}
       leftSection={
-        <Menu shadow="md" width={200}>
+        <Menu width={200}>
           <Menu.Target>
-            <ActionIcon color='gray'>
+            <ActionIcon>
               <List />
             </ActionIcon>
           </Menu.Target>

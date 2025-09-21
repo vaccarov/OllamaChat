@@ -1,21 +1,21 @@
 'use client';
 
-import ImagePicker from "@/components/ImagePicker";
-import AudioRecorder from "@/components/Record";
-import { MessageContext } from "@/context/MessageContextDefinition";
-import { ModelContext } from "@/context/ModelContextDefinition";
-import { useTts } from "@/hooks/useTts";
-import { streamChat } from "@/services/api";
-import { ChatRole } from "@/types/ChatRoleDefinition";
-import { ImageToSend } from "@/types/ImageToSend";
-import { MessageContextType } from "@/types/MessageContextDefinition";
-import { getLineNumber, getTotalLines, mapIsoToBcp47 } from "@/utils/tools";
-import { ActionIcon, Chip, Menu, Textarea } from "@mantine/core";
-import { Message } from "ollama";
-import { ReactElement, useContext, useEffect, useRef, useState } from "react";
-import { Loader, MoreVertical, Play, Volume2, VolumeX, X } from "react-feather";
-import { useTranslation } from "react-i18next";
-import "./Question.css";
+import ImagePicker from '@/components/ImagePicker';
+import AudioRecorder from '@/components/Record';
+import { MessageContext } from '@/context/MessageContextDefinition';
+import { ModelContext } from '@/context/ModelContextDefinition';
+import { useTts } from '@/hooks/useTts';
+import { streamChat } from '@/services/api';
+import { ChatRole } from '@/types/ChatRoleDefinition';
+import { ImageToSend } from '@/types/ImageToSend';
+import { MessageContextType } from '@/types/MessageContextDefinition';
+import { getLineNumber, getTotalLines, mapIsoToBcp47 } from '@/utils/tools';
+import { ActionIcon, Chip, Menu, Textarea } from '@mantine/core';
+import { Message } from 'ollama';
+import { ReactElement, useContext, useRef, useState } from 'react';
+import { Loader, MoreVertical, Play, Volume2, VolumeX, X } from 'react-feather';
+import { useTranslation } from 'react-i18next';
+import './Question.css';
 
 export const Question: React.FC = (): ReactElement | null => {
   const { t } = useTranslation();
@@ -27,10 +27,7 @@ export const Question: React.FC = (): ReactElement | null => {
   const { isTtsEnabled, setIsTtsEnabled, isSpeaking, speak, cancel } = useTts();
   const [historyIndex, setHistoryIndex] = useState<number | null>(null);
   const [promptBeforeNav, setPromptBeforeNav] = useState<string | null>(null);
-  const [isClient, setIsClient] = useState<boolean>(false);
   const abortControllerRef = useRef<AbortController | null>(null);
-
-  useEffect(() => setIsClient(true), []);
 
   const stopRequest = (): void => {
     if (abortControllerRef.current) {
@@ -65,7 +62,7 @@ export const Question: React.FC = (): ReactElement | null => {
     addMessage(ChatRole.user, prompt, image, currentSessionId);
     setImage(undefined);
     setLoading(true);
-    let sentenceBuffer: string = "";
+    let sentenceBuffer: string = '';
     const currentSpeechLang: string = mapIsoToBcp47(speechLang);
 
     addMessage(ChatRole.assistant, '', undefined, currentSessionId);
@@ -150,45 +147,42 @@ export const Question: React.FC = (): ReactElement | null => {
     }
   }
 
-  return !isClient ? null : (
-    <div className="questionContainer">
-      <Menu shadow="md">
-        <Menu.Target>
-          <ActionIcon title={t('menu.options')}>
-            <MoreVertical />
-          </ActionIcon>
-        </Menu.Target>
-        <Menu.Dropdown>
-          <div className="questionMenu">
-            <AudioRecorder onTranscript={handleTranscript} setLoading={setLoading} />
-            <ActionIcon
-              onClick={handleTtsButtonClick}
-              title={isTtsEnabled ? (isSpeaking ? t('audio.stop_reading') : t('audio.disable_reading')) : t('audio.enable_reading')}>
-              {isTtsEnabled ? <Volume2 /> : <VolumeX />}
-            </ActionIcon>
-            {currentModel?.show?.capabilities?.includes('vision') && <ImagePicker onImageSelect={setImage} />}
-          </div>
-        </Menu.Dropdown>
-      </Menu>
+  return (
+    <div className='questionContainer'>
       {image && <Chip
-        icon={<X size={16} />}
-        onClick={() => setImage(undefined)}
+        icon={<X size={16} onClick={() => setImage(undefined)} />}
         checked={true}>
         {image.name}
       </Chip>}
       <Textarea
-        className="questionArea"
-        radius='xl'
+        className='questionArea'
         placeholder={t('chat.placeholder')}
         value={userPrompt}
+        leftSection={
+          <Menu>
+            <Menu.Target>
+              <ActionIcon title={t('menu.options')}>
+                <MoreVertical />
+              </ActionIcon>
+            </Menu.Target>
+            <Menu.Dropdown>
+              <div className='questionMenu'>
+                <AudioRecorder onTranscript={handleTranscript} setLoading={setLoading} />
+                <ActionIcon
+                  onClick={handleTtsButtonClick}
+                  title={isTtsEnabled ? (isSpeaking ? t('audio.stop_reading') : t('audio.disable_reading')) : t('audio.enable_reading')}>
+                  {isTtsEnabled ? <Volume2 /> : <VolumeX />}
+                </ActionIcon>
+                {currentModel?.show?.capabilities?.includes('vision') && <ImagePicker onImageSelect={setImage} />}
+              </div>
+            </Menu.Dropdown>
+          </Menu>
+        }
         rightSection={
           <ActionIcon
-            variant="transparent"
-            radius="xl"
-            size="lg"
             disabled={!currentModel?.model || !(userPrompt || image) && !loading}
             onClick={() => loading ? stopRequest() : sendRequest(userPrompt)}>
-            {loading ? <Loader className="spin-animation" /> : <Play />}
+            {loading ? <Loader className='spin-animation' /> : <Play />}
           </ActionIcon>
         }
         onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => {
