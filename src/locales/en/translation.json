@@ -13,6 +13,7 @@
     "placeholder": "Type your message here...",
     "send": "Send",
     "new": "New Chat",
+    "name": "Chat name",
     "rename": "Rename",
     "duplicate": "Duplicate",
     "delete": "Delete",

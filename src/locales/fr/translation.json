@@ -13,6 +13,7 @@
     "placeholder": "Écrivez votre message ici...",
     "send": "Envoyer",
     "new": "Nouveau Chat",
+    "name": "Nom du Chat",
     "rename": "Renommer",
     "duplicate": "Dupliquer",
     "delete": "Supprimer",

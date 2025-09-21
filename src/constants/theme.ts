@@ -34,6 +34,11 @@ export const theme: Partial<MantineTheme> = {
                 ...commonRadius,
             },
         },
+        Modal: {
+            defaultProps: {
+                ...commonRadius,
+            },
+        },
         Chip: {
             defaultProps: {
                 variant: 'outline',
