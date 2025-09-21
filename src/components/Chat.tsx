@@ -1,17 +1,21 @@
 import ChatBubble from '@/components/ChatBubble';
 import { SCROLL_TOLERANCE } from '@/constants/list';
 import { MessageContext } from '@/context/MessageContextDefinition';
-import { ChatSession } from '@/types/ChatSession';
+import { ModelContext } from '@/context/ModelContextDefinition';
+import { SettingsContext, SettingsContextDefinition } from '@/context/SettingsContextDefinition';
+import { ChatSession, ModelContextDefinition } from '@/types';
 import { ChatText } from '@/types/ChatText';
 import { ActionIcon } from '@mantine/core';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { ChevronDown, ChevronUp } from 'react-feather';
+import { ChevronDown, ChevronUp, Settings } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import './Chat.css';
 
 export const Chat: React.FC = (): React.ReactElement | null => {
   const { t } = useTranslation();
   const { activeSession }: { activeSession: ChatSession | undefined } = useContext(MessageContext)!;
+  const { models }: ModelContextDefinition = useContext(ModelContext)!;
+  const { setIsSettingsOpen }: SettingsContextDefinition = useContext(SettingsContext)!;
   const chatRef: React.RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
   const [isAtBottom, setIsAtBottom] = useState<boolean>(true);
   const [showTopArrow, setShowTopArrow] = useState<boolean>(false);
@@ -58,13 +62,22 @@ export const Chat: React.FC = (): React.ReactElement | null => {
       )}
       <div className='chat' ref={chatRef}>
         {
-          activeSession?.messages && activeSession.messages.length > 1
-            ? activeSession?.messages
-              .slice(1)
-              .map((msg: ChatText, i: number) => <ChatBubble message={msg} key={i} />)
-            : <div className='emptyChatMessage'>
-              <p>{t('chat.empty_chat_invitation')}</p>
+          !models || models.length === 0 ?
+            <div className='emptyChatMessage'>
+              <p>{t('chat.no_models_setup_message')}</p>
+              <ActionIcon onClick={()=> setIsSettingsOpen(true)}>
+                <Settings />
+              </ActionIcon>
             </div>
+            :
+            activeSession?.messages && activeSession.messages.length > 1 ?
+              activeSession?.messages
+                .slice(1)
+                .map((msg: ChatText, i: number) => <ChatBubble message={msg} key={i} />)
+              :
+              <div className='emptyChatMessage'>
+                <p>{t('chat.empty_chat_invitation')}</p>
+              </div>
         }
       </div>
     </div>

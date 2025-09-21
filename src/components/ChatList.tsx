@@ -1,11 +1,11 @@
 import { MessageContext } from '@/context/MessageContextDefinition';
+import { SettingsContext, SettingsContextDefinition } from '@/context/SettingsContextDefinition';
 import { ChatSession, MessageContextType } from '@/types';
 import { ActionIcon, Menu, Text } from '@mantine/core';
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { Copy, Edit, MessageCircle, MoreVertical, Settings, Trash2 } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import './ChatList.css';
-import { SettingsModal } from './SettingsModal';
 
 export function ChatList({ show }: { show: boolean }): React.ReactElement | null {
   const { t } = useTranslation();
@@ -18,7 +18,7 @@ export function ChatList({ show }: { show: boolean }): React.ReactElement | null
     deleteSession,
     duplicateSession,
   }: MessageContextType = useContext(MessageContext)!;
-  const [settingsOpened, setSettingsOpened] = useState<boolean>(false);
+  const { setIsSettingsOpen }: SettingsContextDefinition = useContext(SettingsContext)!;
 
   const handleRename = (id: string) => {
     const newName = prompt(t('chat.name_prompt'));
@@ -37,7 +37,7 @@ export function ChatList({ show }: { show: boolean }): React.ReactElement | null
   return (
     <div className={`chatListContainer ${show && 'show'}`}>
       <div className='sessionActions'>
-        <ActionIcon onClick={() => setSettingsOpened(true)}>
+        <ActionIcon onClick={() => setIsSettingsOpen(true)}>
           <Settings />
         </ActionIcon>
         <ActionIcon onClick={handleNewChat}>
@@ -86,7 +86,6 @@ export function ChatList({ show }: { show: boolean }): React.ReactElement | null
           </div>
         ))}
       </div>
-      <SettingsModal opened={settingsOpened} onClose={() => setSettingsOpened(false)} />
     </div>
   );
 }

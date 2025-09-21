@@ -26,7 +26,8 @@
       "filename": "chat_history.json"
     },
     "copy_suffix": " (copy)",
-    "empty_chat_invitation": "Ask your first question to start the discussion."
+    "empty_chat_invitation": "Ask your first question to start the discussion.",
+    "no_models_setup_message": "No models are configured. Please set up your Ollama server in the settings and select a model."
   },
   "system_prompt": {
     "title": "System Prompt",

@@ -3,6 +3,7 @@
 import { theme } from '@/constants/theme';
 import { MessageProvider } from '@/context/MessageContext';
 import { ModelProvider } from '@/context/ModelContext';
+import { SettingsProvider } from '@/context/SettingsContext';
 import '@/i18n';
 import { MantineProvider } from '@mantine/core';
 import React, { useEffect, useState } from 'react';
@@ -16,11 +17,13 @@ export const AppProviders = ({ children }: { children: React.ReactNode }): React
     <MantineProvider
       defaultColorScheme='dark'
       theme={theme}>
-      <ModelProvider>
-        <MessageProvider>
-          {children}
-        </MessageProvider>
-      </ModelProvider>
+        <ModelProvider>
+          <MessageProvider>
+            <SettingsProvider>
+              {children}
+            </SettingsProvider>
+          </MessageProvider>
+        </ModelProvider>
     </MantineProvider>
   );
 };
