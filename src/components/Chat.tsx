@@ -1,10 +1,10 @@
 import ChatBubble from "@/components/ChatBubble";
-import { SCROLL_TOLERANCE, TOP_ARROW_THRESHOLD } from "@/constants/list";
+import { SCROLL_TOLERANCE } from "@/constants/list";
 import { MessageContext } from "@/context/MessageContextDefinition";
 import { ChatSession } from "@/types/ChatSession";
 import { ChatText } from "@/types/ChatText";
 import { ActionIcon } from "@mantine/core";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { ChevronDown, ChevronUp } from "react-feather";
 import { useTranslation } from "react-i18next";
 import "./Chat.css";
@@ -17,14 +17,14 @@ export const Chat: React.FC = (): React.ReactElement | null => {
   const [showTopArrow, setShowTopArrow] = useState<boolean>(false);
   const [isClient, setIsClient] = useState<boolean>(false);
 
-  const scrollToBottom = (): void => {
+  const scrollToBottom = useCallback((): void => {
     const el: HTMLDivElement | null = chatRef.current;
     if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
-  };
+  }, []);
 
-  const scrollToTop = (): void => {
+  const scrollToTop = useCallback((): void => {
     if (chatRef.current) chatRef.current.scrollTo({ top: 0, behavior: 'instant' });
-  };
+  }, []);
 
   useEffect(() => {
     setIsClient(true);
@@ -33,18 +33,18 @@ export const Chat: React.FC = (): React.ReactElement | null => {
     const handleScroll = (): void => {
       const isScrolledToBottom: boolean = el.scrollHeight - el.scrollTop - el.clientHeight < SCROLL_TOLERANCE;
       setIsAtBottom(isScrolledToBottom);
-      setShowTopArrow(el.scrollTop > TOP_ARROW_THRESHOLD);
+      setShowTopArrow(isScrolledToBottom);
     };
     el.addEventListener('scroll', handleScroll);
     handleScroll();
     return () => el.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [chatRef.current]);
 
   useEffect(() => {
     if (isAtBottom) scrollToBottom();
-  }, [activeSession?.messages, isAtBottom]);
+  }, [activeSession?.messages, isAtBottom, scrollToBottom]);
 
-  useEffect(() => scrollToBottom(), [activeSession?.id]);
+  useEffect(() => scrollToBottom(), [activeSession?.id, scrollToBottom]);
 
   return !isClient ? null : (
     <div className="chatContainer">
