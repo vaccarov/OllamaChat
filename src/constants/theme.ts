@@ -39,6 +39,11 @@ export const theme: Partial<MantineTheme> = {
                 ...commonRadius,
             },
         },
+        Alert: {
+            defaultProps: {
+                ...commonRadius,
+            },
+        },
         Chip: {
             defaultProps: {
                 variant: 'outline',
@@ -67,7 +72,17 @@ export const theme: Partial<MantineTheme> = {
                 ...largeInput
             },
         },
+        NumberInput: {
+            defaultProps: {
+                ...largeInput
+            },
+        },
         TextInput: {
+            defaultProps: {
+                ...inputWithLabel
+            },
+        },
+        FileInput: {
             defaultProps: {
                 ...inputWithLabel
             },

@@ -87,7 +87,7 @@ export const Question: React.FC = (): ReactElement | null => {
           setLoading(false);
           abortControllerRef.current = null;
         },
-        onError: (error: Error) => {
+        onError: (error: unknown) => {
           const errorMessage: string = (error as Error).name === 'AbortError'
             ? t('errors.request_aborted')
             : `${t('errors.prefix')}${(error as Error).message || t('errors.unknown')}`;

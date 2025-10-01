@@ -91,3 +91,6 @@ Before starting, ensure you have the following:
 * Handle large image (use local DB instead of localstorage)
 * Show reasoning collapse even if reasoning isn't finished
 * The tag <think> is unrecognized in this browser. If you meant to render a React component, start its name with an uppercase letter.
+// embedding
+https://huggingface.co/tencent/SRPO
+https://huggingface.co/openbmb/VoxCPM-0.5B

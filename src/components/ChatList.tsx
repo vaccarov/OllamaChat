@@ -1,9 +1,10 @@
+import { ImageGenerationModal } from '@/components/ImageGenerationModal';
 import { MessageContext } from '@/context/MessageContextDefinition';
 import { SettingsContext, SettingsContextDefinition } from '@/context/SettingsContextDefinition';
 import { ChatSession, MessageContextType } from '@/types';
 import { ActionIcon, Button, Menu, Modal, Text, TextInput } from '@mantine/core';
 import { useContext, useState } from 'react';
-import { Copy, Edit, MessageCircle, MoreVertical, Settings, Trash2 } from 'react-feather';
+import { Copy, Edit, Image, MessageCircle, MoreVertical, Settings, Trash2 } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import './ChatList.css';
 
@@ -19,14 +20,15 @@ export function ChatList({ show }: { show: boolean }): React.ReactElement | null
     duplicateSession,
   }: MessageContextType = useContext(MessageContext)!;
   const { setIsSettingsOpen }: SettingsContextDefinition = useContext(SettingsContext)!;
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [renameModalOpen, setRenameModalOpen] = useState<boolean>(false);
+  const [generateModalOpened, setGenerateModalOpened] = useState<boolean>(false);
   const [sessionToEdit, setSessionToEdit] = useState<string | null>(null);
   const [newName, setNewName] = useState<string>('');
 
   const handleRename = (session: ChatSession | null): void => {
     setSessionToEdit(session?.id || null);
     setNewName(session?.name || '');
-    setIsModalOpen(true);
+    setRenameModalOpen(true);
   };
 
   const handleModalSubmit = (): void => {
@@ -41,15 +43,16 @@ export function ChatList({ show }: { show: boolean }): React.ReactElement | null
   };
 
   const closeModal = (): void => {
-    setIsModalOpen(false);
+    setRenameModalOpen(false);
     setSessionToEdit(null);
     setNewName('');
   };
 
   return (
     <div className={`chatListContainer ${show && 'show'}`}>
+      <ImageGenerationModal opened={generateModalOpened} onClose={() => setGenerateModalOpened(false)} />
       <Modal
-        opened={isModalOpen}
+        opened={renameModalOpen}
         onClose={closeModal}
         size='xs'
         title={t(sessionToEdit ? 'chat.rename' : 'chat.new')}
@@ -72,6 +75,9 @@ export function ChatList({ show }: { show: boolean }): React.ReactElement | null
       <div className='sessionActions'>
         <ActionIcon onClick={() => setIsSettingsOpen(true)}>
           <Settings />
+        </ActionIcon>
+        <ActionIcon onClick={() => setGenerateModalOpened(true)} title="Generate Image">
+          <Image />
         </ActionIcon>
         <ActionIcon onClick={() => handleRename(null)}>
           <MessageCircle />
