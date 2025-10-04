@@ -1,19 +1,19 @@
 .pickerContainer {
-    display: flex;
-    flex: 1;
-    align-items: center;
-    gap: 1rem;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 1rem;
 }
 
 .picker {
-    flex: 1;
+  flex: 1;
 }
 
 .rightSection {
-    display: flex;
-    gap: var(--mantine-spacing-xs);
+  display: flex;
+  gap: var(--mantine-spacing-xs);
 }
 
 .tooltip {
-    white-space: pre-line;
+  white-space: pre-line;
 }

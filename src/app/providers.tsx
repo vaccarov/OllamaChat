@@ -13,17 +13,17 @@ export const AppProviders = ({ children }: { children: React.ReactNode }): React
 
   useEffect(() => setIsLoaded(true), []);
 
-  return !isLoaded ? <></> : (
+  return !isLoaded ? (
+    <></>
+  ) : (
     <MantineProvider
       defaultColorScheme='dark'
       theme={theme}>
-        <ModelProvider>
-          <MessageProvider>
-            <SettingsProvider>
-              {children}
-            </SettingsProvider>
-          </MessageProvider>
-        </ModelProvider>
+      <ModelProvider>
+        <MessageProvider>
+          <SettingsProvider>{children}</SettingsProvider>
+        </MessageProvider>
+      </ModelProvider>
     </MantineProvider>
   );
 };

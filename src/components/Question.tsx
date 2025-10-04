@@ -88,13 +88,12 @@ export const Question: React.FC = (): ReactElement | null => {
           abortControllerRef.current = null;
         },
         onError: (error: unknown) => {
-          const errorMessage: string = (error as Error).name === 'AbortError'
-            ? t('errors.request_aborted')
-            : `${t('errors.prefix')}${(error as Error).message || t('errors.unknown')}`;
+          const errorMessage: string =
+            (error as Error).name === 'AbortError' ? t('errors.request_aborted') : `${t('errors.prefix')}${(error as Error).message || t('errors.unknown')}`;
           addMessage(ChatRole.custom, errorMessage, undefined, currentSessionId);
           setLoading(false);
           abortControllerRef.current = null;
-        }
+        },
       }
     );
   };
@@ -115,7 +114,7 @@ export const Question: React.FC = (): ReactElement | null => {
     const textarea: EventTarget & HTMLTextAreaElement = e.currentTarget;
     const currentLine: number = getLineNumber(textarea);
     const totalLines: number = getTotalLines(textarea);
-    
+
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendRequest(userPrompt);
@@ -145,15 +144,22 @@ export const Question: React.FC = (): ReactElement | null => {
         setPromptBeforeNav(null);
       }
     }
-  }
+  };
 
   return (
     <div className='questionContainer'>
-      {image && <Chip
-        icon={<X size={16} onClick={() => setImage(undefined)} />}
-        checked={true}>
-        {image.name}
-      </Chip>}
+      {image && (
+        <Chip
+          icon={
+            <X
+              size={16}
+              onClick={() => setImage(undefined)}
+            />
+          }
+          checked={true}>
+          {image.name}
+        </Chip>
+      )}
       <Textarea
         className='questionArea'
         placeholder={t('chat.placeholder')}
@@ -167,7 +173,10 @@ export const Question: React.FC = (): ReactElement | null => {
             </Menu.Target>
             <Menu.Dropdown>
               <div className='questionMenu'>
-                <AudioRecorder onTranscript={handleTranscript} setLoading={setLoading} />
+                <AudioRecorder
+                  onTranscript={handleTranscript}
+                  setLoading={setLoading}
+                />
                 <ActionIcon
                   onClick={handleTtsButtonClick}
                   title={isTtsEnabled ? (isSpeaking ? t('audio.stop_reading') : t('audio.disable_reading')) : t('audio.enable_reading')}>
@@ -180,8 +189,8 @@ export const Question: React.FC = (): ReactElement | null => {
         }
         rightSection={
           <ActionIcon
-            disabled={!currentModel?.model || !(userPrompt || image) && !loading}
-            onClick={() => loading ? stopRequest() : sendRequest(userPrompt)}>
+            disabled={!currentModel?.model || (!(userPrompt || image) && !loading)}
+            onClick={() => (loading ? stopRequest() : sendRequest(userPrompt))}>
             {loading ? <Loader className='spin-animation' /> : <Play />}
           </ActionIcon>
         }

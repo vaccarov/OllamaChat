@@ -61,7 +61,7 @@ export function generateImage(
                 callbacks.onProgress(progressData);
               }
             } catch (e: unknown) {
-              console.error("Failed to parse progress JSON", dataJson, e);
+              console.error('Failed to parse progress JSON', dataJson, e);
             }
           }
         }

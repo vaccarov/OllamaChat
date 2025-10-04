@@ -22,27 +22,24 @@ export const LLMPicker: React.FC = (): React.ReactElement => {
     }
   };
 
-  const getModelCapabilities = useCallback((m: ShowResponse): Capability[] =>
-    CAPABILITIES.filter((capability: Capability) => m.capabilities?.includes(capability.id))
-  , []);
+  const getModelCapabilities = useCallback((m: ShowResponse): Capability[] => CAPABILITIES.filter((capability: Capability) => m.capabilities?.includes(capability.id)), []);
 
-  const capabilitiesDescription: string = useMemo(() =>
-    CAPABILITIES
-      .map((capability: Capability) => `${capability.icon}: ${t(capability.tooltipKey)}`)
-      .join('\n')
-  , [t]);
+  const capabilitiesDescription: string = useMemo(() => CAPABILITIES.map((capability: Capability) => `${capability.icon}: ${t(capability.tooltipKey)}`).join('\n'), [t]);
 
-  const selectData = useMemo(() =>
-    models.map((m: OllamaModel) => {
-      const capabilities: Capability[] = getModelCapabilities(m.show);
-      const icons: string = capabilities.map((c: Capability) => c.icon).join(' ');
-      const label: string = `${m.name} (${(m.size / 1e9).toFixed(2)} GB)`;
-      return {
-        value: m.model,
-        label: icons ? `${icons} ${label}` : label,
-        description: m.details?.family,
-      }
-    }), [models, getModelCapabilities]);
+  const selectData = useMemo(
+    () =>
+      models.map((m: OllamaModel) => {
+        const capabilities: Capability[] = getModelCapabilities(m.show);
+        const icons: string = capabilities.map((c: Capability) => c.icon).join(' ');
+        const label: string = `${m.name} (${(m.size / 1e9).toFixed(2)} GB)`;
+        return {
+          value: m.model,
+          label: icons ? `${icons} ${label}` : label,
+          description: m.details?.family,
+        };
+      }),
+    [models, getModelCapabilities]
+  );
 
   return (
     <div className='pickerContainer'>

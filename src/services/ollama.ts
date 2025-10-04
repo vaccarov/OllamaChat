@@ -3,10 +3,10 @@
 import { OllamaModel } from '@/types';
 import { ListResponse, Message, ModelResponse, ShowResponse } from 'ollama';
 
-export async function checkOllamaServer(ollamaServerUrl: string): Promise<{success: boolean}> {
+export async function checkOllamaServer(ollamaServerUrl: string): Promise<{ success: boolean }> {
   try {
     const response: Response = await fetch(ollamaServerUrl);
-    const success: boolean = await response.text() === 'Ollama is running';
+    const success: boolean = (await response.text()) === 'Ollama is running';
     return { success };
   } catch (_error) {
     return { success: false };
@@ -28,7 +28,7 @@ export async function listModels(ollamaServerUrl: string): Promise<OllamaModel[]
         const show: ShowResponse = await showResponse.json();
         return {
           ...model,
-          show
+          show,
         };
       })
     );
@@ -45,7 +45,7 @@ export function streamChat(
   body: { model: string; messages: Message[] },
   callbacks: {
     onChunk: (chunk: string) => void;
-    onError: (error: (unknown)) => void;
+    onError: (error: unknown) => void;
     onComplete: () => void;
   }
 ): AbortController {
@@ -59,16 +59,16 @@ export function streamChat(
         body: JSON.stringify({ ...body, stream: true }),
         signal: abortController.signal,
       });
-    
+
       if (!response.ok || !response.body) {
         const errorData: { error?: string } = await response.json();
         throw new Error(errorData.error || 'Unknown error');
       }
-    
+
       const reader: ReadableStreamDefaultReader<Uint8Array> = response.body.getReader();
       const decoder: TextDecoder = new TextDecoder();
       let buffer: string = '';
-    
+
       while (true) {
         const { done, value }: ReadableStreamReadResult<Uint8Array> = await reader.read();
         if (done) {
@@ -87,7 +87,7 @@ export function streamChat(
     } catch (error: unknown) {
       callbacks.onError(error);
     }
-  }
+  };
   stream();
   return abortController;
 }

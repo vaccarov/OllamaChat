@@ -1,4 +1,4 @@
-import { MODEL_LCM, MODEL_SDXL } from "@/constants/list";
+import { MODEL_LCM, MODEL_SDXL } from '@/constants/list';
 
 export type ModelName = typeof MODEL_SDXL | typeof MODEL_LCM;
 

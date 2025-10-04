@@ -1,4 +1,4 @@
-import { ChatSession } from "@/types/ChatSession";
+import { ChatSession } from '@/types/ChatSession';
 
 export type ChatHistory = {
   sessions: ChatSession[];

@@ -7,9 +7,12 @@ import { useContext, useRef, useState } from 'react';
 import { Mic, MicOff } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 
-export default function AudioRecorder({ onTranscript, setLoading }: {
-  onTranscript: (text: string, error?: boolean) => void,
-  setLoading: (loading: boolean) => void
+export default function AudioRecorder({
+  onTranscript,
+  setLoading,
+}: {
+  onTranscript: (text: string, error?: boolean) => void;
+  setLoading: (loading: boolean) => void;
 }): React.ReactElement {
   const { t } = useTranslation();
   const [recording, setRecording] = useState<boolean>(false);
@@ -20,7 +23,9 @@ export default function AudioRecorder({ onTranscript, setLoading }: {
 
   const startRecording = async (): Promise<void> => {
     try {
-      const stream: MediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream: MediaStream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+      });
       streamRef.current = stream;
       const recorder: MediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = recorder;
@@ -36,7 +41,7 @@ export default function AudioRecorder({ onTranscript, setLoading }: {
         const audioBlob: Blob = new Blob(chunks, { type: 'audio/webm' });
         try {
           setLoading(true);
-          const { transcript }: {transcript: string } = await transcribe(audioBlob, speechLang, chatServerUrl);
+          const { transcript }: { transcript: string } = await transcribe(audioBlob, speechLang, chatServerUrl);
           onTranscript(transcript);
         } catch (error) {
           console.error(t('errors.sending_audio'), error);
@@ -53,7 +58,7 @@ export default function AudioRecorder({ onTranscript, setLoading }: {
   };
 
   const stopRecording = (): void => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
       mediaRecorderRef.current.stop();
     }
     if (streamRef.current) {
@@ -75,9 +80,8 @@ export default function AudioRecorder({ onTranscript, setLoading }: {
     <ActionIcon
       onClick={handleRecordClick}
       disabled={!currentModel?.model || transcribeServerStatus !== ApiStatus.VALID}
-      title={recording ? t('audio.stop_recording') : t('audio.start_recording')}
-    >
-      {recording ? <MicOff color="red"/> : <Mic />}
+      title={recording ? t('audio.stop_recording') : t('audio.start_recording')}>
+      {recording ? <MicOff color='red' /> : <Mic />}
     </ActionIcon>
   );
 }

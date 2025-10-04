@@ -31,7 +31,11 @@ const HomePage: React.FC = (): React.ReactElement => {
     <div className='appContainer'>
       <ChatList show={showChatList} />
       <div className={`mainPanel ${showChatList && 'shifted'}`}>
-        {isMobile && showChatList && <div className='backdrop' onClick={toggleChatList}></div>}
+        {isMobile && showChatList && (
+          <div
+            className='backdrop'
+            onClick={toggleChatList}></div>
+        )}
         <div className='header'>
           <ActionIcon onClick={toggleChatList}>
             <Sidebar />

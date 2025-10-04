@@ -24,15 +24,18 @@ function usePersistentState<T>(key: string, initialState: T): [T, React.Dispatch
     }
   }, [key, state]);
 
-  const handleStorageChange = useCallback((event: StorageEvent): void => {
-    if (event.key === key && event.newValue) {
-      try {
-        setState(JSON.parse(event.newValue));
-      } catch (_error) {
-        setState(event.newValue as T);
+  const handleStorageChange = useCallback(
+    (event: StorageEvent): void => {
+      if (event.key === key && event.newValue) {
+        try {
+          setState(JSON.parse(event.newValue));
+        } catch (_error) {
+          setState(event.newValue as T);
+        }
       }
-    }
-  }, [key]);
+    },
+    [key]
+  );
 
   useEffect(() => {
     if (isBrowser) {

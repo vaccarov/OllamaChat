@@ -13,13 +13,7 @@ import './ChatList.css';
 
 export function ChatList({ show }: { show: boolean }): React.ReactElement | null {
   const { t } = useTranslation();
-  const {
-    activeSession,
-    sessionsInGroup,
-    setActiveSessionId,
-    deleteSession,
-    duplicateSession,
-  }: MessageContextType = useContext(MessageContext)!;
+  const { activeSession, sessionsInGroup, setActiveSessionId, deleteSession, duplicateSession }: MessageContextType = useContext(MessageContext)!;
   const { setIsSettingsOpen }: SettingsContextDefinition = useContext(SettingsContext)!;
   const { transcribeServerStatus } = useContext(ModelContext)!;
   const [renameModalOpen, setRenameModalOpen] = useState<boolean>(false);
@@ -38,7 +32,10 @@ export function ChatList({ show }: { show: boolean }): React.ReactElement | null
 
   return (
     <div className={`chatListContainer ${show && 'show'}`}>
-      <ImageGenerationModal opened={generateModalOpened} onClose={() => setGenerateModalOpened(false)} />
+      <ImageGenerationModal
+        opened={generateModalOpened}
+        onClose={() => setGenerateModalOpened(false)}
+      />
       <ChatRenameModal
         opened={renameModalOpen}
         onClose={closeRenameModal}
@@ -48,7 +45,10 @@ export function ChatList({ show }: { show: boolean }): React.ReactElement | null
         <ActionIcon onClick={() => setIsSettingsOpen(true)}>
           <Settings />
         </ActionIcon>
-        <ActionIcon onClick={() => setGenerateModalOpened(true)} title="Generate Image" disabled={transcribeServerStatus !== ApiStatus.VALID}>
+        <ActionIcon
+          onClick={() => setGenerateModalOpened(true)}
+          title='Generate Image'
+          disabled={transcribeServerStatus !== ApiStatus.VALID}>
           <ImageIcon />
         </ActionIcon>
         <ActionIcon onClick={() => handleRenameClick(null)}>
@@ -70,12 +70,12 @@ export function ChatList({ show }: { show: boolean }): React.ReactElement | null
                 key={session.id}
                 className={`chatListItem ${session.id === activeSession?.id && 'active'}`}
                 onClick={() => setActiveSessionId(session.id)}>
-                <Text className='conversationLink'>
-                  {session.name}
-                </Text>
+                <Text className='conversationLink'>{session.name}</Text>
                 <Menu width={200}>
                   <Menu.Target>
-                    <ActionIcon className='moreVerticals' onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                    <ActionIcon
+                      className='moreVerticals'
+                      onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                       <MoreVertical size={16} />
                     </ActionIcon>
                   </Menu.Target>

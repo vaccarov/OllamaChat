@@ -5,7 +5,7 @@ import { memo, useCallback, useState } from 'react';
 import { Download } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 
-const GeneratedImagesDisplay = memo(({ images }: {images: string[]}) => {
+const GeneratedImagesDisplay = memo(({ images }: { images: string[] }) => {
   const { t } = useTranslation();
   const [hovered, setHovered] = useState<number | null>(null);
 
@@ -20,19 +20,29 @@ const GeneratedImagesDisplay = memo(({ images }: {images: string[]}) => {
 
   return images.length === 0 ? null : (
     <Flex
-      gap="md"
-      justify="center"
-      direction="row"
-      wrap="wrap">
+      gap='md'
+      justify='center'
+      direction='row'
+      wrap='wrap'>
       {images.map((src: string, index: number) => (
         <div
           key={index}
           onMouseEnter={() => setHovered(index)}
           onMouseLeave={() => setHovered(null)}
           style={{ position: 'relative' }}>
-          <MantineImage src={src} alt={t('image_generation.generated_image_alt', { index: index + 1 })} w={300} radius='lg' />
+          <MantineImage
+            src={src}
+            alt={t('image_generation.generated_image_alt', {
+              index: index + 1,
+            })}
+            w={300}
+            radius='lg'
+          />
           {hovered === index && (
-            <Overlay backgroundOpacity={0.5} center radius="lg">
+            <Overlay
+              backgroundOpacity={0.5}
+              center
+              radius='lg'>
               <ActionIcon onClick={() => handleImageDownload(src, index + 1)}>
                 <Download />
               </ActionIcon>

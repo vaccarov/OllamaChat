@@ -47,12 +47,15 @@ export const SystemPrompt: React.FC = (): React.ReactElement => {
           <Menu.Dropdown>
             <Menu.Label>{t('system_prompt.select')}</Menu.Label>
             {predefinedSystemPrompts.map((p) => (
-              <Menu.Item key={p.id} onClick={() => handlePromptSelect(p.id)}>
+              <Menu.Item
+                key={p.id}
+                onClick={() => handlePromptSelect(p.id)}>
                 {p.name}
               </Menu.Item>
             ))}
           </Menu.Dropdown>
         </Menu>
-      }/>
+      }
+    />
   );
 };

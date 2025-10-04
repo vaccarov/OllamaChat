@@ -1,4 +1,3 @@
-
 import { MessageContext } from '@/context/MessageContextDefinition';
 import { ChatSession } from '@/types';
 import { Button, Modal, TextInput } from '@mantine/core';
@@ -37,8 +36,7 @@ export const ChatRenameModal = ({ opened, onClose, session }: ChatRenameModalPro
       onClose={onClose}
       size='xs'
       title={t(session ? 'chat.rename' : 'chat.new')}
-      centered
-    >
+      centered>
       <TextInput
         value={name}
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => setName(event.currentTarget.value)}
@@ -50,7 +48,10 @@ export const ChatRenameModal = ({ opened, onClose, session }: ChatRenameModalPro
           }
         }}
       />
-      <Button onClick={handleSubmit} mt={16} fullWidth>
+      <Button
+        onClick={handleSubmit}
+        mt={16}
+        fullWidth>
         {t(session ? 'chat.rename' : 'chat.new')}
       </Button>
     </Modal>
