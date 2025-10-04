@@ -1,13 +1,16 @@
+import { ApiStatus } from '@/types/api';
 import { OllamaModel } from '@/types/OllamaModel';
 import { Dispatch, SetStateAction } from 'react';
 
 export interface ModelContextDefinition {
-  models: OllamaModel[];
-  setModel: (model: string) => void;
   currentModel?: OllamaModel;
-  refreshModels: () => Promise<void>;
+  models: OllamaModel[];
   ollamaServerUrl: string;
+  chatServerUrl: string;
+  ollamaServerStatus: ApiStatus;
+  transcribeServerStatus: ApiStatus;
+  setModel: (model: string) => void;
+  refreshModels: () => Promise<void>;
   setOllamaServerUrl: Dispatch<SetStateAction<string>>;
-  transcribeServerUrl: string;
-  setTranscribeServerUrl: Dispatch<SetStateAction<string>>;
+  setChatServerUrl: Dispatch<SetStateAction<string>>;
 }

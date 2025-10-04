@@ -1,12 +1,10 @@
-import { DEBOUNCE_SERVER_URL_MS } from '@/constants/list';
 import { ModelContext } from '@/context/ModelContextDefinition';
-import { checkOllamaServer, checkTranscribeServer } from '@/services/api';
 import { ModelContextDefinition } from '@/types';
 import { ApiStatus } from '@/types/api';
 import { removeTrailingSlash } from '@/utils/tools';
 import { Anchor, Code, List, Text, TextInput, Title } from '@mantine/core';
 import { TFunction } from 'i18next';
-import { ChangeEvent, ReactElement, useContext, useEffect, useState } from 'react';
+import { ChangeEvent, ReactElement, useContext } from 'react';
 import { CheckCircle, Loader, XCircle } from 'react-feather';
 import { Trans, useTranslation } from 'react-i18next';
 import './SettingsModal.css';
@@ -19,33 +17,7 @@ export function ServerSettings({ opened }: ServerSettingsProps): ReactElement {
   const { t }: { t: TFunction } = useTranslation();
   const modelContext: ModelContextDefinition | undefined = useContext(ModelContext);
   if (!modelContext) throw new Error('ServerSettings must be used within a ModelProvider');
-  const [ollamaServerStatus, setOllamaServerStatus] = useState<ApiStatus>(ApiStatus.UNKNOWN);
-  const [transcribeServerStatus, setTranscribeServerStatus] = useState<ApiStatus>(ApiStatus.UNKNOWN);
-  const { ollamaServerUrl, setOllamaServerUrl, transcribeServerUrl, setTranscribeServerUrl }: ModelContextDefinition = modelContext;
-
-  useEffect(() => {
-    if (opened && ollamaServerUrl) {
-      setOllamaServerStatus(ApiStatus.CHECKING);
-      const handler: NodeJS.Timeout = setTimeout(() => {
-        checkOllamaServer(ollamaServerUrl).then((result: { success: boolean }) => {
-          setOllamaServerStatus(result.success ? ApiStatus.VALID : ApiStatus.INVALID);
-        });
-      }, DEBOUNCE_SERVER_URL_MS);
-      return () => clearTimeout(handler);
-    }
-  }, [opened, ollamaServerUrl]);
-
-  useEffect(() => {
-    if (opened && transcribeServerUrl) {
-      setTranscribeServerStatus(ApiStatus.CHECKING);
-      const handler: NodeJS.Timeout = setTimeout(() => {
-        checkTranscribeServer(transcribeServerUrl).then((result: { success: boolean }) => {
-          setTranscribeServerStatus(result.success ? ApiStatus.VALID : ApiStatus.INVALID);
-        });
-      }, DEBOUNCE_SERVER_URL_MS);
-      return () => clearTimeout(handler);
-    }
-  }, [opened, transcribeServerUrl]);
+  const { ollamaServerUrl, setOllamaServerUrl, chatServerUrl, setChatServerUrl, ollamaServerStatus, transcribeServerStatus }: ModelContextDefinition = modelContext;
 
   return (
     <div className='settingsContainer'>
@@ -57,8 +29,8 @@ export function ServerSettings({ opened }: ServerSettingsProps): ReactElement {
       />
       <TextInput
         label={t('settings.transcribe_url')}
-        value={transcribeServerUrl}
-        onChange={(event: ChangeEvent<HTMLInputElement>) => setTranscribeServerUrl(removeTrailingSlash(event.currentTarget.value))}
+        value={chatServerUrl}
+        onChange={(event: ChangeEvent<HTMLInputElement>) => setChatServerUrl(removeTrailingSlash(event.currentTarget.value))}
         rightSection={<StatusIcon status={transcribeServerStatus} />}
       />
       <div style={{ marginTop: 'var(--mantine-spacing-lg)' }}>
@@ -104,7 +76,7 @@ export function ServerSettings({ opened }: ServerSettingsProps): ReactElement {
   handle_path /ollama* {
     reverse_proxy localhost:11434
   }
-  handle_path /transcribe* {
+  handle_path /audio* {
     reverse_proxy localhost:8000
   }
 }`}

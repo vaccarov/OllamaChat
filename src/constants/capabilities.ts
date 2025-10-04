@@ -16,4 +16,9 @@ export const CAPABILITIES: Capability[] = [
     icon: '✍️',
     tooltipKey: 'model.capabilities.insert',
   },
+  {
+    id: 'embedding',
+    icon: '📚',
+    tooltipKey: 'model.capabilities.embedding',
+  },
 ];

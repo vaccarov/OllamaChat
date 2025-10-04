@@ -1,8 +1,11 @@
+import { ChatRenameModal } from '@/components/ChatRenameModal';
 import { ImageGenerationModal } from '@/components/ImageGenerationModal';
 import { MessageContext } from '@/context/MessageContextDefinition';
+import { ModelContext } from '@/context/ModelContextDefinition';
 import { SettingsContext, SettingsContextDefinition } from '@/context/SettingsContextDefinition';
 import { ChatSession, MessageContextType } from '@/types';
-import { ActionIcon, Button, Menu, Modal, Text, TextInput } from '@mantine/core';
+import { ApiStatus } from '@/types/api';
+import { ActionIcon, Menu, Text } from '@mantine/core';
 import { useContext, useState } from 'react';
 import { Copy, Edit, Image, MessageCircle, MoreVertical, Settings, Trash2 } from 'react-feather';
 import { useTranslation } from 'react-i18next';
@@ -14,72 +17,41 @@ export function ChatList({ show }: { show: boolean }): React.ReactElement | null
     activeSession,
     sessionsInGroup,
     setActiveSessionId,
-    startNewSession,
-    renameSession,
     deleteSession,
     duplicateSession,
   }: MessageContextType = useContext(MessageContext)!;
   const { setIsSettingsOpen }: SettingsContextDefinition = useContext(SettingsContext)!;
+  const { transcribeServerStatus } = useContext(ModelContext)!;
   const [renameModalOpen, setRenameModalOpen] = useState<boolean>(false);
   const [generateModalOpened, setGenerateModalOpened] = useState<boolean>(false);
-  const [sessionToEdit, setSessionToEdit] = useState<string | null>(null);
-  const [newName, setNewName] = useState<string>('');
+  const [sessionToEdit, setSessionToEdit] = useState<ChatSession | null>(null);
 
-  const handleRename = (session: ChatSession | null): void => {
-    setSessionToEdit(session?.id || null);
-    setNewName(session?.name || '');
+  const handleRenameClick = (session: ChatSession | null): void => {
+    setSessionToEdit(session);
     setRenameModalOpen(true);
   };
 
-  const handleModalSubmit = (): void => {
-    if (newName) {
-      if (sessionToEdit) {
-        renameSession(sessionToEdit, newName);
-      } else {
-        startNewSession(newName);
-      }
-      closeModal();
-    }
-  };
-
-  const closeModal = (): void => {
+  const closeRenameModal = (): void => {
     setRenameModalOpen(false);
     setSessionToEdit(null);
-    setNewName('');
   };
 
   return (
     <div className={`chatListContainer ${show && 'show'}`}>
       <ImageGenerationModal opened={generateModalOpened} onClose={() => setGenerateModalOpened(false)} />
-      <Modal
+      <ChatRenameModal
         opened={renameModalOpen}
-        onClose={closeModal}
-        size='xs'
-        title={t(sessionToEdit ? 'chat.rename' : 'chat.new')}
-        centered>
-        <TextInput
-          value={newName}
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) => setNewName(event.currentTarget.value)}
-          data-autofocus
-          placeholder={t('chat.name')}
-          onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
-            if (event.key === 'Enter') {
-              handleModalSubmit();
-            }
-          }}
-        />
-        <Button onClick={handleModalSubmit} mt={16} fullWidth>
-          {t(sessionToEdit ? 'chat.rename' : 'chat.new')}
-        </Button>
-      </Modal>
+        onClose={closeRenameModal}
+        session={sessionToEdit}
+      />
       <div className='sessionActions'>
         <ActionIcon onClick={() => setIsSettingsOpen(true)}>
           <Settings />
         </ActionIcon>
-        <ActionIcon onClick={() => setGenerateModalOpened(true)} title="Generate Image">
+        <ActionIcon onClick={() => setGenerateModalOpened(true)} title="Generate Image" disabled={transcribeServerStatus !== ApiStatus.VALID}>
           <Image />
         </ActionIcon>
-        <ActionIcon onClick={() => handleRename(null)}>
+        <ActionIcon onClick={() => handleRenameClick(null)}>
           <MessageCircle />
         </ActionIcon>
       </div>
@@ -112,7 +84,7 @@ export function ChatList({ show }: { show: boolean }): React.ReactElement | null
                       leftSection={<Edit size={14} />}
                       onClick={(e: React.MouseEvent) => {
                         e.stopPropagation();
-                        handleRename(session);
+                        handleRenameClick(session);
                       }}>
                       {t('chat.rename')}
                     </Menu.Item>

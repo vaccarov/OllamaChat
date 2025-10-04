@@ -5,5 +5,5 @@ export const STORAGE_KEYS = {
   ttsEnabled: 'ollamachat_tts-enabled',
   chatHistory: 'ollamachat_chatHistory',
   ollamaServerUrl: 'ollamachat_ollamaServerUrl',
-  transcribeServerUrl: 'ollamachat_transcribeServerUrl',
+  chatServerUrl: 'ollamachat_chatServerUrl',
 };

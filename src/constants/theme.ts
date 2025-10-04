@@ -1,23 +1,7 @@
 import { MantineTheme } from "@mantine/core";
 
-const commonRadius: { radius: string } = {
-    radius: 'xl',
-};
-
-const largeInput: { size: string; radius: string } = {
-    size: 'lg',
-    ...commonRadius,
-};
-
-const inputWithLabel: { size: string; radius: string; labelProps: { style: { fontSize: string; marginBottom: string } } } = {
-    ...largeInput,
-    labelProps: {
-        style: {
-            fontSize: 'var(--mantine-font-size-md)',
-            marginBottom: 'var(--mantine-spacing-xs)'
-        }
-    },
-};
+const RADIUS: string = 'xl';
+const INPUT_SIZE: string = 'lg';
 
 export const theme: Partial<MantineTheme> = {
     components: {
@@ -26,22 +10,27 @@ export const theme: Partial<MantineTheme> = {
                 variant: 'subtle',
                 color: 'white',
                 size: 'lg',
-                ...commonRadius,
+                radius: RADIUS,
             },
         },
         Popover: {
             defaultProps: {
-                ...commonRadius,
+                radius: RADIUS,
             },
         },
         Modal: {
             defaultProps: {
-                ...commonRadius,
+                radius: RADIUS,
+            },
+        },
+        ModalContent: {
+            defaultProps: {
+                radius: RADIUS,
             },
         },
         Alert: {
             defaultProps: {
-                ...commonRadius,
+                radius: RADIUS,
             },
         },
         Chip: {
@@ -52,39 +41,56 @@ export const theme: Partial<MantineTheme> = {
         Menu: {
             defaultProps: {
                 shadow: 'xl',
-                ...commonRadius,
+                radius: RADIUS,
             },
         },
         Button: {
             defaultProps: {
                 size: 'md',
-                ...commonRadius,
+                radius: RADIUS,
                 variant: 'outline'
             },
         },
         Select: {
             defaultProps: {
-                ...inputWithLabel
-            },
-        },
-        Textarea: {
-            defaultProps: {
-                ...largeInput
-            },
-        },
-        NumberInput: {
-            defaultProps: {
-                ...largeInput
+                size: INPUT_SIZE,
+                radius: RADIUS,
+                labelProps: {
+                    style: {
+                        fontSize: 'var(--mantine-font-size-md)',
+                        marginBottom: 'var(--mantine-spacing-xs)'
+                    }
+                },
             },
         },
         TextInput: {
             defaultProps: {
-                ...inputWithLabel
+                size: INPUT_SIZE,
+                radius: RADIUS,
+                labelProps: {
+                    style: {
+                        fontSize: 'var(--mantine-font-size-md)',
+                        marginBottom: 'var(--mantine-spacing-xs)'
+                    }
+                },
+            },
+        },
+        Textarea: {
+            defaultProps: {
+                size: INPUT_SIZE,
+                radius: RADIUS,
+            },
+        },
+        NumberInput: {
+            defaultProps: {
+                size: INPUT_SIZE,
+                radius: RADIUS,        
             },
         },
         FileInput: {
             defaultProps: {
-                ...inputWithLabel
+                size: INPUT_SIZE,
+                radius: RADIUS,
             },
         },
     },

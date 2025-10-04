@@ -24,14 +24,15 @@ export const ImageGenerationModal = ({ opened, onClose }: {
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [models, setModels] = useState<ComboboxData>([]);
   const [modelsLoading, setModelsLoading] = useState<boolean>(false);
-  const { transcribeServerUrl } = useContext(ModelContext)!;
+  const { chatServerUrl } = useContext(ModelContext)!;
   const importFileInputRef: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
+  const viewportRef: React.RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
   const form = useForm<ImageGenerationFormValues>({
     initialValues: {
       prompt: '',
       negative_prompt: undefined,
       model_name: MODEL_LCM,
-      steps: 25,
+      steps: 8,
       num_images_per_prompt: 1,
       guidance_scale: 9,
       denoising: 0.9,
@@ -66,17 +67,26 @@ export const ImageGenerationModal = ({ opened, onClose }: {
     if (opened) {
       const fetchModels = async () => {
         setModelsLoading(true);
-        const fetchedModels: ComboboxData = (await getImageModels(transcribeServerUrl))
+        const fetchedModels: ComboboxData = (await getImageModels(chatServerUrl))
           .map((m: DiffusionModel) => ({
             value: m.name,
-            label: m.model_id
+            label: m.fullname
           }));
         setModels(fetchedModels);
         setModelsLoading(false);
       };
       fetchModels();
     }
-  }, [opened, transcribeServerUrl]);
+  }, [opened, chatServerUrl]);
+
+  useEffect(() => {
+    if (generatedImages.length > 0) {
+      const viewport: HTMLDivElement | null = viewportRef.current;
+      if (viewport) {
+        viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
+      }
+    }
+  }, [generatedImages]);
 
   const handleExportConfig: () => void = useCallback(() => {
     const { image, ...configToExport }: ImageGenerationFormValues = form.values;
@@ -113,7 +123,6 @@ export const ImageGenerationModal = ({ opened, onClose }: {
     setLoading(true);
     setProgress(t('image_generation.starting_generation'));
     setError(null);
-    setGeneratedImages([]);
 
     const formData: FormData = new FormData();
     formData.append('prompt', values.prompt);
@@ -150,7 +159,7 @@ export const ImageGenerationModal = ({ opened, onClose }: {
     }
 
     try {
-      generateImage(transcribeServerUrl, formData, {
+      generateImage(chatServerUrl, formData, {
         onProgress: (progressData: ImageGenerationProgress) => {
           const status: string = progressData.status;
           if (status === IMAGE_GEN_STATUS_PROGRESS) {
@@ -163,206 +172,205 @@ export const ImageGenerationModal = ({ opened, onClose }: {
           }
         },
         onSuccess: (imageData: string) => {
-          setGeneratedImages(prev => [...prev, imageData]);
-          setProgress(t('image_generation.image_received'));
-        },
-        onError: (err: Error) => {
-          setError(err.message);
-        },
-        onComplete: () => {
+          setGeneratedImages((prev: string[]) => [...prev, imageData]);
           setLoading(false);
           setProgress(null);
         },
+        onError: (err: Error) => {
+          setError(err.message);
+          setLoading(false);
+          setProgress(null);
+        },
+        onComplete: () => {},
       });
     } catch (err: unknown) {
       setError((err as Error).message);
-      setLoading(false);
-      setProgress(null);
     }
-  }, [form, t, transcribeServerUrl]);
+  }, [form, t, chatServerUrl]);
 
   return (
-    <Modal
-      title={t('image_generation.title')}
-      className='spaceVertical'
-      opened={opened}
-      onClose={onClose}
-      size='xl'>
-      <form
-        onSubmit={form.onSubmit(handleGenerate)}
-        className='spaceVertical'>
-        <Textarea
-          required
-          rightSection={
-            <Tooltip label={t('image_generation.prompt_tooltip')} multiline withArrow>
-              <ActionIcon variant="transparent">
-                <HelpCircle />
-              </ActionIcon>
-            </Tooltip>
-          }
-          placeholder={t('image_generation.prompt_placeholder')}
-          {...form.getInputProps('prompt')}
-          autosize />
-        <Collapse
-          in={showOptions}
-          className='spaceVertical'>
-          <TextInput
-            placeholder={t('image_generation.negative_prompt_placeholder')}
-            rightSection={
-              <Tooltip label={t('image_generation.negative_prompt_tooltip')} multiline withArrow>
-                <ActionIcon variant="transparent">
-                  <HelpCircle />
-                </ActionIcon>
-              </Tooltip>
-            }
-            {...form.getInputProps('negative_prompt')} />
-          <div className='formLine'>
-            <Select
-              className='takeSpace'
-              placeholder={t('image_generation.model_placeholder')}
-              data={models}
-              disabled={modelsLoading}
-              rightSection={modelsLoading && <Loader size="xs" />}
+    <Modal.Root opened={opened} onClose={onClose} size='xl'>
+      <Modal.Overlay />
+      <Modal.Content ref={viewportRef}>
+        <Modal.Header>
+          <Modal.Title>{t('image_generation.title')}</Modal.Title>
+          <Modal.CloseButton />
+        </Modal.Header>
+        <Modal.Body className='spaceVertical'>
+          <form
+            onSubmit={form.onSubmit(handleGenerate)}
+            className='spaceVertical'>
+            <Textarea
               required
-              {...form.getInputProps('model_name')}
-            />
-            <Switch
-              label={t('image_generation.use_refiner')}
-              disabled={form.values.model_name === MODEL_LCM}
-              {...form.getInputProps('use_refiner', { type: 'checkbox' })}
-            />
-            <Tooltip label={t('image_generation.model_tooltip')} multiline withArrow>
-              <ActionIcon variant="transparent">
-                <HelpCircle />
-              </ActionIcon>
-            </Tooltip>
-          </div>
-          <div className='formLine'>
-            <div className='item'>
+              rightSection={
+                <Tooltip label={t('image_generation.prompt_tooltip')} multiline withArrow>
+                  <ActionIcon variant="transparent">
+                    <HelpCircle />
+                  </ActionIcon>
+                </Tooltip>
+              }
+              placeholder={t('image_generation.prompt_placeholder')}
+              {...form.getInputProps('prompt')}
+              autosize />
+            <Collapse
+              in={showOptions}
+              className='spaceVertical'>
+              <TextInput
+                placeholder={t('image_generation.negative_prompt_placeholder')}
+                rightSection={
+                  <Tooltip label={t('image_generation.negative_prompt_tooltip')} multiline withArrow>
+                    <ActionIcon variant="transparent">
+                      <HelpCircle />
+                    </ActionIcon>
+                  </Tooltip>
+                }
+                {...form.getInputProps('negative_prompt')} />
+              <div className='formLine'>
+                <Select
+                  className='takeSpace'
+                  placeholder={t('image_generation.model_placeholder')}
+                  data={models}
+                  disabled={modelsLoading}
+                  rightSection={modelsLoading && <Loader size="xs" />}
+                  required
+                  {...form.getInputProps('model_name')}
+                />
+                <Switch
+                  label={t('image_generation.use_refiner')}
+                  disabled={form.values.model_name === MODEL_LCM}
+                  {...form.getInputProps('use_refiner', { type: 'checkbox' })}
+                />
+                <Tooltip label={t('image_generation.model_tooltip')} multiline withArrow>
+                  <ActionIcon variant="transparent">
+                    <HelpCircle />
+                  </ActionIcon>
+                </Tooltip>
+              </div>
+              <div className='formLine'>
+                <div className='item'>
+                  <Text className='label'>
+                    {t('image_generation.steps')}
+                    <Tooltip label={t('image_generation.steps_tooltip')} multiline withArrow>
+                      <ActionIcon variant="transparent">
+                        <HelpCircle />
+                      </ActionIcon>
+                    </Tooltip>
+                  </Text>
+                  <NumberInput
+                    min={1}
+                    max={100}
+                    required
+                    {...form.getInputProps('steps')} />
+                </div>
+                <div className='item'>
+                  <Text className='label'>
+                    {t('image_generation.images')}
+                    <Tooltip label={t('image_generation.images_tooltip')} multiline withArrow>
+                      <ActionIcon variant="transparent">
+                        <HelpCircle />
+                      </ActionIcon>
+                    </Tooltip>
+                  </Text>
+                  <NumberInput
+                    min={1}
+                    max={4}
+                    {...form.getInputProps('num_images_per_prompt')}
+                    disabled={!!form.values.image} />
+                </div>
+              </div>
+              <FileInput
+                clearable
+                placeholder={t('image_generation.set_image_placeholder')}
+                leftSection={<Image /> }
+                rightSection={
+                  <Tooltip label={t('image_generation.set_image_tooltip')} multiline withArrow>
+                    <ActionIcon variant="transparent">
+                      <HelpCircle />
+                    </ActionIcon>
+                  </Tooltip>
+                }
+                {...form.getInputProps('image')}
+                onChange={(file: File | null) => {
+                  file && form.setFieldValue('image', file);
+                }} />
               <Text className='label'>
-                {t('image_generation.steps')}
-                <Tooltip label={t('image_generation.steps_tooltip')} multiline withArrow>
+                {t('image_generation.guidance_scale')}
+                <Tooltip label={t('image_generation.guidance_scale_tooltip')} multiline withArrow>
                   <ActionIcon variant="transparent">
                     <HelpCircle />
                   </ActionIcon>
                 </Tooltip>
               </Text>
-              <NumberInput
-                min={1}
-                max={100}
-                required
-                {...form.getInputProps('steps')} />
-            </div>
-            <div className='item'>
+              <Slider
+                labelAlwaysOn
+                min={0}
+                max={20}
+                step={0.01}
+                {...form.getInputProps('guidance_scale')} />
               <Text className='label'>
-                {t('image_generation.images')}
-                <Tooltip label={t('image_generation.images_tooltip')} multiline withArrow>
+                {t('image_generation.denoising')}
+                <Tooltip label={t('image_generation.denoising_tooltip')} multiline withArrow>
                   <ActionIcon variant="transparent">
                     <HelpCircle />
                   </ActionIcon>
                 </Tooltip>
               </Text>
-              <NumberInput
-                min={1}
-                max={4}
-                {...form.getInputProps('num_images_per_prompt')}
-                disabled={!!form.values.image} />
-            </div>
-          </div>
-          <FileInput
-            clearable
-            placeholder={t('image_generation.set_image_placeholder')}
-            leftSection={<Image /> }
-            rightSection={
-              <Tooltip label={t('image_generation.set_image_tooltip')} multiline withArrow>
-                <ActionIcon variant="transparent">
-                  <HelpCircle />
-                </ActionIcon>
-              </Tooltip>
-            }
-            {...form.getInputProps('image')}
-            onChange={(file: File | null) => {
-              file && form.setFieldValue('image', file);
-            }} />
-          <Text className='label'>
-            {t('image_generation.guidance_scale')}
-            <Tooltip label={t('image_generation.guidance_scale_tooltip')} multiline withArrow>
-              <ActionIcon variant="transparent">
-                <HelpCircle />
-              </ActionIcon>
-            </Tooltip>
-          </Text>
-          <Slider
-            labelAlwaysOn
-            min={0}
-            max={20}
-            step={0.01}
-            {...form.getInputProps('guidance_scale')} />
-          <Text className='label'>
-            {t('image_generation.denoising')}
-            <Tooltip label={t('image_generation.denoising_tooltip')} multiline withArrow>
-              <ActionIcon variant="transparent">
-                <HelpCircle />
-              </ActionIcon>
-            </Tooltip>
-          </Text>
-          <Slider
-            labelAlwaysOn
-            min={0}
-            max={1}
-            step={0.01}
-            {...form.getInputProps('denoising')} />
-          {form.values.image && <>
-            <Text className='label'>
-              {t('image_generation.strength')}
-              <Tooltip label={t('image_generation.strength_tooltip')} multiline withArrow>
-                <ActionIcon variant="transparent">
-                  <HelpCircle />
-                </ActionIcon>
-              </Tooltip>
-            </Text>
-            <Slider
-              labelAlwaysOn
-              min={0}
-              max={1}
-              step={0.01}
-              {...form.getInputProps('strength')} />
-          </>}
-          <Group gap="xs">
-            <Button
-              leftSection={<Download />}
-              variant='default' onClick={handleExportConfig}>
-              {t('image_generation.export_config')}
-            </Button>
-            <Button
-              leftSection={<Upload />}
-              variant='default' onClick={() => importFileInputRef.current?.click()}>
-              {t('image_generation.import_config')}
-            </Button>
-            <input
-              ref={importFileInputRef}
-              type="file"
-              accept="application/json"
-              style={{ display: 'none' }}
-              onChange={handleImportConfigChange}
-            />
-          </Group>
-        </Collapse>
-        <Group justify="space-between">
-          <Button onClick={() => setShowOptions(!showOptions)}>{showOptions ? t('image_generation.show_less_options') : t('image_generation.show_more_options')}</Button>
-          <Button
-            type="submit"
-            leftSection={loading && <Loader size='sm' />}
-            disabled={loading}>{
-            loading ? progress : t('image_generation.generate')
-          }
-          </Button>
-        </Group>
-      </form>
-
+              <Slider
+                labelAlwaysOn
+                min={0}
+                max={1}
+                step={0.01}
+                {...form.getInputProps('denoising')} />
+              {form.values.image && <>
+                <Text className='label'>
+                  {t('image_generation.strength')}
+                  <Tooltip label={t('image_generation.strength_tooltip')} multiline withArrow>
+                    <ActionIcon variant="transparent">
+                      <HelpCircle />
+                    </ActionIcon>
+                  </Tooltip>
+                </Text>
+                <Slider
+                  labelAlwaysOn
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  {...form.getInputProps('strength')} />
+              </>}
+              <Group gap="xs">
+                <Button
+                  leftSection={<Download />}
+                  variant='default' onClick={handleExportConfig}>
+                  {t('image_generation.export_config')}
+                </Button>
+                <Button
+                  leftSection={<Upload />}
+                  variant='default' onClick={() => importFileInputRef.current?.click()}>
+                  {t('image_generation.import_config')}
+                </Button>
+                <input
+                  ref={importFileInputRef}
+                  type="file"
+                  accept="application/json"
+                  style={{ display: 'none' }}
+                  onChange={handleImportConfigChange}
+                />
+              </Group>
+            </Collapse>
+            <Group justify="space-between">
+              <Button onClick={() => setShowOptions(!showOptions)}>{showOptions ? t('image_generation.show_less_options') : t('image_generation.show_more_options')}</Button>
+              <Button
+                type="submit"
+                leftSection={loading && <Loader size='sm' />}
+                disabled={!!progress}>
+                  {progress || t('image_generation.generate')}
+              </Button>
+            </Group>
+          </form>
           {error && <Alert title={error} color="red"></Alert>}
-
           <GeneratedImagesDisplay images={generatedImages} />
-    </Modal>
+        </Modal.Body>
+      </Modal.Content>
+    </Modal.Root>
   );
 };

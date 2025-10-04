@@ -25,7 +25,7 @@ export interface ImageGenerationProgress {
 }
 
 export interface DiffusionModel {
-  model_id: string;
+  fullname: string;
   name: ModelName;
   loaded: boolean;
 }

@@ -5,7 +5,7 @@ import AudioRecorder from '@/components/Record';
 import { MessageContext } from '@/context/MessageContextDefinition';
 import { ModelContext } from '@/context/ModelContextDefinition';
 import { useTts } from '@/hooks/useTts';
-import { streamChat } from '@/services/api';
+import { streamChat } from '@/services/ollama';
 import { ChatRole } from '@/types/ChatRoleDefinition';
 import { ImageToSend } from '@/types/ImageToSend';
 import { MessageContextType } from '@/types/MessageContextDefinition';

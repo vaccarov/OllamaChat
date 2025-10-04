@@ -70,7 +70,7 @@ Before starting, ensure you have the following:
     *Example using a remote or secured setup like with Tailscale and Caddy:*
     ```env
     NEXT_PUBLIC_OLLAMA_URL=https://YOUR_PRIVATE_URL.ts.net/ollama
-    NEXT_PUBLIC_TRANSCRIBE_URL=https://YOUR_PRIVATE_URL.ts.net/transcribe
+    NEXT_PUBLIC_TRANSCRIBE_URL=https://YOUR_PRIVATE_URL.ts.net/audio
     ```
 
 4.  **Run the development server:**

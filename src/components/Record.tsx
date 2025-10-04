@@ -1,6 +1,7 @@
 import { MessageContext } from '@/context/MessageContextDefinition';
 import { ModelContext } from '@/context/ModelContextDefinition';
-import { transcribe } from '@/services/api';
+import { transcribe } from '@/services/transcribe';
+import { ApiStatus } from '@/types/api';
 import { ActionIcon } from '@mantine/core';
 import { useContext, useRef, useState } from 'react';
 import { Mic, MicOff } from 'react-feather';
@@ -12,7 +13,7 @@ export default function AudioRecorder({ onTranscript, setLoading }: {
 }): React.ReactElement {
   const { t } = useTranslation();
   const [recording, setRecording] = useState<boolean>(false);
-  const { transcribeServerUrl } = useContext(ModelContext)!;
+  const { currentModel, chatServerUrl, transcribeServerStatus } = useContext(ModelContext)!;
   const { speechLang } = useContext(MessageContext)!;
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -35,7 +36,7 @@ export default function AudioRecorder({ onTranscript, setLoading }: {
         const audioBlob: Blob = new Blob(chunks, { type: 'audio/webm' });
         try {
           setLoading(true);
-          const { transcript }: {transcript: string } = await transcribe(audioBlob, speechLang, transcribeServerUrl);
+          const { transcript }: {transcript: string } = await transcribe(audioBlob, speechLang, chatServerUrl);
           onTranscript(transcript);
         } catch (error) {
           console.error(t('errors.sending_audio'), error);
@@ -73,6 +74,7 @@ export default function AudioRecorder({ onTranscript, setLoading }: {
   return (
     <ActionIcon
       onClick={handleRecordClick}
+      disabled={!currentModel?.model || transcribeServerStatus !== ApiStatus.VALID}
       title={recording ? t('audio.stop_recording') : t('audio.start_recording')}
     >
       {recording ? <MicOff color="red"/> : <Mic />}

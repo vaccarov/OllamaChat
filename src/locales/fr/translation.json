@@ -41,7 +41,8 @@
     "capabilities": {
       "images": "Peut analyser des images",
       "thinking": "Peut montrer son processus de raisonnement",
-      "insert": "Peut compléter du code partiel"
+      "insert": "Peut compléter du code partiel",
+      "embedding": "Peut être utilisé pour les embeddings"
     }
   },
   "audio": {
@@ -95,7 +96,7 @@
       "step3Var2": "Définissez <1>OLLAMA_ORIGINS='{{url}}'</1> pour accepter les requêtes de cette URL afin d'éviter les erreurs CORS.",
       "step4Title": "Étape 4 : Utilisez vos URLs <1>HTTPS</1> locales dans les champs ci-dessus",
       "step4Url1": "<1>https://VOTRE_URL_PRIVEE.ts.net/ollama</1> → redirige vers <2>localhost:11434</2>",
-      "step4Url2": "<1>https://VOTRE_URL_PRIVEE.ts.net/transcribe</1> → redirige vers <2>localhost:8000</2>"
+      "step4Url2": "<1>https://VOTRE_URL_PRIVEE.ts.net/audio</1> → redirige vers <2>localhost:8000</2>"
     }
   },
   "image_generation": {
