@@ -1,6 +1,7 @@
 import { Collapsible } from "@/components/Collapsable";
 import { ChatText } from "@/types/ChatText";
 import { Modal } from "@mantine/core";
+import Image from "next/image";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from 'rehype-raw';
@@ -34,13 +35,13 @@ export default function ChatBubble({ message }: { message: ChatText }): React.Re
     if (message.image && message.image.data.startsWith('data:image')) {
       return (
         <>
-          <img
+          <Image
             src={message.image.data}
             alt={message.image.name}
             onClick={() => setIsModalOpen(true)}
             className='imageBubble' />
           <Modal opened={isModalOpen} onClose={() => setIsModalOpen(false)} title={message.image.name}>
-            <img
+            <Image
               src={message.image.data}
               alt={message.image.name}
               className='imageModal' />

@@ -4,7 +4,7 @@ export async function checkChatServer(chatServerUrl: string): Promise<{success: 
   try {
     const response: Response = await fetch(chatServerUrl);
     return { success: response.ok };
-  } catch (error) {
+  } catch (_error) {
     return { success: false };
   }
 }

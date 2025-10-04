@@ -11,7 +11,7 @@ export function DataSettings(): ReactElement {
   if (!messageContext) {
     throw new Error('DataSettings must be used within a MessageProvider');
   }
-  const fileInputRef: React.RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
+  const fileInputRef: React.RefObject<HTMLInputElement | null> = useRef<HTMLInputElement>(null);
   const { exportSessions, importSessions } = messageContext;
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>): void => {

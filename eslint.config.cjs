@@ -1,11 +1,43 @@
 const { FlatCompat } = require('@eslint/eslintrc');
-const nextConfig = require('eslint-config-next');
-const path = require('path');
-
 const compat = new FlatCompat({
-  baseDirectory: path.dirname(require.resolve('eslint-config-next'))
+  baseDirectory: __dirname,
+  resolvePluginsRelativeTo: __dirname
 });
 
 module.exports = [
-  ...compat.config(nextConfig),
+  {
+    ignores: [
+        '.next/**',
+        'node_modules/**',
+        'dist/**',
+        'build/**',
+        'public/**',
+        '*.js',
+        '*.cjs',
+        'next-env.d.ts',
+        // 'lint-error.tsx',
+    ]
+  },
+  ...compat.config({
+    extends: [
+      'next',
+      'next/typescript',
+      'prettier',
+    ],
+    rules: {
+      'react/react-in-jsx-scope': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        {
+          args: 'all',
+          argsIgnorePattern: '^_',
+          caughtErrors: 'all',
+          caughtErrorsIgnorePattern: '^_',
+          destructuredArrayIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          ignoreRestSiblings: true,
+        },
+      ],
+    },
+  }),
 ];

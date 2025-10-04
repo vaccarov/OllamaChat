@@ -44,4 +44,5 @@ const GeneratedImagesDisplay = memo(({ images }: {images: string[]}) => {
   );
 });
 
+GeneratedImagesDisplay.displayName = 'GeneratedImagesDisplay';
 export { GeneratedImagesDisplay };

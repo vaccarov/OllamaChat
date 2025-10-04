@@ -7,7 +7,7 @@ import { ChatSession, MessageContextType } from '@/types';
 import { ApiStatus } from '@/types/api';
 import { ActionIcon, Menu, Text } from '@mantine/core';
 import { useContext, useState } from 'react';
-import { Copy, Edit, Image, MessageCircle, MoreVertical, Settings, Trash2 } from 'react-feather';
+import { Copy, Edit, Image as ImageIcon, MessageCircle, MoreVertical, Settings, Trash2 } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import './ChatList.css';
 
@@ -49,7 +49,7 @@ export function ChatList({ show }: { show: boolean }): React.ReactElement | null
           <Settings />
         </ActionIcon>
         <ActionIcon onClick={() => setGenerateModalOpened(true)} title="Generate Image" disabled={transcribeServerStatus !== ApiStatus.VALID}>
-          <Image />
+          <ImageIcon />
         </ActionIcon>
         <ActionIcon onClick={() => handleRenameClick(null)}>
           <MessageCircle />

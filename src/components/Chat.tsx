@@ -16,7 +16,7 @@ export const Chat: React.FC = (): React.ReactElement | null => {
   const { activeSession }: { activeSession: ChatSession | undefined } = useContext(MessageContext)!;
   const { models }: ModelContextDefinition = useContext(ModelContext)!;
   const { setIsSettingsOpen }: SettingsContextDefinition = useContext(SettingsContext)!;
-  const chatRef: React.RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
+  const chatRef: React.RefObject<HTMLDivElement | null> = useRef<HTMLDivElement>(null);
   const [isAtBottom, setIsAtBottom] = useState<boolean>(true);
   const [showTopArrow, setShowTopArrow] = useState<boolean>(false);
 
@@ -40,7 +40,7 @@ export const Chat: React.FC = (): React.ReactElement | null => {
     el.addEventListener('scroll', handleScroll);
     handleScroll();
     return () => el.removeEventListener('scroll', handleScroll);
-  }, [chatRef.current, activeSession?.id]);
+  }, [activeSession?.id]);
 
   useEffect(() => {
     if (isAtBottom) scrollToBottom();

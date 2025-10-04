@@ -8,7 +8,7 @@ import { DiffusionModel, ImageGenerationFormValues, ImageGenerationProgress } fr
 import { ActionIcon, Alert, Button, Collapse, ComboboxData, FileInput, Group, Loader, Modal, NumberInput, Select, Slider, Switch, Text, TextInput, Textarea, Tooltip } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { ChangeEvent, RefObject, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { Download, HelpCircle, Image, Upload } from 'react-feather';
+import { Download, HelpCircle, Image as ImageIcon, Upload } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import './ImageGenerationModal.css';
 
@@ -25,8 +25,8 @@ export const ImageGenerationModal = ({ opened, onClose }: {
   const [models, setModels] = useState<ComboboxData>([]);
   const [modelsLoading, setModelsLoading] = useState<boolean>(false);
   const { chatServerUrl } = useContext(ModelContext)!;
-  const importFileInputRef: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
-  const viewportRef: React.RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
+  const importFileInputRef: RefObject<HTMLInputElement | null> = useRef<HTMLInputElement>(null);
+  const viewportRef: React.RefObject<HTMLDivElement | null> = useRef<HTMLDivElement>(null);
   const form = useForm<ImageGenerationFormValues>({
     initialValues: {
       prompt: '',
@@ -50,7 +50,7 @@ export const ImageGenerationModal = ({ opened, onClose }: {
       if (values.model_name === MODEL_LCM && values.use_refiner) {
         form.setFieldValue('use_refiner', false);
       }
-      if (!!values.image) {
+      if (values.image) {
         if (values.num_images_per_prompt !== 1) {
           form.setFieldValue('num_images_per_prompt', 1);
         }
@@ -110,7 +110,7 @@ export const ImageGenerationModal = ({ opened, onClose }: {
         try {
           const importedConfig: Partial<ImageGenerationFormValues> = JSON.parse(e.target?.result as string);
           form.setValues({ ...form.values, ...importedConfig });
-        } catch (err: unknown) {
+        } catch (_err: unknown) {
           setError(t('image_generation.parse_config_error'));
         }
       };
@@ -129,7 +129,7 @@ export const ImageGenerationModal = ({ opened, onClose }: {
     formData.append('model_name', values.model_name);
     formData.append('steps', String(values.steps));
 
-    if (!!values.image) {
+    if (values.image) {
       formData.append('num_images_per_prompt', '1');
     } else {
       formData.append('num_images_per_prompt', String(values.num_images_per_prompt));
@@ -281,7 +281,7 @@ export const ImageGenerationModal = ({ opened, onClose }: {
               <FileInput
                 clearable
                 placeholder={t('image_generation.set_image_placeholder')}
-                leftSection={<Image /> }
+                leftSection={<ImageIcon /> }
                 rightSection={
                   <Tooltip label={t('image_generation.set_image_tooltip')} multiline withArrow>
                     <ActionIcon variant="transparent">
@@ -290,9 +290,7 @@ export const ImageGenerationModal = ({ opened, onClose }: {
                   </Tooltip>
                 }
                 {...form.getInputProps('image')}
-                onChange={(file: File | null) => {
-                  file && form.setFieldValue('image', file);
-                }} />
+                onChange={(file: File | null) => file && form.setFieldValue('image', file)} />
               <Text className='label'>
                 {t('image_generation.guidance_scale')}
                 <Tooltip label={t('image_generation.guidance_scale_tooltip')} multiline withArrow>

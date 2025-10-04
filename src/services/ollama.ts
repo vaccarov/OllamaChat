@@ -8,7 +8,7 @@ export async function checkOllamaServer(ollamaServerUrl: string): Promise<{succe
     const response: Response = await fetch(ollamaServerUrl);
     const success: boolean = await response.text() === 'Ollama is running';
     return { success };
-  } catch (error) {
+  } catch (_error) {
     return { success: false };
   }
 }

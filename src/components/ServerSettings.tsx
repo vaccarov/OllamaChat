@@ -9,11 +9,7 @@ import { CheckCircle, Loader, XCircle } from 'react-feather';
 import { Trans, useTranslation } from 'react-i18next';
 import './SettingsModal.css';
 
-interface ServerSettingsProps {
-  opened: boolean;
-}
-
-export function ServerSettings({ opened }: ServerSettingsProps): ReactElement {
+export function ServerSettings(): ReactElement {
   const { t }: { t: TFunction } = useTranslation();
   const modelContext: ModelContextDefinition | undefined = useContext(ModelContext);
   if (!modelContext) throw new Error('ServerSettings must be used within a ModelProvider');

@@ -24,7 +24,7 @@ export function SettingsModal({ opened, onClose }: SettingsModalProps): ReactEle
         </Tabs.List>
 
         <Tabs.Panel value='servers' pt='md'>
-          <ServerSettings opened={opened} />
+          <ServerSettings />
         </Tabs.Panel>
 
         <Tabs.Panel value='language' pt='md'>

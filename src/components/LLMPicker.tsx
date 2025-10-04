@@ -42,7 +42,7 @@ export const LLMPicker: React.FC = (): React.ReactElement => {
         label: icons ? `${icons} ${label}` : label,
         description: m.details?.family,
       }
-    }), [models, getModelCapabilities, t]);
+    }), [models, getModelCapabilities]);
 
   return (
     <div className='pickerContainer'>

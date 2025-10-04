@@ -28,7 +28,7 @@ function usePersistentState<T>(key: string, initialState: T): [T, React.Dispatch
     if (event.key === key && event.newValue) {
       try {
         setState(JSON.parse(event.newValue));
-      } catch (error) {
+      } catch (_error) {
         setState(event.newValue as T);
       }
     }

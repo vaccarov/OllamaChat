@@ -1,7 +1,7 @@
 import { ImageToSend } from "@/types/ImageToSend";
 import { ActionIcon } from "@mantine/core";
 import React, { memo, useRef } from "react";
-import { Image } from "react-feather";
+import { Image as ImageIcon } from "react-feather";
 
 const ImagePicker = memo(({ onImageSelect }: { onImageSelect: (image: ImageToSend) => void }): React.ReactElement => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -25,10 +25,11 @@ const ImagePicker = memo(({ onImageSelect }: { onImageSelect: (image: ImageToSen
 
   return (
     <ActionIcon onClick={() => fileInputRef.current!.click()}>
-      <Image></Image>
+      <ImageIcon />
       <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden"/>
     </ActionIcon>
   );
 });
 
+ImagePicker.displayName = 'ImagePicker';
 export default ImagePicker;
