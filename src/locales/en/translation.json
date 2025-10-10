@@ -132,5 +132,23 @@
     "parse_config_error": "Failed to parse configuration file.",
     "download": "Download",
     "generated_image_alt": "Generated image {{index}}"
+  },
+  "question": {
+    "retrieving_context": "Retrieving context from documents...",
+    "rag_error_prefix": "RAG Error: "
+  },
+  "actions": {
+    "generate_image_title": "Generate Image",
+    "rag_settings_title": "RAG Settings",
+    "rag_search_label": "RAG Search",
+    "select_embedding_model_label": "Select embedding model",
+    "pick_model_placeholder": "Pick a model",
+    "documents_in_collection_label": "Documents in collection:",
+    "no_documents_found": "No documents found for this chat.",
+    "upload_documents_title": "Upload Documents",
+    "upload_documents_label": "Upload Documents",
+    "embedding_model_for_upload_label": "Embedding model for upload",
+    "select_files_placeholder": "Select files",
+    "upload_button": "Upload"
   }
 }

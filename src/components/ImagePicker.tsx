@@ -3,7 +3,12 @@ import { ActionIcon } from '@mantine/core';
 import { ChangeEvent, memo, ReactElement, useRef } from 'react';
 import { Image as ImageIcon } from 'react-feather';
 
-const ImagePicker = memo(({ onImageSelect }: { onImageSelect: (image: ImageToSend) => void }): ReactElement => {
+interface ImagePickerProps {
+  onImageSelect: (image: ImageToSend) => void;
+  disabled: boolean
+};
+
+const ImagePicker = memo<ImagePickerProps>(({ onImageSelect, disabled }): ReactElement => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>): Promise<void> => {
     const file: File | undefined = e.target.files?.[0];
@@ -22,7 +27,9 @@ const ImagePicker = memo(({ onImageSelect }: { onImageSelect: (image: ImageToSen
   };
 
   return (
-    <ActionIcon onClick={() => fileInputRef.current!.click()}>
+    <ActionIcon
+      disabled={disabled}
+      onClick={() => fileInputRef.current!.click()}>
       <ImageIcon />
       <input
         ref={fileInputRef}

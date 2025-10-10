@@ -13,7 +13,7 @@ export function ServerSettings(): ReactElement {
   const { t }: { t: TFunction } = useTranslation();
   const modelContext: ModelContextDefinition | undefined = useContext(ModelContext);
   if (!modelContext) throw new Error('ServerSettings must be used within a ModelProvider');
-  const { ollamaServerUrl, setOllamaServerUrl, chatServerUrl, setChatServerUrl, ollamaServerStatus, transcribeServerStatus }: ModelContextDefinition = modelContext;
+  const { ollamaServerUrl, setOllamaServerUrl, chatServerUrl, setChatServerUrl, ollamaServerStatus, chatServerStatus }: ModelContextDefinition = modelContext;
 
   return (
     <div className='settingsContainer'>
@@ -27,7 +27,7 @@ export function ServerSettings(): ReactElement {
         label={t('settings.transcribe_url')}
         value={chatServerUrl}
         onChange={(event: ChangeEvent<HTMLInputElement>) => setChatServerUrl(removeTrailingSlash(event.currentTarget.value))}
-        rightSection={<StatusIcon status={transcribeServerStatus} />}
+        rightSection={<StatusIcon status={chatServerStatus} />}
       />
       <div style={{ marginTop: 'var(--mantine-spacing-lg)' }}>
         <Title order={4}>{t('settings.urls.title')}</Title>

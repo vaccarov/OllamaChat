@@ -16,7 +16,7 @@ export default function AudioRecorder({
 }): React.ReactElement {
   const { t } = useTranslation();
   const [recording, setRecording] = useState<boolean>(false);
-  const { currentModel, chatServerUrl, transcribeServerStatus } = useContext(ModelContext)!;
+  const { currentModel, chatServerUrl, isChatServerOnline } = useContext(ModelContext)!;
   const { speechLang } = useContext(MessageContext)!;
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -79,7 +79,7 @@ export default function AudioRecorder({
   return (
     <ActionIcon
       onClick={handleRecordClick}
-      disabled={!currentModel?.model || transcribeServerStatus !== ApiStatus.VALID}
+      disabled={!currentModel?.model || !isChatServerOnline}
       title={recording ? t('audio.stop_recording') : t('audio.start_recording')}>
       {recording ? <MicOff color='red' /> : <Mic />}
     </ActionIcon>

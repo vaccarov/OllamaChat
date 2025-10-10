@@ -1,10 +1,10 @@
 import { predefinedSystemPrompts } from '@/constants/systemPrompts';
 import { MessageContext } from '@/context/MessageContextDefinition';
+import { PromptListSVG } from '@/lib/icons';
 import { MessageContextType } from '@/types/MessageContextDefinition';
 import { SystemPromptItem } from '@/types/SystemPromptDefinition';
 import { ActionIcon, Menu, Textarea } from '@mantine/core';
 import React, { useContext, useEffect, useState } from 'react';
-import { List } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 
 export const SystemPrompt: React.FC = (): React.ReactElement => {
@@ -41,7 +41,7 @@ export const SystemPrompt: React.FC = (): React.ReactElement => {
         <Menu width={200}>
           <Menu.Target>
             <ActionIcon>
-              <List />
+              <PromptListSVG />
             </ActionIcon>
           </Menu.Target>
           <Menu.Dropdown>

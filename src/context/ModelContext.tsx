@@ -8,16 +8,19 @@ import { checkOllamaServer, listModels } from '@/services/ollama';
 import { checkChatServer } from '@/services/transcribe';
 import { OllamaModel } from '@/types';
 import { ApiStatus } from '@/types/api';
-import React, { useCallback, useEffect, useState } from 'react';
+import { ComboboxData } from '@mantine/core';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 export const ModelProvider = ({ children }: { children: React.ReactNode }): React.JSX.Element => {
   const [models, setModels] = useState<OllamaModel[]>([]);
+  const [embeddingModels, setEmbeddingModels] = useState<ComboboxData>([]);
   const [currentModel, setCurrentModel] = useState<OllamaModel | undefined>();
+  const [savedModelName, setSavedModelName] = usePersistentState<string | null>(STORAGE_KEYS.selectedModel, null);
   const [ollamaServerUrl, setOllamaServerUrl] = usePersistentState<string>(STORAGE_KEYS.ollamaServerUrl, `${process.env.NEXT_PUBLIC_OLLAMA_URL ?? ''}`);
   const [chatServerUrl, setChatServerUrl] = usePersistentState<string>(STORAGE_KEYS.chatServerUrl, `${process.env.NEXT_PUBLIC_TRANSCRIBE_URL ?? ''}`);
-  const [savedModelName, setSavedModelName] = usePersistentState<string | null>(STORAGE_KEYS.selectedModel, null);
   const [ollamaServerStatus, setOllamaServerStatus] = useState<ApiStatus>(ApiStatus.UNKNOWN);
-  const [transcribeServerStatus, setTranscribeServerStatus] = useState<ApiStatus>(ApiStatus.UNKNOWN);
+  const [chatServerStatus, setChatServerStatus] = useState<ApiStatus>(ApiStatus.UNKNOWN);
+  const isChatServerOnline: boolean = useMemo(() => chatServerStatus === ApiStatus.VALID, [chatServerStatus]);
 
   useEffect(() => {
     if (ollamaServerUrl) {
@@ -33,10 +36,10 @@ export const ModelProvider = ({ children }: { children: React.ReactNode }): Reac
 
   useEffect(() => {
     if (chatServerUrl) {
-      setTranscribeServerStatus(ApiStatus.CHECKING);
+      setChatServerStatus(ApiStatus.CHECKING);
       const handler: NodeJS.Timeout = setTimeout(() => {
         checkChatServer(chatServerUrl).then((result: { success: boolean }) => {
-          setTranscribeServerStatus(result.success ? ApiStatus.VALID : ApiStatus.INVALID);
+          setChatServerStatus(result.success ? ApiStatus.VALID : ApiStatus.INVALID);
         });
       }, DEBOUNCE_SERVER_URL_MS);
       return () => clearTimeout(handler);
@@ -46,7 +49,13 @@ export const ModelProvider = ({ children }: { children: React.ReactNode }): Reac
   const refreshModels = useCallback(async (): Promise<void> => {
     if (!ollamaServerUrl) return;
     const fetchedModels: OllamaModel[] = await listModels(ollamaServerUrl);
-    setModels(fetchedModels);
+    setEmbeddingModels(
+      fetchedModels.filter(m => m.show.capabilities?.includes('embedding'))
+      .map(m => ({
+        value: m.model.replace(/:latest$/, ''),
+        label: m.model,
+      })))
+    setModels(fetchedModels.filter(m => !m.show.capabilities?.includes('embedding')));
   }, [ollamaServerUrl]);
 
   useEffect(() => {
@@ -73,6 +82,7 @@ export const ModelProvider = ({ children }: { children: React.ReactNode }): Reac
       value={{
         setModel,
         models,
+        embeddingModels,
         currentModel,
         refreshModels,
         ollamaServerUrl,
@@ -80,7 +90,8 @@ export const ModelProvider = ({ children }: { children: React.ReactNode }): Reac
         chatServerUrl,
         setChatServerUrl,
         ollamaServerStatus,
-        transcribeServerStatus,
+        chatServerStatus,
+        isChatServerOnline,
       }}>
       {children}
     </ModelContext.Provider>

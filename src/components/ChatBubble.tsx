@@ -42,7 +42,7 @@ export default function ChatBubble({ message }: { message: ChatText }): React.Re
     if (message.image && message.image.data.startsWith('data:image')) {
       return (
         <>
-          <Image
+          <img
             src={message.image.data}
             alt={message.image.name}
             onClick={() => setIsModalOpen(true)}
@@ -50,9 +50,10 @@ export default function ChatBubble({ message }: { message: ChatText }): React.Re
           />
           <Modal
             opened={isModalOpen}
+            size='xl'
             onClose={() => setIsModalOpen(false)}
             title={message.image.name}>
-            <Image
+            <img
               src={message.image.data}
               alt={message.image.name}
               className='imageModal'
