@@ -1,6 +1,6 @@
 export interface UploadDocumentRequest {
   file_name: string;
-  metadata?: { [key: string]: any };
+  metadata?: { [key: string]: string };
 }
 
 export interface RagDocument {
@@ -11,7 +11,7 @@ export interface RagDocument {
 
 export interface RagChatRequest {
   query: string;
-  metadata_filter?: { [key: string]: any };
+  metadata_filter?: { [key: string]: string };
   n_results?: number;
 }
 

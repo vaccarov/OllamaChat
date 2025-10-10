@@ -3,9 +3,10 @@
 import { MessageContext } from '@/context/MessageContextDefinition';
 import { ModelContext } from '@/context/ModelContextDefinition';
 import { useTts } from '@/hooks/useTts';
-import { ragChat } from '@/services/documentService';
+import { ragChat } from '@/services/document';
 import { streamChat } from '@/services/ollama';
 import { ChatRole } from '@/types/ChatRoleDefinition';
+import { RagChatResponse } from '@/types/document';
 import { ImageToSend } from '@/types/ImageToSend';
 import { MessageContextType } from '@/types/MessageContextDefinition';
 import { mapIsoToBcp47 } from '@/utils/tools';
@@ -17,7 +18,6 @@ import { useTranslation } from 'react-i18next';
 import './Question.css';
 import { QuestionActions } from './QuestionActions';
 import { QuestionInput } from './QuestionInput';
-import { RagChatResponse } from '@/types/document';
 
 export const Question: React.FC = (): ReactElement | null => {
   const { t } = useTranslation();
@@ -72,7 +72,7 @@ export const Question: React.FC = (): ReactElement | null => {
     setUserPrompt('');
     addMessage(ChatRole.user, prompt, image, currentSessionId);
     setImage(undefined);
-    
+
     let sentenceBuffer: string = '';
     const currentSpeechLang: string = mapIsoToBcp47(speechLang);
 

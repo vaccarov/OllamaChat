@@ -50,12 +50,14 @@ export const ModelProvider = ({ children }: { children: React.ReactNode }): Reac
     if (!ollamaServerUrl) return;
     const fetchedModels: OllamaModel[] = await listModels(ollamaServerUrl);
     setEmbeddingModels(
-      fetchedModels.filter(m => m.show.capabilities?.includes('embedding'))
-      .map(m => ({
-        value: m.model.replace(/:latest$/, ''),
-        label: m.model,
-      })))
-    setModels(fetchedModels.filter(m => !m.show.capabilities?.includes('embedding')));
+      fetchedModels
+        .filter((m: OllamaModel) => m.show.capabilities?.includes('embedding'))
+        .map((m: OllamaModel) => ({
+          value: m.model.replace(/:latest$/, ''),
+          label: m.model,
+        }))
+    );
+    setModels(fetchedModels.filter((m: OllamaModel) => !m.show.capabilities?.includes('embedding')));
   }, [ollamaServerUrl]);
 
   useEffect(() => {

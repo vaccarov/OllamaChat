@@ -1,7 +1,7 @@
-import React from "react";
+import React from 'react';
 
 const SVG_SIZE: number = 24;
-const ICON_COLOR: string = "currentColor";
+const ICON_COLOR: string = 'currentColor';
 
 interface Prompt48RegularProps {
   size?: string | number;

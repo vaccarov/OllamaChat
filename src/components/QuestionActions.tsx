@@ -3,11 +3,11 @@
 import ImagePicker from '@/components/ImagePicker';
 import AudioRecorder from '@/components/Record';
 import { MessageContext } from '@/context/MessageContextDefinition';
-import { ModelContext } from '@/context/ModelContextDefinition';
 import { ModalContext, SettingsContextDefinition } from '@/context/ModalContextDefinition';
+import { ModelContext } from '@/context/ModelContextDefinition';
 import { useTts } from '@/hooks/useTts';
 import { GenerateImageSVG } from '@/lib/icons';
-import { listDocuments, uploadDocuments } from '@/services/documentService';
+import { listDocuments, uploadDocuments } from '@/services/document';
 import { MessageContextType } from '@/types';
 import { ChatRole } from '@/types/ChatRoleDefinition';
 import { RagDocument } from '@/types/document';
@@ -27,15 +27,7 @@ interface QuestionActionsProps {
   setSelectedRagModel: (model: string | null) => void;
 }
 
-export const QuestionActions: React.FC<QuestionActionsProps> = ({
-  image,
-  visible,
-  onImageSelect,
-  onTranscript,
-  setLoading,
-  selectedRagModel,
-  setSelectedRagModel,
-}) => {
+export const QuestionActions: React.FC<QuestionActionsProps> = ({ image, visible, onImageSelect, onTranscript, setLoading, selectedRagModel, setSelectedRagModel }) => {
   const { t } = useTranslation();
   const { chatServerUrl, currentModel, embeddingModels, isChatServerOnline } = useContext(ModelContext)!;
   const { addMessage, activeSession }: MessageContextType = useContext(MessageContext)!;
@@ -49,11 +41,11 @@ export const QuestionActions: React.FC<QuestionActionsProps> = ({
     if (selectedRagModel && activeSession?.id) {
       listDocuments(chatServerUrl, selectedRagModel, activeSession.id)
         .then(setRagDocuments)
-        .catch(_ => setRagDocuments([]));
+        .catch((_) => setRagDocuments([]));
     } else {
       setRagDocuments([]);
     }
-  }, [selectedRagModel, activeSession?.id]);
+  }, [chatServerUrl, selectedRagModel, activeSession?.id]);
 
   const handleUpload = async () => {
     if (filesToUpload.length === 0 || !activeSession?.id) return;
@@ -87,12 +79,14 @@ export const QuestionActions: React.FC<QuestionActionsProps> = ({
           <GenerateImageSVG />
         </ActionIcon>
 
-        <Menu position="bottom-start" withArrow>
+        <Menu
+          position='bottom-start'
+          withArrow>
           <Menu.Target>
             <ActionIcon
               title={t('actions.rag_settings_title')}
               disabled={!(isChatServerOnline && embeddingModels.length)}>
-              <Database color={selectedRagModel ? 'var(--maincolor)' : 'currentColor'}/>
+              <Database color={selectedRagModel ? 'var(--maincolor)' : 'currentColor'} />
             </ActionIcon>
           </Menu.Target>
           <Menu.Dropdown>
@@ -106,21 +100,29 @@ export const QuestionActions: React.FC<QuestionActionsProps> = ({
               clearable
             />
             {selectedRagModel && (
-              <Box mt="sm">
-                <Text size="sm">{t('actions.documents_in_collection_label')}</Text>
+              <Box mt='sm'>
+                <Text size='sm'>{t('actions.documents_in_collection_label')}</Text>
                 {ragDocuments.length > 0 ? (
-                  <List size="sm">
-                    {ragDocuments.map(d => <List.Item key={d.filename}>{d.filename}</List.Item>)}
+                  <List size='sm'>
+                    {ragDocuments.map((d) => (
+                      <List.Item key={d.filename}>{d.filename}</List.Item>
+                    ))}
                   </List>
                 ) : (
-                  <Text size="xs" c="dimmed">{t('actions.no_documents_found')}</Text>
+                  <Text
+                    size='xs'
+                    c='dimmed'>
+                    {t('actions.no_documents_found')}
+                  </Text>
                 )}
               </Box>
             )}
           </Menu.Dropdown>
         </Menu>
 
-        <Menu position="bottom-start" withArrow>
+        <Menu
+          position='bottom-start'
+          withArrow>
           <Menu.Target>
             <ActionIcon
               title={t('actions.upload_documents_title')}
@@ -142,13 +144,24 @@ export const QuestionActions: React.FC<QuestionActionsProps> = ({
               onChange={setFilesToUpload}
               multiple
             />
-            <Button onClick={handleUpload} disabled={filesToUpload.length === 0} mt="sm">{t('actions.upload_button')}</Button>
+            <Button
+              onClick={handleUpload}
+              disabled={filesToUpload.length === 0}
+              mt='sm'>
+              {t('actions.upload_button')}
+            </Button>
           </Menu.Dropdown>
         </Menu>
-      
-        <AudioRecorder onTranscript={onTranscript} setLoading={setLoading} />
 
-        <ImagePicker onImageSelect={onImageSelect} disabled={!currentModel?.show?.capabilities?.includes('vision')} />
+        <AudioRecorder
+          onTranscript={onTranscript}
+          setLoading={setLoading}
+        />
+
+        <ImagePicker
+          onImageSelect={onImageSelect}
+          disabled={!currentModel?.show?.capabilities?.includes('vision')}
+        />
 
         <ActionIcon
           onClick={handleTtsButtonClick}
@@ -156,13 +169,21 @@ export const QuestionActions: React.FC<QuestionActionsProps> = ({
           {isTtsEnabled ? <Volume2 /> : <VolumeX />}
         </ActionIcon>
 
-        {image && <div className='imageChip'>
-          <Chip
-            icon={<X size={16} onClick={() => onImageSelect(undefined)} />}
-            checked={true}>
-            {image.name.substring(0, 30)}{image.name.length > 30 && '...'}
-          </Chip>
-        </div>}
+        {image && (
+          <div className='imageChip'>
+            <Chip
+              icon={
+                <X
+                  size={16}
+                  onClick={() => onImageSelect(undefined)}
+                />
+              }
+              checked={true}>
+              {image.name.substring(0, 30)}
+              {image.name.length > 30 && '...'}
+            </Chip>
+          </div>
+        )}
       </div>
     </Collapse>
   );

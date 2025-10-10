@@ -1,7 +1,6 @@
 import { MessageContext } from '@/context/MessageContextDefinition';
 import { ModelContext } from '@/context/ModelContextDefinition';
 import { transcribe } from '@/services/transcribe';
-import { ApiStatus } from '@/types/api';
 import { ActionIcon } from '@mantine/core';
 import { useContext, useRef, useState } from 'react';
 import { Mic, MicOff } from 'react-feather';

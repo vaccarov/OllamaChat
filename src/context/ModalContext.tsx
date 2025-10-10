@@ -18,7 +18,7 @@ export const ModalProvider: React.FC<ModalProviderProps> = ({ children }: ModalP
       isGenerateModalOpen,
       setIsGenerateModalOpen,
     }),
-    [isSettingsOpen]
+    [isSettingsOpen, isGenerateModalOpen]
   );
 
   return (

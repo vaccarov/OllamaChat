@@ -5,8 +5,8 @@ import { Image as ImageIcon } from 'react-feather';
 
 interface ImagePickerProps {
   onImageSelect: (image: ImageToSend) => void;
-  disabled: boolean
-};
+  disabled: boolean;
+}
 
 const ImagePicker = memo<ImagePickerProps>(({ onImageSelect, disabled }): ReactElement => {
   const fileInputRef = useRef<HTMLInputElement>(null);

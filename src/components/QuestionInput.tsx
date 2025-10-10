@@ -19,14 +19,7 @@ interface QuestionInputProps {
   disabled: boolean;
 }
 
-export const QuestionInput: React.FC<QuestionInputProps> = ({
-  userPrompt,
-  setUserPrompt,
-  onSend,
-  onStop,
-  loading,
-  disabled,
-}) => {
+export const QuestionInput: React.FC<QuestionInputProps> = ({ userPrompt, setUserPrompt, onSend, onStop, loading, disabled }) => {
   const { t } = useTranslation();
   const { conversation }: MessageContextType = useContext(MessageContext)!;
   const [historyIndex, setHistoryIndex] = useState<number | null>(null);
@@ -83,8 +76,7 @@ export const QuestionInput: React.FC<QuestionInputProps> = ({
       rightSection={
         <ActionIcon
           disabled={disabled}
-          onClick={() => (loading ? onStop() : onSend(userPrompt))}
-        >
+          onClick={() => (loading ? onStop() : onSend(userPrompt))}>
           {loading ? <Loader className='spin-animation' /> : <Play />}
         </ActionIcon>
       }

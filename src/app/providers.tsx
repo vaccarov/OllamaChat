@@ -21,9 +21,7 @@ export const AppProviders = ({ children }: { children: React.ReactNode }): React
       theme={theme}>
       <ModelProvider>
         <MessageProvider>
-          <ModalProvider>
-            {children}
-          </ModalProvider>
+          <ModalProvider>{children}</ModalProvider>
         </MessageProvider>
       </ModelProvider>
     </MantineProvider>

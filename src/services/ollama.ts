@@ -42,7 +42,7 @@ export async function listModels(ollamaServerUrl: string): Promise<OllamaModel[]
 
 export function streamChat(
   ollamaServerUrl: string,
-  body: { model: string; messages: Message[]; },
+  body: { model: string; messages: Message[] },
   callbacks: {
     onChunk: (chunk: string) => void;
     onError: (error: unknown) => void;

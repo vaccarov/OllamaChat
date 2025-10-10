@@ -1,7 +1,6 @@
 import { Collapsible } from '@/components/Collapsable';
 import { ChatText } from '@/types/ChatText';
 import { Modal } from '@mantine/core';
-import Image from 'next/image';
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
