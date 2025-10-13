@@ -2,7 +2,7 @@ import ChatBubble from '@/components/ChatBubble';
 import { SCROLL_TOLERANCE } from '@/constants/list';
 import { MessageContext } from '@/context/MessageContextDefinition';
 import { ModelContext } from '@/context/ModelContextDefinition';
-import { SettingsContext, SettingsContextDefinition } from '@/context/SettingsContextDefinition';
+import { ModalContext, SettingsContextDefinition } from '@/context/ModalContextDefinition';
 import { ChatSession, ModelContextDefinition } from '@/types';
 import { ChatText } from '@/types/ChatText';
 import { ActionIcon } from '@mantine/core';
@@ -15,7 +15,7 @@ export const Chat: React.FC = (): React.ReactElement | null => {
   const { t } = useTranslation();
   const { activeSession }: { activeSession: ChatSession | undefined } = useContext(MessageContext)!;
   const { models }: ModelContextDefinition = useContext(ModelContext)!;
-  const { setIsSettingsOpen }: SettingsContextDefinition = useContext(SettingsContext)!;
+  const { setIsSettingsOpen }: SettingsContextDefinition = useContext(ModalContext)!;
   const chatRef: React.RefObject<HTMLDivElement | null> = useRef<HTMLDivElement>(null);
   const [isAtBottom, setIsAtBottom] = useState<boolean>(true);
   const [showTopArrow, setShowTopArrow] = useState<boolean>(false);

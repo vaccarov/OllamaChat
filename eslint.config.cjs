@@ -12,6 +12,7 @@ module.exports = [
     extends: ['next', 'next/typescript', 'prettier'],
     rules: {
       'react/react-in-jsx-scope': 'off',
+      '@next/next/no-img-element': 'off',
       '@typescript-eslint/no-unused-vars': [
         'warn',
         {

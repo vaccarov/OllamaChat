@@ -1,10 +1,10 @@
-import { predefinedSystemPrompts } from '@/constants/systemPrompts';
+import { systemPromptPresets } from '@/constants/prompts';
 import { MessageContext } from '@/context/MessageContextDefinition';
+import { PromptListSVG } from '@/lib/icons';
 import { MessageContextType } from '@/types/MessageContextDefinition';
-import { SystemPromptItem } from '@/types/SystemPromptDefinition';
+import { PromptItem } from '@/types/Prompt';
 import { ActionIcon, Menu, Textarea } from '@mantine/core';
 import React, { useContext, useEffect, useState } from 'react';
-import { List } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 
 export const SystemPrompt: React.FC = (): React.ReactElement => {
@@ -19,7 +19,7 @@ export const SystemPrompt: React.FC = (): React.ReactElement => {
   }, [activeSession]);
 
   const handlePromptSelect = (value: string) => {
-    const selectedPrompt: SystemPromptItem | undefined = predefinedSystemPrompts.find((p: SystemPromptItem) => p.id === value);
+    const selectedPrompt: PromptItem | undefined = systemPromptPresets.find((p: PromptItem) => p.id === value);
     if (selectedPrompt) {
       setPrompt(selectedPrompt.prompt);
       updateSystemPrompt(selectedPrompt.prompt);
@@ -41,12 +41,12 @@ export const SystemPrompt: React.FC = (): React.ReactElement => {
         <Menu width={200}>
           <Menu.Target>
             <ActionIcon>
-              <List />
+              <PromptListSVG />
             </ActionIcon>
           </Menu.Target>
           <Menu.Dropdown>
             <Menu.Label>{t('system_prompt.select')}</Menu.Label>
-            {predefinedSystemPrompts.map((p) => (
+            {systemPromptPresets.map((p: PromptItem) => (
               <Menu.Item
                 key={p.id}
                 onClick={() => handlePromptSelect(p.id)}>

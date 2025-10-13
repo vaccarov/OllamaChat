@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 
 const isBrowser: boolean = typeof window !== 'undefined';
 
@@ -23,27 +23,6 @@ function usePersistentState<T>(key: string, initialState: T): [T, React.Dispatch
       }
     }
   }, [key, state]);
-
-  const handleStorageChange = useCallback(
-    (event: StorageEvent): void => {
-      if (event.key === key && event.newValue) {
-        try {
-          setState(JSON.parse(event.newValue));
-        } catch (_error) {
-          setState(event.newValue as T);
-        }
-      }
-    },
-    [key]
-  );
-
-  useEffect(() => {
-    if (isBrowser) {
-      // Handle multi tab sync
-      window.addEventListener('storage', handleStorageChange);
-      return (): void => window.removeEventListener('storage', handleStorageChange);
-    }
-  }, [handleStorageChange]);
 
   return [state, setState];
 }

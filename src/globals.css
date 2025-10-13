@@ -103,3 +103,20 @@ body {
 .spin-animation {
   animation: spin 2s linear infinite;
 }
+
+.vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.horizontal {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+
+  .space {
+    flex: 1;
+    min-width: 0;
+  }
+}

@@ -7,4 +7,4 @@ export * from './ImageToSend';
 export * from './MessageContextDefinition';
 export * from './ModelContextDefinition';
 export * from './OllamaModel';
-export * from './SystemPromptDefinition';
+export * from './Prompt';

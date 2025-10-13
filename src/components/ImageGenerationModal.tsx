@@ -2,8 +2,11 @@
 
 import { GeneratedImagesDisplay } from '@/components/GeneratedImagesDisplay';
 import { IMAGE_GEN_STATUS_PROGRESS, IMAGE_GEN_STATUS_STARTING_IMAGE, MAX_PROMPT_TOKENS, MODEL_LCM, MODEL_SDXL } from '@/constants/list';
+import { imageNegativePromptPresets, imagePromptPresets } from '@/constants/prompts';
 import { ModelContext } from '@/context/ModelContextDefinition';
+import { PromptListSVG } from '@/lib/icons';
 import { generateImage, getImageModels } from '@/services/image';
+import { PromptItem } from '@/types';
 import { DiffusionModel, ImageGenerationFormValues, ImageGenerationProgress } from '@/types/image-generation';
 import {
   ActionIcon,
@@ -14,6 +17,7 @@ import {
   FileInput,
   Group,
   Loader,
+  Menu,
   Modal,
   NumberInput,
   Select,
@@ -45,7 +49,7 @@ export const ImageGenerationModal = ({ opened, onClose }: { opened: boolean; onC
   const form = useForm<ImageGenerationFormValues>({
     initialValues: {
       prompt: '',
-      negative_prompt: undefined,
+      negative_prompt: '',
       model_name: MODEL_LCM,
       steps: 8,
       num_images_per_prompt: 1,
@@ -77,6 +81,20 @@ export const ImageGenerationModal = ({ opened, onClose }: { opened: boolean; onC
       }
     },
   });
+
+  const handlePromptSelect = (value: string) => {
+    const selectedPrompt: PromptItem | undefined = imagePromptPresets.find((p: PromptItem) => p.id === value);
+    if (selectedPrompt) {
+      form.setFieldValue('prompt', selectedPrompt.prompt);
+    }
+  };
+
+  const handleNegativePromptSelect = (value: string) => {
+    const selectedPrompt: PromptItem | undefined = imageNegativePromptPresets.find((p: PromptItem) => p.id === value);
+    if (selectedPrompt) {
+      form.setFieldValue('negative_prompt', selectedPrompt.prompt);
+    }
+  };
 
   useEffect(() => {
     if (opened) {
@@ -235,6 +253,26 @@ export const ImageGenerationModal = ({ opened, onClose }: { opened: boolean; onC
             className='spaceVertical'>
             <Textarea
               required
+              leftSectionWidth={52}
+              leftSection={
+                <Menu width={200}>
+                  <Menu.Target>
+                    <ActionIcon>
+                      <PromptListSVG />
+                    </ActionIcon>
+                  </Menu.Target>
+                  <Menu.Dropdown>
+                    <Menu.Label>{t('image_generation.presets', 'Presets')}</Menu.Label>
+                    {imagePromptPresets.map((p: PromptItem) => (
+                      <Menu.Item
+                        key={p.id}
+                        onClick={() => handlePromptSelect(p.id)}>
+                        {p.name}
+                      </Menu.Item>
+                    ))}
+                  </Menu.Dropdown>
+                </Menu>
+              }
               rightSection={
                 <Tooltip
                   label={t('image_generation.prompt_tooltip')}
@@ -254,6 +292,26 @@ export const ImageGenerationModal = ({ opened, onClose }: { opened: boolean; onC
               className='spaceVertical'>
               <TextInput
                 placeholder={t('image_generation.negative_prompt_placeholder')}
+                leftSectionWidth={52}
+                leftSection={
+                  <Menu width={200}>
+                    <Menu.Target>
+                      <ActionIcon>
+                        <PromptListSVG />
+                      </ActionIcon>
+                    </Menu.Target>
+                    <Menu.Dropdown>
+                      <Menu.Label>{t('image_generation.presets')}</Menu.Label>
+                      {imageNegativePromptPresets.map((p: PromptItem) => (
+                        <Menu.Item
+                          key={p.id}
+                          onClick={() => handleNegativePromptSelect(p.id)}>
+                          {p.name}
+                        </Menu.Item>
+                      ))}
+                    </Menu.Dropdown>
+                  </Menu>
+                }
                 rightSection={
                   <Tooltip
                     label={t('image_generation.negative_prompt_tooltip')}

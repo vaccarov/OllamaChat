@@ -2,8 +2,9 @@
 
 import { theme } from '@/constants/theme';
 import { MessageProvider } from '@/context/MessageContext';
+import { ModalProvider } from '@/context/ModalContext';
 import { ModelProvider } from '@/context/ModelContext';
-import { SettingsProvider } from '@/context/SettingsContext';
+import { RagProvider } from '@/context/RagProvider';
 import '@/i18n';
 import { MantineProvider } from '@mantine/core';
 import React, { useEffect, useState } from 'react';
@@ -21,7 +22,9 @@ export const AppProviders = ({ children }: { children: React.ReactNode }): React
       theme={theme}>
       <ModelProvider>
         <MessageProvider>
-          <SettingsProvider>{children}</SettingsProvider>
+          <RagProvider>
+            <ModalProvider>{children}</ModalProvider>
+          </RagProvider>
         </MessageProvider>
       </ModelProvider>
     </MantineProvider>

@@ -132,5 +132,24 @@
     "parse_config_error": "Échec de l'analyse du fichier de configuration.",
     "download": "Télécharger",
     "generated_image_alt": "Image générée {{index}}"
+  },
+  "question": {
+    "retrieving_context": "Récupération du contexte depuis les documents...",
+    "rag_error_prefix": "Erreur RAG : "
+  },
+  "actions": {
+    "generate_image_title": "Générer une image",
+    "upload_documents_title": "Téléverser des documents"
+  },
+  "modals": {
+    "rag": {
+      "title": "Paramètres RAG",
+      "include_all_documents": "Inclure tous les documents",
+      "select_embedding_model_label": "Sélectionner le modèle d'embedding",
+      "pick_model_placeholder": "Choisir un modèle",
+      "documents_in_collection_label": "Documents dans la collection :",
+      "no_documents_found": "Aucun document trouvé pour ce chat.",
+      "select_files_placeholder": "Sélectionner des fichiers à téléverser"
+    }
   }
 }

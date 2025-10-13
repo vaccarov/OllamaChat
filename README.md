@@ -98,3 +98,5 @@ Before starting, ensure you have the following:
   TBI
 - https://huggingface.co/tencent/SRPO
 - https://huggingface.co/openbmb/VoxCPM-0.5B
+- Use masks for image generation in order to only edit parts of the picture (Use an inpainting or masked img2img pipeline so that only the masked (white) region is regenerated.)
+- Handle big images {"status": "error", "message": "Invalid buffer size: 14.55 GiB"}
