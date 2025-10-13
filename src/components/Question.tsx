@@ -2,6 +2,7 @@
 
 import { MessageContext } from '@/context/MessageContextDefinition';
 import { ModelContext } from '@/context/ModelContextDefinition';
+import { RagContext } from '@/context/RagContextDefinition';
 import { useTts } from '@/hooks/useTts';
 import { ragChat } from '@/services/document';
 import { streamChat } from '@/services/ollama';
@@ -23,10 +24,10 @@ export const Question: React.FC = (): ReactElement | null => {
   const { t } = useTranslation();
   const { chatServerUrl, currentModel, ollamaServerUrl } = useContext(ModelContext)!;
   const { conversation, addMessage, addChunk, activeSession, speechLang }: MessageContextType = useContext(MessageContext)!;
+  const { includeAllDocuments, selectedRagModel } = useContext(RagContext)!;
   const [userPrompt, setUserPrompt] = useState<string>('');
   const [image, setImage] = useState<ImageToSend | undefined>();
   const [loading, setLoading] = useState<boolean>(false);
-  const [selectedRagModel, setSelectedRagModel] = useState<string | null>(null);
   const [actionsVisible, setActionsVisible] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const { speak, cancel } = useTts();
@@ -50,7 +51,8 @@ export const Question: React.FC = (): ReactElement | null => {
     if (selectedRagModel) {
       addMessage(ChatRole.custom, t('question.retrieving_context'));
       try {
-        const ragResponse: RagChatResponse = await ragChat(chatServerUrl, prompt, selectedRagModel, currentSessionId);
+        const chatId: string | undefined = includeAllDocuments ? undefined : activeSession?.id;
+        const ragResponse: RagChatResponse = await ragChat(chatServerUrl, prompt, selectedRagModel, chatId);
         finalPrompt = ragResponse.prompt;
       } catch (error) {
         console.error('Error during RAG search:', error);
@@ -133,8 +135,6 @@ export const Question: React.FC = (): ReactElement | null => {
       <QuestionActions
         image={image}
         visible={actionsVisible}
-        selectedRagModel={selectedRagModel}
-        setSelectedRagModel={setSelectedRagModel}
         onImageSelect={setImage}
         onTranscript={handleTranscript}
         setLoading={setLoading}

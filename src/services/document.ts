@@ -1,12 +1,14 @@
 import { RagChatResponse, RagDocument } from '@/types/document';
 
-export async function uploadDocuments(chatServerUrl: string, files: File[], embeddingModel: string, chatId: string): Promise<{ message: string }> {
+export async function uploadDocuments(chatServerUrl: string, files: File[], embeddingModel: string, chatId?: string): Promise<{ message: string }> {
   const formData = new FormData();
   files.forEach((file: File) => {
     formData.append('files', file);
   });
   formData.append('embedding_model', embeddingModel);
-  formData.append('chat_id', chatId);
+  if (chatId) {
+    formData.append('chat_id', chatId);
+  }
 
   const response = await fetch(`${chatServerUrl}/documents/upload`, {
     method: 'POST',
@@ -53,7 +55,7 @@ export async function searchDocuments(chatServerUrl: string, query: string, embe
   return response.json();
 }
 
-export async function ragChat(chatServerUrl: string, query: string, embeddingModel: string, chatId: string): Promise<RagChatResponse> {
+export async function ragChat(chatServerUrl: string, query: string, embeddingModel: string, chatId: string | undefined): Promise<RagChatResponse> {
   const response = await fetch(`${chatServerUrl}/documents/rag_chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

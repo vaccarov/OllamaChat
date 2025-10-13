@@ -1,4 +1,5 @@
 import { ImageGenerationModal } from '@/components/ImageGenerationModal';
+import { RagModal } from '@/components/RagModal';
 import { SettingsModal } from '@/components/SettingsModal';
 import React, { useMemo, useState } from 'react';
 import { ModalContext, SettingsContextDefinition } from './ModalContextDefinition';
@@ -10,6 +11,7 @@ interface ModalProviderProps {
 export const ModalProvider: React.FC<ModalProviderProps> = ({ children }: ModalProviderProps) => {
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [isGenerateModalOpen, setIsGenerateModalOpen] = useState<boolean>(false);
+  const [isRagModalOpen, setIsRagModalOpen] = useState<boolean>(false);
 
   const contextValue: SettingsContextDefinition = useMemo(
     () => ({
@@ -17,8 +19,10 @@ export const ModalProvider: React.FC<ModalProviderProps> = ({ children }: ModalP
       setIsSettingsOpen,
       isGenerateModalOpen,
       setIsGenerateModalOpen,
+      isRagModalOpen,
+      setIsRagModalOpen,
     }),
-    [isSettingsOpen, isGenerateModalOpen]
+    [isSettingsOpen, isGenerateModalOpen, isRagModalOpen]
   );
 
   return (
@@ -31,6 +35,10 @@ export const ModalProvider: React.FC<ModalProviderProps> = ({ children }: ModalP
       <ImageGenerationModal
         opened={isGenerateModalOpen}
         onClose={() => setIsGenerateModalOpen(false)}
+      />
+      <RagModal
+        opened={isRagModalOpen}
+        onClose={() => setIsRagModalOpen(false)}
       />
     </ModalContext.Provider>
   );
