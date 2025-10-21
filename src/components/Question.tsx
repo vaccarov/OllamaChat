@@ -23,7 +23,7 @@ import { QuestionInput } from './QuestionInput';
 export const Question: React.FC = (): ReactElement | null => {
   const { t } = useTranslation();
   const { chatServerUrl, currentModel, ollamaServerUrl } = useContext(ModelContext)!;
-  const { conversation, addMessage, addChunk, activeSession, speechLang }: MessageContextType = useContext(MessageContext)!;
+  const { conversation, addMessage, addChunk, activeSession, speechLang, isThinkingEnabled }: MessageContextType = useContext(MessageContext)!;
   const { includeAllDocuments, selectedRagModel } = useContext(RagContext)!;
   const [userPrompt, setUserPrompt] = useState<string>('');
   const [image, setImage] = useState<ImageToSend | undefined>();
@@ -86,9 +86,10 @@ export const Question: React.FC = (): ReactElement | null => {
         messages: messagesForApi,
       },
       {
-        onChunk: (chunk: string) => {
-          addChunk(chunk, currentSessionId);
-          sentenceBuffer += chunk;
+        onChunk: ({ message }: { message: Message }) => {
+          addChunk(message, currentSessionId);
+          if (!message.content) return;
+          sentenceBuffer += message.content;
           const sentenceEndIndex: number = sentenceBuffer.search(/[.!?]/);
           if (sentenceEndIndex !== -1) {
             const sentence: string = sentenceBuffer.substring(0, sentenceEndIndex + 1);
@@ -110,7 +111,8 @@ export const Question: React.FC = (): ReactElement | null => {
           setLoading(false);
           abortControllerRef.current = null;
         },
-      }
+      },
+      isThinkingEnabled
     );
   };
 

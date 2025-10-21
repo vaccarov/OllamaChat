@@ -1,6 +1,7 @@
 'use client';
 
 import { OllamaModel } from '@/types';
+import { AbortableAsyncIterator, ChatResponse } from 'ollama';
 import { Ollama, ListResponse, Message, ModelResponse, ShowResponse } from 'ollama/browser';
 
 export async function checkOllamaServer(ollamaServerUrl: string): Promise<{ success: boolean }> {
@@ -44,10 +45,11 @@ export function streamChat(
   ollamaServerUrl: string,
   body: { model: string; messages: Message[] },
   callbacks: {
-    onChunk: (chunk: string) => void;
+    onChunk: (chunk: { message: Message }) => void;
     onError: (error: unknown) => void;
     onComplete: () => void;
-  }
+  },
+  think?: boolean
 ): AbortController {
   const abortController = new AbortController();
   const ollamaClient = new Ollama({ host: ollamaServerUrl });
@@ -58,14 +60,15 @@ export function streamChat(
 
   const stream = async () => {
     try {
-      const responseStream = await ollamaClient.chat({
+      const responseStream: AbortableAsyncIterator<ChatResponse> = await ollamaClient.chat({
         model: body.model,
         messages: body.messages,
         stream: true,
+        think,
       });
 
-      for await (const part of responseStream) {
-        callbacks.onChunk(part.message.content);
+      for await (const chunk of responseStream) {
+        callbacks.onChunk({ message: chunk.message });
       }
 
       callbacks.onComplete();

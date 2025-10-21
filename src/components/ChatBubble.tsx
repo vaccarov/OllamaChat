@@ -10,7 +10,6 @@ export default function ChatBubble({ message }: { message: ChatText }): React.Re
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [collapsibleStates, setCollapsibleStates] = useState<Map<string | undefined, boolean>>(new Map());
   const isCollapsibleOpen: boolean = collapsibleStates.get(message.date) || false;
-  const parts: string[] = message.content.split(/<think>(.*?)<\/think>/s);
 
   const handleToggleCollapsible = (): void => {
     setCollapsibleStates((prevStates: Map<string | undefined, boolean>) => {
@@ -21,22 +20,28 @@ export default function ChatBubble({ message }: { message: ChatText }): React.Re
   };
 
   const renderContent = (): React.ReactElement | React.ReactElement[] => {
-    const contentParts: React.ReactElement[] = parts.map((part: string, index: number) => {
-      return index % 2 === 1 ? (
+    const elements: React.ReactElement[] = [];
+
+    if (message.thinking) {
+      elements.push(
         <Collapsible
-          key={index}
+          key='thinking'
           isOpen={isCollapsibleOpen}
           onToggle={handleToggleCollapsible}>
-          <ReactMarkdown rehypePlugins={[rehypeRaw]}>{part}</ReactMarkdown>
+          <ReactMarkdown rehypePlugins={[rehypeRaw]}>{message.thinking}</ReactMarkdown>
         </Collapsible>
-      ) : (
+      );
+    }
+
+    if (message.content) {
+      elements.push(
         <ReactMarkdown
-          key={index}
+          key='content'
           rehypePlugins={[rehypeRaw]}>
-          {part}
+          {message.content}
         </ReactMarkdown>
       );
-    });
+    }
 
     if (message.image && message.image.data.startsWith('data:image')) {
       return (
@@ -58,12 +63,12 @@ export default function ChatBubble({ message }: { message: ChatText }): React.Re
               className='imageModal'
             />
           </Modal>
-          {contentParts}
+          {elements}
         </>
       );
     }
 
-    return contentParts;
+    return elements;
   };
 
   return (

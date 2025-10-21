@@ -102,8 +102,6 @@ Before starting, ensure you have the following:
 ## TODO
 
 - Handle large image uploads (use local DB instead of localstorage).
-- Show reasoning collapse even if reasoning isn't finished.
-- Fix React warning for `<think>` tag rendering.
   TBI
 - https://huggingface.co/tencent/SRPO
 - https://huggingface.co/openbmb/VoxCPM-0.5B

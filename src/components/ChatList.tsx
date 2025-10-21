@@ -1,10 +1,11 @@
 import { ChatRenameModal } from '@/components/ChatRenameModal';
 import { MessageContext } from '@/context/MessageContextDefinition';
 import { ModalContext, SettingsContextDefinition } from '@/context/ModalContextDefinition';
+import { AddMessageSVG } from '@/lib/icons';
 import { ChatSession, MessageContextType } from '@/types';
 import { ActionIcon, Menu, Text } from '@mantine/core';
 import { useContext, useState } from 'react';
-import { Copy, Edit, MessageCircle, MoreVertical, Settings, Trash2 } from 'react-feather';
+import { Copy, Edit, MoreVertical, Settings, Trash2 } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import './ChatList.css';
 
@@ -37,7 +38,7 @@ export function ChatList({ show }: { show: boolean }): React.ReactElement | null
           <Settings />
         </ActionIcon>
         <ActionIcon onClick={() => handleRenameClick(null)}>
-          <MessageCircle />
+          <AddMessageSVG />
         </ActionIcon>
       </div>
       <div className='chatList'>

@@ -139,7 +139,10 @@
   },
   "actions": {
     "generate_image_title": "Générer une image",
-    "upload_documents_title": "Téléverser des documents"
+    "upload_documents_title": "Téléverser des documents",
+    "rag_settings_title": "Paramètres RAG",
+    "think_title": "Activer/Désactiver le processus de réflexion",
+    "image_picker_title": "Choisir une image"
   },
   "modals": {
     "rag": {

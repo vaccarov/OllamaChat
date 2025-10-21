@@ -9,8 +9,10 @@ export type MessageContextType = {
   conversation: RefObject<Message[]>;
   sessionsInGroup: Record<string, ChatSession[]>;
   speechLang: string;
+  isThinkingEnabled: boolean;
+  setIsThinkingEnabled: (enabled: boolean) => void;
   addMessage: (role: ChatRole, content: string, image?: ImageToSend, sessionId?: string) => void;
-  addChunk: (chunk: string, sessionId?: string) => void;
+  addChunk: (message: Message, sessionId?: string) => void;
   renameSession: (id: string, name: string) => void;
   deleteSession: (id: string) => void;
   duplicateSession: (id: string) => void;
