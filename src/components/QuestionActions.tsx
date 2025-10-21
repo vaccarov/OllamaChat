@@ -41,7 +41,7 @@ export const QuestionActions: React.FC<QuestionActionsProps> = ({ image, visible
         <ActionIcon
           onClick={() => setIsGenerateModalOpen(true)}
           title={t('actions.generate_image_title')}
-          disabled={!(isChatServerOnline && embeddingModels.length)}>
+          disabled={!isChatServerOnline}>
           <GenerateImageSVG />
         </ActionIcon>
 
