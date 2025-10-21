@@ -41,7 +41,7 @@ const HomePage: React.FC = (): React.ReactElement => {
             <Sidebar />
           </ActionIcon>
           <ActionIcon onClick={() => setShowSettings(!showSettings)}>
-            <Tool />
+            <Tool color={showSettings ? 'var(--maincolor)' : 'currentColor'} />
           </ActionIcon>
         </div>
         {showSettings && (

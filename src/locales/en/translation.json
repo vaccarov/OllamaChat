@@ -139,7 +139,10 @@
   },
   "actions": {
     "generate_image_title": "Generate Image",
-    "upload_documents_title": "Upload Documents"
+    "upload_documents_title": "Upload Documents",
+    "rag_settings_title": "RAG Settings",
+    "think_title": "Toggle Thinking Process",
+    "image_picker_title": "Pick Image"
   },
   "modals": {
     "rag": {

@@ -6,7 +6,7 @@ import usePersistentState from '@/hooks/usePersistentState';
 import { ChatHistory, ChatRole, ChatSession, ChatText, ImageToSend } from '@/types';
 import { sortSessionsByDate } from '@/utils/tools';
 import { Message } from 'ollama';
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -15,6 +15,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
   const { currentModel, setModel } = React.useContext(ModelContext)!;
   const [history, setHistory] = usePersistentState<ChatHistory>(STORAGE_KEYS.chatHistory, { sessions: [], activeSessionId: '' });
   const [speechLang, setSpeechLang] = usePersistentState<string>(STORAGE_KEYS.speechLang, DEFAULT_SPEECH_LANG);
+  const [isThinkingEnabled, setIsThinkingEnabled] = useState<boolean>(false);
   const { sessions, activeSessionId }: ChatHistory = history;
   const conversation = useRef<Message[]>([]);
   const historyRef: React.MutableRefObject<ChatHistory> = useRef<ChatHistory>(history);
@@ -103,14 +104,15 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
   );
 
   const addChunk = useCallback(
-    (chunk: string, sessionId?: string): void => {
+    (message: Message, sessionId?: string): void => {
       findAndUpdateSession((s: ChatSession) => {
         const messages: ChatText[] = [...s.messages];
         const lastMessage: ChatText | undefined = messages[messages.length - 1];
         messages[messages.length - 1] = {
           ...lastMessage,
           role: lastMessage?.role ?? ChatRole.user,
-          content: (lastMessage?.content ?? '') + chunk,
+          content: (lastMessage?.content ?? '') + message.content,
+          thinking: (lastMessage?.thinking ?? '') + (message.thinking ?? ''),
           date: lastMessage?.date ?? new Date().toISOString(),
         };
         return { ...s, messages };
@@ -262,6 +264,8 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
         importSessions,
         speechLang,
         setSpeechLang,
+        isThinkingEnabled,
+        setIsThinkingEnabled,
       }}>
       {children}
     </MessageContext.Provider>

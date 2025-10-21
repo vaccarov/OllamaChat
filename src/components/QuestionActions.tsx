@@ -3,11 +3,13 @@
 import ImagePicker from '@/components/ImagePicker';
 import AudioRecorder from '@/components/Record';
 import { ModalContext } from '@/context/ModalContextDefinition';
+import { MessageContext } from '@/context/MessageContextDefinition';
 import { ModelContext } from '@/context/ModelContextDefinition';
 import { RagContext } from '@/context/RagContextDefinition';
 import { useTts } from '@/hooks/useTts';
-import { GenerateImageSVG } from '@/lib/icons';
+import { GenerateImageSVG, ThinkSVG } from '@/lib/icons';
 import { ImageToSend } from '@/types/ImageToSend';
+import { MessageContextType } from '@/types/MessageContextDefinition';
 import { ActionIcon, Chip, Collapse } from '@mantine/core';
 import { useContext } from 'react';
 import { Database, Volume2, VolumeX, X } from 'react-feather';
@@ -27,6 +29,7 @@ export const QuestionActions: React.FC<QuestionActionsProps> = ({ image, visible
   const { setIsGenerateModalOpen, setIsRagModalOpen } = useContext(ModalContext)!;
   const { selectedRagModel } = useContext(RagContext)!;
   const { isTtsEnabled, setIsTtsEnabled, isSpeaking, cancel } = useTts();
+  const { isThinkingEnabled, setIsThinkingEnabled }: MessageContextType = useContext(MessageContext)!;
 
   const handleTtsButtonClick = (): void => {
     setIsTtsEnabled(!isTtsEnabled);
@@ -41,7 +44,7 @@ export const QuestionActions: React.FC<QuestionActionsProps> = ({ image, visible
         <ActionIcon
           onClick={() => setIsGenerateModalOpen(true)}
           title={t('actions.generate_image_title')}
-          disabled={!(isChatServerOnline && embeddingModels.length)}>
+          disabled={!isChatServerOnline}>
           <GenerateImageSVG />
         </ActionIcon>
 
@@ -50,6 +53,12 @@ export const QuestionActions: React.FC<QuestionActionsProps> = ({ image, visible
           title={t('actions.rag_settings_title')}
           disabled={!(isChatServerOnline && embeddingModels.length)}>
           <Database color={selectedRagModel ? 'var(--maincolor)' : 'currentColor'} />
+        </ActionIcon>
+
+        <ActionIcon
+          onClick={() => setIsThinkingEnabled(!isThinkingEnabled)}
+          title={t('actions.think_title')}>
+          <ThinkSVG color={isThinkingEnabled ? 'var(--maincolor)' : 'currentColor'} />
         </ActionIcon>
 
         <AudioRecorder

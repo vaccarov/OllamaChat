@@ -1,7 +1,8 @@
 'use client';
 
 import { OllamaModel } from '@/types';
-import { ListResponse, Message, ModelResponse, ShowResponse } from 'ollama';
+import { AbortableAsyncIterator, ChatResponse } from 'ollama';
+import { Ollama, ListResponse, Message, ModelResponse, ShowResponse } from 'ollama/browser';
 
 export async function checkOllamaServer(ollamaServerUrl: string): Promise<{ success: boolean }> {
   try {
@@ -44,50 +45,44 @@ export function streamChat(
   ollamaServerUrl: string,
   body: { model: string; messages: Message[] },
   callbacks: {
-    onChunk: (chunk: string) => void;
+    onChunk: (chunk: { message: Message }) => void;
     onError: (error: unknown) => void;
     onComplete: () => void;
-  }
+  },
+  think?: boolean
 ): AbortController {
   const abortController = new AbortController();
+  const ollamaClient = new Ollama({ host: ollamaServerUrl });
+
+  abortController.signal.addEventListener('abort', () => {
+    ollamaClient.abort();
+  });
 
   const stream = async () => {
     try {
-      const response: Response = await fetch(`${ollamaServerUrl}/api/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...body, stream: true }),
-        signal: abortController.signal,
+      const responseStream: AbortableAsyncIterator<ChatResponse> = await ollamaClient.chat({
+        model: body.model,
+        messages: body.messages,
+        stream: true,
+        think,
       });
 
-      if (!response.ok || !response.body) {
-        const errorData: { error?: string } = await response.json();
-        throw new Error(errorData.error || 'Unknown error');
+      for await (const chunk of responseStream) {
+        callbacks.onChunk({ message: chunk.message });
       }
 
-      const reader: ReadableStreamDefaultReader<Uint8Array> = response.body.getReader();
-      const decoder: TextDecoder = new TextDecoder();
-      let buffer: string = '';
-
-      while (true) {
-        const { done, value }: ReadableStreamReadResult<Uint8Array> = await reader.read();
-        if (done) {
-          callbacks.onComplete();
-          break;
-        }
-        buffer += decoder.decode(value, { stream: true });
-        const lines: string[] = buffer.split('\n');
-        buffer = lines.pop() || '';
-        for (const line of lines) {
-          if (line.trim() === '') continue;
-          const content: string = JSON.parse(line).message.content;
-          callbacks.onChunk(content);
-        }
-      }
+      callbacks.onComplete();
     } catch (error: unknown) {
+      if ((error as Error).name === 'AbortError') {
+        console.log('Stream aborted');
+        callbacks.onComplete();
+        return;
+      }
       callbacks.onError(error);
     }
   };
+
   stream();
+
   return abortController;
 }

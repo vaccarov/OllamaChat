@@ -2,10 +2,18 @@
 
 `OllamaChat` is an interactive user interface built with Next.js, React, and TypeScript, designed to interact with local language models via Ollama. This project offers a smooth chat experience with advanced features like audio transcription, voice playback of model responses, and image analysis/generation/edition.
 
-## Overview (desktop & mobile)
+## Screenshots
 
-<img src="./public/desktop.png" />
-<img src="./public/mobile.png" height="400" />
+<table align="center">
+  <tr>
+    <td><img src="public/sample1.png" width="400" alt="Generated Image 1"></td>
+    <td><img src="public/sample2.png" width="400" alt="Generated Image 2"></td>
+  </tr>
+  <tr>
+    <td><img src="public/sample3.png" width="400" alt="Generated Image 3"></td>
+    <td><img src="public/sample4.png" width="400" alt="Generated Image 4"></td>
+  </tr>
+</table>
 
 ## Features
 
@@ -19,6 +27,7 @@
 - **Markdown & Collapsible Reasoning:** Responses are rendered in Markdown, with `<think>` tags automatically displayed in a collapsible section.
 - **Customizable System Prompt:** Define a custom system prompt to guide the model's behavior, with presets available.
 - **LLM Capabilities Display:** The UI shows the capabilities of each LLM (e.g., vision, embedding) to help you choose the right model.
+- **Retrieval-Augmented Generation (RAG):** Enhance model responses by providing context from external documents or websites.
 
 ## Tech Stack
 
@@ -93,8 +102,6 @@ Before starting, ensure you have the following:
 ## TODO
 
 - Handle large image uploads (use local DB instead of localstorage).
-- Show reasoning collapse even if reasoning isn't finished.
-- Fix React warning for `<think>` tag rendering.
   TBI
 - https://huggingface.co/tencent/SRPO
 - https://huggingface.co/openbmb/VoxCPM-0.5B

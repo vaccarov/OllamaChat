@@ -2,6 +2,7 @@ import { ImageToSend } from '@/types/ImageToSend';
 import { ActionIcon } from '@mantine/core';
 import { ChangeEvent, memo, ReactElement, useRef } from 'react';
 import { Image as ImageIcon } from 'react-feather';
+import { useTranslation } from 'react-i18next';
 
 interface ImagePickerProps {
   onImageSelect: (image: ImageToSend) => void;
@@ -9,6 +10,7 @@ interface ImagePickerProps {
 }
 
 const ImagePicker = memo<ImagePickerProps>(({ onImageSelect, disabled }): ReactElement => {
+  const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>): Promise<void> => {
     const file: File | undefined = e.target.files?.[0];
@@ -29,7 +31,8 @@ const ImagePicker = memo<ImagePickerProps>(({ onImageSelect, disabled }): ReactE
   return (
     <ActionIcon
       disabled={disabled}
-      onClick={() => fileInputRef.current!.click()}>
+      onClick={() => fileInputRef.current!.click()}
+      title={t('actions.image_picker_title')}>
       <ImageIcon />
       <input
         ref={fileInputRef}
