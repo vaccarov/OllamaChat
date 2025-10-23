@@ -67,20 +67,20 @@ export const Chat: React.FC = (): React.ReactElement | null => {
       <div
         className='chat'
         ref={chatRef}>
-        {!models || models.length === 0 ? (
-          <div className='emptyChatMessage'>
-            <p>{t('chat.no_models_setup_message')}</p>
-            <ActionIcon onClick={() => setIsSettingsOpen(true)}>
-              <Settings />
-            </ActionIcon>
-          </div>
-        ) : activeSession?.messages && activeSession.messages.length > 1 ? (
+        {activeSession?.messages && activeSession.messages.length > 1 ? (
           activeSession?.messages.slice(1).map((msg: ChatText, i: number) => (
             <ChatBubble
               message={msg}
               key={i}
             />
           ))
+        ) : !models || models.length === 0 ? (
+          <div className='emptyChatMessage'>
+            <p>{t('chat.no_models_setup_message')}</p>
+            <ActionIcon onClick={() => setIsSettingsOpen(true)}>
+              <Settings />
+            </ActionIcon>
+          </div>
         ) : (
           <div className='emptyChatMessage'>
             <p>{t('chat.empty_chat_invitation')}</p>

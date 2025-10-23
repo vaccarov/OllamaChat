@@ -9,6 +9,7 @@ import { checkChatServer } from '@/services/transcribe';
 import { OllamaModel } from '@/types';
 import { ApiStatus } from '@/types/api';
 import { ComboboxData } from '@mantine/core';
+import { Ollama } from 'ollama/browser';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 export const ModelProvider = ({ children }: { children: React.ReactNode }): React.JSX.Element => {
@@ -16,23 +17,31 @@ export const ModelProvider = ({ children }: { children: React.ReactNode }): Reac
   const [embeddingModels, setEmbeddingModels] = useState<ComboboxData>([]);
   const [currentModel, setCurrentModel] = useState<OllamaModel | undefined>();
   const [savedModelName, setSavedModelName] = usePersistentState<string | null>(STORAGE_KEYS.selectedModel, null);
-  const [ollamaServerUrl, setOllamaServerUrl] = usePersistentState<string>(STORAGE_KEYS.ollamaServerUrl, `${process.env.NEXT_PUBLIC_OLLAMA_URL ?? ''}`);
   const [chatServerUrl, setChatServerUrl] = usePersistentState<string>(STORAGE_KEYS.chatServerUrl, `${process.env.NEXT_PUBLIC_TRANSCRIBE_URL ?? ''}`);
   const [ollamaServerStatus, setOllamaServerStatus] = useState<ApiStatus>(ApiStatus.UNKNOWN);
   const [chatServerStatus, setChatServerStatus] = useState<ApiStatus>(ApiStatus.UNKNOWN);
   const isChatServerOnline: boolean = useMemo(() => chatServerStatus === ApiStatus.VALID, [chatServerStatus]);
+  const [ollamaClient, setOllamaClient] = useState<Ollama>();
 
   useEffect(() => {
-    if (ollamaServerUrl) {
+    const savedUrlItem: string | null = localStorage.getItem(STORAGE_KEYS.ollamaServerUrl);
+    const url: string = savedUrlItem ? JSON.parse(savedUrlItem) : (process.env.NEXT_PUBLIC_OLLAMA_URL ?? '');
+    if (url) {
+      setOllamaClient(new Ollama({ host: url }));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (ollamaClient) {
       setOllamaServerStatus(ApiStatus.CHECKING);
       const handler: NodeJS.Timeout = setTimeout(() => {
-        checkOllamaServer(ollamaServerUrl).then((result: { success: boolean }) => {
+        checkOllamaServer(ollamaClient).then((result: { success: boolean }) => {
           setOllamaServerStatus(result.success ? ApiStatus.VALID : ApiStatus.INVALID);
         });
       }, DEBOUNCE_SERVER_URL_MS);
       return () => clearTimeout(handler);
     }
-  }, [ollamaServerUrl]);
+  }, [ollamaClient]);
 
   useEffect(() => {
     if (chatServerUrl) {
@@ -47,8 +56,11 @@ export const ModelProvider = ({ children }: { children: React.ReactNode }): Reac
   }, [chatServerUrl]);
 
   const refreshModels = useCallback(async (): Promise<void> => {
-    if (!ollamaServerUrl) return;
-    const fetchedModels: OllamaModel[] = await listModels(ollamaServerUrl);
+    if (!ollamaClient) {
+      setModels([]);
+      return;
+    }
+    const fetchedModels: OllamaModel[] = await listModels(ollamaClient);
     setEmbeddingModels(
       fetchedModels
         .filter((m: OllamaModel) => m.show.capabilities?.includes('embedding'))
@@ -58,7 +70,7 @@ export const ModelProvider = ({ children }: { children: React.ReactNode }): Reac
         }))
     );
     setModels(fetchedModels.filter((m: OllamaModel) => !m.show.capabilities?.includes('embedding')));
-  }, [ollamaServerUrl]);
+  }, [ollamaClient]);
 
   useEffect(() => {
     refreshModels();
@@ -87,13 +99,13 @@ export const ModelProvider = ({ children }: { children: React.ReactNode }): Reac
         embeddingModels,
         currentModel,
         refreshModels,
-        ollamaServerUrl,
-        setOllamaServerUrl,
         chatServerUrl,
         setChatServerUrl,
         ollamaServerStatus,
         chatServerStatus,
         isChatServerOnline,
+        ollamaClient,
+        setOllamaClient,
       }}>
       {children}
     </ModelContext.Provider>

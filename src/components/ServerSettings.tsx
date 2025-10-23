@@ -1,10 +1,13 @@
+import { STORAGE_KEYS } from '@/constants/storageKeys';
 import { ModelContext } from '@/context/ModelContextDefinition';
+import usePersistentState from '@/hooks/usePersistentState';
 import { ModelContextDefinition } from '@/types';
 import { ApiStatus } from '@/types/api';
 import { removeTrailingSlash } from '@/utils/tools';
 import { Anchor, Code, List, Text, TextInput, Title } from '@mantine/core';
 import { TFunction } from 'i18next';
-import { ChangeEvent, ReactElement, useContext } from 'react';
+import { Ollama } from 'ollama/browser';
+import { ChangeEvent, ReactElement, useContext, useEffect } from 'react';
 import { CheckCircle, Loader, XCircle } from 'react-feather';
 import { Trans, useTranslation } from 'react-i18next';
 import './SettingsModal.css';
@@ -13,7 +16,17 @@ export function ServerSettings(): ReactElement {
   const { t }: { t: TFunction } = useTranslation();
   const modelContext: ModelContextDefinition | undefined = useContext(ModelContext);
   if (!modelContext) throw new Error('ServerSettings must be used within a ModelProvider');
-  const { ollamaServerUrl, setOllamaServerUrl, chatServerUrl, setChatServerUrl, ollamaServerStatus, chatServerStatus }: ModelContextDefinition = modelContext;
+  const { setOllamaClient, chatServerUrl, setChatServerUrl, ollamaServerStatus, chatServerStatus }: ModelContextDefinition = modelContext;
+  const [ollamaServerUrl, setOllamaServerUrl] = usePersistentState<string>(STORAGE_KEYS.ollamaServerUrl, `${process.env.NEXT_PUBLIC_OLLAMA_URL ?? ''}`);
+
+  useEffect(() => {
+    if (ollamaServerUrl) {
+      const client: Ollama = new Ollama({ host: ollamaServerUrl });
+      setOllamaClient(client);
+    } else {
+      setOllamaClient(undefined);
+    }
+  }, [ollamaServerUrl, setOllamaClient]);
 
   return (
     <div className='settingsContainer'>

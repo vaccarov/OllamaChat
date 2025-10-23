@@ -22,7 +22,7 @@ import { QuestionInput } from './QuestionInput';
 
 export const Question: React.FC = (): ReactElement | null => {
   const { t } = useTranslation();
-  const { chatServerUrl, currentModel, ollamaServerUrl } = useContext(ModelContext)!;
+  const { chatServerUrl, currentModel, ollamaClient } = useContext(ModelContext)!;
   const { conversation, addMessage, addChunk, activeSession, speechLang, isThinkingEnabled }: MessageContextType = useContext(MessageContext)!;
   const { includeAllDocuments, selectedRagModel } = useContext(RagContext)!;
   const [userPrompt, setUserPrompt] = useState<string>('');
@@ -41,9 +41,12 @@ export const Question: React.FC = (): ReactElement | null => {
 
   const sendRequest = async (prompt: string): Promise<void> => {
     if (!prompt && !image) return;
-
     const currentSessionId: string | undefined = activeSession?.id;
     if (!currentSessionId) return;
+    if (!ollamaClient) {
+      addMessage(ChatRole.custom, t('errors.ollama_client_not_available'));
+      return;
+    }
 
     setLoading(true);
     let finalPrompt: string = prompt;
@@ -80,7 +83,7 @@ export const Question: React.FC = (): ReactElement | null => {
 
     addMessage(ChatRole.assistant, '', undefined, currentSessionId);
     abortControllerRef.current = streamChat(
-      ollamaServerUrl,
+      ollamaClient,
       {
         model: currentModel!.model,
         messages: messagesForApi,

@@ -4,29 +4,21 @@ import { OllamaModel } from '@/types';
 import { AbortableAsyncIterator, ChatResponse } from 'ollama';
 import { Ollama, ListResponse, Message, ModelResponse, ShowResponse } from 'ollama/browser';
 
-export async function checkOllamaServer(ollamaServerUrl: string): Promise<{ success: boolean }> {
+export async function checkOllamaServer(client: Ollama): Promise<{ success: boolean }> {
   try {
-    const response: Response = await fetch(ollamaServerUrl);
-    const success: boolean = (await response.text()) === 'Ollama is running';
-    return { success };
+    await client.list();
+    return { success: true };
   } catch (_error) {
     return { success: false };
   }
 }
 
-export async function listModels(ollamaServerUrl: string): Promise<OllamaModel[]> {
+export async function listModels(client: Ollama): Promise<OllamaModel[]> {
   try {
-    const response: Response = await fetch(`${ollamaServerUrl}/api/tags`);
-    if (!response.ok) return [];
-    const basicModels: ListResponse = await response.json();
+    const basicModels: ListResponse = await client.list();
     const detailedModels: OllamaModel[] = await Promise.all(
       basicModels.models.map(async (model: ModelResponse): Promise<OllamaModel> => {
-        const showResponse: Response = await fetch(`${ollamaServerUrl}/api/show`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ model: model.model }),
-        });
-        const show: ShowResponse = await showResponse.json();
+        const show: ShowResponse = await client.show({ model: model.model });
         return {
           ...model,
           show,
@@ -42,7 +34,7 @@ export async function listModels(ollamaServerUrl: string): Promise<OllamaModel[]
 }
 
 export function streamChat(
-  ollamaServerUrl: string,
+  ollamaClient: Ollama,
   body: { model: string; messages: Message[] },
   callbacks: {
     onChunk: (chunk: { message: Message }) => void;
@@ -52,7 +44,6 @@ export function streamChat(
   think?: boolean
 ): AbortController {
   const abortController = new AbortController();
-  const ollamaClient = new Ollama({ host: ollamaServerUrl });
 
   abortController.signal.addEventListener('abort', () => {
     ollamaClient.abort();
