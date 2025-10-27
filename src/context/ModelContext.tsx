@@ -17,7 +17,7 @@ export const ModelProvider = ({ children }: { children: React.ReactNode }): Reac
   const [embeddingModels, setEmbeddingModels] = useState<ComboboxData>([]);
   const [currentModel, setCurrentModel] = useState<OllamaModel | undefined>();
   const [savedModelName, setSavedModelName] = usePersistentState<string | null>(STORAGE_KEYS.selectedModel, null);
-  const [chatServerUrl, setChatServerUrl] = usePersistentState<string>(STORAGE_KEYS.chatServerUrl, `${process.env.NEXT_PUBLIC_TRANSCRIBE_URL ?? ''}`);
+  const [chatServerUrl, setChatServerUrl] = usePersistentState<string>(STORAGE_KEYS.chatServerUrl, `${process.env.NEXT_PUBLIC_SERVER_URL ?? ''}`);
   const [ollamaServerStatus, setOllamaServerStatus] = useState<ApiStatus>(ApiStatus.UNKNOWN);
   const [chatServerStatus, setChatServerStatus] = useState<ApiStatus>(ApiStatus.UNKNOWN);
   const isChatServerOnline: boolean = useMemo(() => chatServerStatus === ApiStatus.VALID, [chatServerStatus]);

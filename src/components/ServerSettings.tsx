@@ -4,7 +4,7 @@ import usePersistentState from '@/hooks/usePersistentState';
 import { ModelContextDefinition } from '@/types';
 import { ApiStatus } from '@/types/api';
 import { removeTrailingSlash } from '@/utils/tools';
-import { Anchor, Code, List, Text, TextInput, Title } from '@mantine/core';
+import { Anchor, Code, Group, List, Text, TextInput, Title } from '@mantine/core';
 import { TFunction } from 'i18next';
 import { Ollama } from 'ollama/browser';
 import { ChangeEvent, ReactElement, useContext, useEffect } from 'react';
@@ -37,7 +37,18 @@ export function ServerSettings(): ReactElement {
         rightSection={<StatusIcon status={ollamaServerStatus} />}
       />
       <TextInput
-        label={t('settings.transcribe_url')}
+        label={
+          <Group justify='space-between'>
+            <Text>{t('settings.server_url')}</Text>
+            <Anchor
+              href='https://github.com/vaccarov/ChatServer'
+              target='_blank'
+              rel='noopener noreferrer'
+              size='sm'>
+              🔗
+            </Anchor>
+          </Group>
+        }
         value={chatServerUrl}
         onChange={(event: ChangeEvent<HTMLInputElement>) => setChatServerUrl(removeTrailingSlash(event.currentTarget.value))}
         rightSection={<StatusIcon status={chatServerStatus} />}
@@ -122,7 +133,7 @@ export function ServerSettings(): ReactElement {
   handle_path /ollama* {
     reverse_proxy localhost:11434
   }
-  handle_path /audio* {
+  handle_path /server* {
     reverse_proxy localhost:8000
   }
 }`}
