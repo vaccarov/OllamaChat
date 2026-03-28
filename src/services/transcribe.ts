@@ -1,22 +1,23 @@
 'use client';
 
-export async function checkChatServer(chatServerUrl: string): Promise<{ success: boolean }> {
+import { apiFetch } from '@/utils/api';
+
+export async function checkChatServer(serverUrl: string): Promise<{ success: boolean }> {
   try {
-    const response: Response = await fetch(chatServerUrl);
+    const response = await fetch(serverUrl);
     return { success: response.ok };
   } catch (_error) {
     return { success: false };
   }
 }
 
-export async function transcribe(audioBlob: Blob, language: string, chatServerUrl: string): Promise<{ transcript: string }> {
-  const formData: FormData = new FormData();
+export async function transcribe(audioBlob: Blob, language: string, serverUrl: string): Promise<{ transcript: string }> {
+  const formData = new FormData();
   formData.append('file', audioBlob, 'audio.webm');
   formData.append('language', language);
-  const res: Response = await fetch(`${chatServerUrl}/audio/decode`, {
+
+  return apiFetch<{ transcript: string }>(serverUrl, '/audio/decode', {
     method: 'POST',
     body: formData,
   });
-  if (!res.ok) throw new Error(`Transcription failed with status ${res.status}`);
-  return res.json();
 }

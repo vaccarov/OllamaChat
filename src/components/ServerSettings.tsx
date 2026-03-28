@@ -1,13 +1,9 @@
-import { STORAGE_KEYS } from '@/constants/storageKeys';
 import { ModelContext } from '@/context/ModelContextDefinition';
-import usePersistentState from '@/hooks/usePersistentState';
 import { ModelContextDefinition } from '@/types';
 import { ApiStatus } from '@/types/api';
-import { removeTrailingSlash } from '@/utils/tools';
 import { Anchor, Code, Group, List, Text, TextInput, Title } from '@mantine/core';
 import { TFunction } from 'i18next';
-import { Ollama } from 'ollama/browser';
-import { ChangeEvent, ReactElement, useContext, useEffect } from 'react';
+import { ChangeEvent, ReactElement, useContext } from 'react';
 import { CheckCircle, Loader, XCircle } from 'react-feather';
 import { Trans, useTranslation } from 'react-i18next';
 import './SettingsModal.css';
@@ -16,25 +12,23 @@ export function ServerSettings(): ReactElement {
   const { t }: { t: TFunction } = useTranslation();
   const modelContext: ModelContextDefinition | undefined = useContext(ModelContext);
   if (!modelContext) throw new Error('ServerSettings must be used within a ModelProvider');
-  const { setOllamaClient, chatServerUrl, setChatServerUrl, ollamaServerStatus, chatServerStatus }: ModelContextDefinition = modelContext;
-  const [ollamaServerUrl, setOllamaServerUrl] = usePersistentState<string>(STORAGE_KEYS.ollamaServerUrl, `${process.env.NEXT_PUBLIC_OLLAMA_URL ?? ''}`);
-
-  useEffect(() => {
-    if (ollamaServerUrl) {
-      const client: Ollama = new Ollama({ host: ollamaServerUrl });
-      setOllamaClient(client);
-    } else {
-      setOllamaClient(undefined);
-    }
-  }, [ollamaServerUrl, setOllamaClient]);
+  const {
+    chatServerUrlInput,
+    setChatServerUrlInput,
+    chatServerStatus,
+    serverUrlInput,
+    setServerUrlInput,
+    serverStatus,
+  }: ModelContextDefinition = modelContext;
 
   return (
     <div className='settingsContainer'>
       <TextInput
         label={t('settings.ollama_url')}
-        value={ollamaServerUrl}
-        onChange={(event: ChangeEvent<HTMLInputElement>) => setOllamaServerUrl(removeTrailingSlash(event.currentTarget.value))}
-        rightSection={<StatusIcon status={ollamaServerStatus} />}
+        placeholder='http://localhost:11434 or http://localhost:1234/v1'
+        value={chatServerUrlInput}
+        onChange={(event: ChangeEvent<HTMLInputElement>) => setChatServerUrlInput(event.currentTarget.value)}
+        rightSection={<StatusIcon status={chatServerStatus} />}
       />
       <TextInput
         label={
@@ -49,9 +43,9 @@ export function ServerSettings(): ReactElement {
             </Anchor>
           </Group>
         }
-        value={chatServerUrl}
-        onChange={(event: ChangeEvent<HTMLInputElement>) => setChatServerUrl(removeTrailingSlash(event.currentTarget.value))}
-        rightSection={<StatusIcon status={chatServerStatus} />}
+        value={serverUrlInput}
+        onChange={(event: ChangeEvent<HTMLInputElement>) => setServerUrlInput(event.currentTarget.value)}
+        rightSection={<StatusIcon status={serverStatus} />}
       />
       <div style={{ marginTop: 'var(--mantine-spacing-lg)' }}>
         <Title order={4}>{t('settings.urls.title')}</Title>

@@ -5,14 +5,14 @@ import { ModelContext } from '@/context/ModelContextDefinition';
 import { RagContext } from '@/context/RagContextDefinition';
 import { useTts } from '@/hooks/useTts';
 import { ragChat } from '@/services/document';
-import { streamChat } from '@/services/ollama';
+import { streamChat } from '@/services/llm';
 import { ChatRole } from '@/types/ChatRoleDefinition';
 import { RagChatResponse } from '@/types/document';
 import { ImageToSend } from '@/types/ImageToSend';
 import { MessageContextType } from '@/types/MessageContextDefinition';
 import { mapIsoToBcp47 } from '@/utils/tools';
 import { ActionIcon } from '@mantine/core';
-import { Message } from 'ollama';
+import { Message } from '@/types';
 import { ReactElement, useContext, useRef, useState } from 'react';
 import { ChevronsDown, ChevronsUp } from 'react-feather';
 import { useTranslation } from 'react-i18next';
@@ -22,7 +22,7 @@ import { QuestionInput } from './QuestionInput';
 
 export const Question: React.FC = (): ReactElement | null => {
   const { t } = useTranslation();
-  const { chatServerUrl, currentModel, ollamaClient } = useContext(ModelContext)!;
+  const { chatServerUrl, serverUrl, serverType, currentModel } = useContext(ModelContext)!;
   const { conversation, addMessage, addChunk, activeSession, speechLang, isThinkingEnabled }: MessageContextType = useContext(MessageContext)!;
   const { includeAllDocuments, selectedRagModel } = useContext(RagContext)!;
   const [userPrompt, setUserPrompt] = useState<string>('');
@@ -31,6 +31,7 @@ export const Question: React.FC = (): ReactElement | null => {
   const [actionsVisible, setActionsVisible] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const { speak, cancel } = useTts();
+  
   const stopRequest = (): void => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -43,8 +44,8 @@ export const Question: React.FC = (): ReactElement | null => {
     if (!prompt && !image) return;
     const currentSessionId: string | undefined = activeSession?.id;
     if (!currentSessionId) return;
-    if (!ollamaClient) {
-      addMessage(ChatRole.custom, t('errors.ollama_client_not_available'));
+    if (!chatServerUrl) {
+      addMessage(ChatRole.custom, t('errors.llm_server_not_available'));
       return;
     }
 
@@ -55,7 +56,7 @@ export const Question: React.FC = (): ReactElement | null => {
       addMessage(ChatRole.custom, t('question.retrieving_context'));
       try {
         const chatId: string | undefined = includeAllDocuments ? undefined : activeSession?.id;
-        const ragResponse: RagChatResponse = await ragChat(chatServerUrl, prompt, selectedRagModel, chatId);
+        const ragResponse: RagChatResponse = await ragChat(serverUrl, prompt, selectedRagModel, chatId);
         finalPrompt = ragResponse.prompt;
       } catch (error) {
         console.error('Error during RAG search:', error);
@@ -83,7 +84,8 @@ export const Question: React.FC = (): ReactElement | null => {
 
     addMessage(ChatRole.assistant, '', undefined, currentSessionId);
     abortControllerRef.current = streamChat(
-      ollamaClient,
+      chatServerUrl,
+      serverType,
       {
         model: currentModel!.model,
         messages: messagesForApi,
@@ -115,7 +117,7 @@ export const Question: React.FC = (): ReactElement | null => {
           abortControllerRef.current = null;
         },
       },
-      isThinkingEnabled
+      {think: isThinkingEnabled}
     );
   };
 

@@ -86,10 +86,3 @@ export const sortSessionsByDate = (sessions: ChatSession[]): ChatSession[] =>
     const dateB: number = new Date(b.messages[b.messages.length - 1]?.date || 0).getTime();
     return dateB - dateA;
   });
-
-export const removeTrailingSlash = (url: string): string => {
-  if (typeof url === 'string' && url.endsWith('/')) {
-    return url.slice(0, -1);
-  }
-  return url;
-};

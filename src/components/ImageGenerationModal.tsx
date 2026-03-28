@@ -43,7 +43,7 @@ export const ImageGenerationModal = ({ opened, onClose }: { opened: boolean; onC
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [models, setModels] = useState<ComboboxData>([]);
   const [modelsLoading, setModelsLoading] = useState<boolean>(false);
-  const { chatServerUrl } = useContext(ModelContext)!;
+  const { serverUrl } = useContext(ModelContext)!;
   const importFileInputRef: RefObject<HTMLInputElement | null> = useRef<HTMLInputElement>(null);
   const viewportRef: React.RefObject<HTMLDivElement | null> = useRef<HTMLDivElement>(null);
   const form = useForm<ImageGenerationFormValues>({
@@ -100,7 +100,7 @@ export const ImageGenerationModal = ({ opened, onClose }: { opened: boolean; onC
     if (opened) {
       const fetchModels = async () => {
         setModelsLoading(true);
-        const fetchedModels: ComboboxData = (await getImageModels(chatServerUrl)).map((m: DiffusionModel) => ({
+        const fetchedModels: ComboboxData = (await getImageModels(serverUrl)).map((m: DiffusionModel) => ({
           value: m.name,
           label: m.fullname,
         }));
@@ -109,7 +109,7 @@ export const ImageGenerationModal = ({ opened, onClose }: { opened: boolean; onC
       };
       fetchModels();
     }
-  }, [opened, chatServerUrl]);
+  }, [opened, serverUrl]);
 
   useEffect(() => {
     if (generatedImages.length > 0) {
@@ -195,7 +195,7 @@ export const ImageGenerationModal = ({ opened, onClose }: { opened: boolean; onC
       }
 
       try {
-        generateImage(chatServerUrl, formData, {
+        generateImage(serverUrl, formData, {
           onProgress: (progressData: ImageGenerationProgress) => {
             const status: string = progressData.status;
             if (status === IMAGE_GEN_STATUS_PROGRESS) {
@@ -233,7 +233,7 @@ export const ImageGenerationModal = ({ opened, onClose }: { opened: boolean; onC
         setError((err as Error).message);
       }
     },
-    [form, t, chatServerUrl]
+    [form, t, serverUrl]
   );
 
   return (

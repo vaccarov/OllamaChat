@@ -2,6 +2,14 @@ import { MODEL_LCM, MODEL_SDXL } from '@/constants/list';
 
 export type ModelName = typeof MODEL_SDXL | typeof MODEL_LCM;
 
+export enum ImageGenerationStatus {
+  SUCCESS = 'success',
+  PROGRESS = 'progress',
+  STARTING_IMAGE = 'starting_image',
+  LOADING_MODEL = 'loading_model',
+  PROCESSING = 'processing',
+}
+
 export interface ImageGenerationFormValues {
   prompt: string;
   negative_prompt: string | undefined;
@@ -16,7 +24,7 @@ export interface ImageGenerationFormValues {
 }
 
 export interface ImageGenerationProgress {
-  status: string;
+  status: ImageGenerationStatus | string;
   step?: number;
   total_steps?: number;
   image_number?: number;

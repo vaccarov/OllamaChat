@@ -1,11 +1,11 @@
+'use client';
+
 import { systemPromptPresets } from '@/constants/prompts';
 import { MessageContext } from '@/context/MessageContextDefinition';
-import { PromptListSVG } from '@/lib/icons';
-import { MessageContextType } from '@/types/MessageContextDefinition';
-import { PromptItem } from '@/types/Prompt';
-import { ActionIcon, Menu, Textarea } from '@mantine/core';
+import { MessageContextType, PromptItem } from '@/types';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ControlledTextarea } from './ControlledTextarea';
 
 export const SystemPrompt: React.FC = (): React.ReactElement => {
   const { t } = useTranslation();
@@ -18,44 +18,19 @@ export const SystemPrompt: React.FC = (): React.ReactElement => {
     }
   }, [activeSession]);
 
-  const handlePromptSelect = (value: string) => {
-    const selectedPrompt: PromptItem | undefined = systemPromptPresets.find((p: PromptItem) => p.id === value);
-    if (selectedPrompt) {
-      setPrompt(selectedPrompt.prompt);
-      updateSystemPrompt(selectedPrompt.prompt);
-    }
+  const handlePromptChange = (value: string) => {
+    setPrompt(value);
+    updateSystemPrompt(value);
   };
 
   return (
-    <Textarea
+    <ControlledTextarea
       value={prompt}
       placeholder={t('system_prompt.title')}
-      autosize
-      maxRows={10}
-      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setPrompt(e.target.value);
-        updateSystemPrompt(e.target.value);
-      }}
-      leftSectionWidth={52}
-      leftSection={
-        <Menu width={200}>
-          <Menu.Target>
-            <ActionIcon>
-              <PromptListSVG />
-            </ActionIcon>
-          </Menu.Target>
-          <Menu.Dropdown>
-            <Menu.Label>{t('system_prompt.select')}</Menu.Label>
-            {systemPromptPresets.map((p: PromptItem) => (
-              <Menu.Item
-                key={p.id}
-                onClick={() => handlePromptSelect(p.id)}>
-                {p.name}
-              </Menu.Item>
-            ))}
-          </Menu.Dropdown>
-        </Menu>
-      }
+      onValueChange={handlePromptChange}
+      presets={systemPromptPresets}
+      presetLabel={t('system_prompt.select')}
+      onPresetSelect={(preset) => handlePromptChange(preset.prompt)}
     />
   );
 };

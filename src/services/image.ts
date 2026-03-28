@@ -1,10 +1,9 @@
 'use client';
 
-import { IMAGE_GEN_STATUS_SUCCESS } from '@/constants/list';
-import { DiffusionModel, ImageGenerationProgress } from '@/types/image-generation';
+import { DiffusionModel, ImageGenerationProgress, ImageGenerationStatus } from '@/types/image-generation';
 
 export function generateImage(
-  chatServerUrl: string,
+  serverUrl: string,
   formData: FormData,
   callbacks: {
     onProgress: (progressData: ImageGenerationProgress) => void;
@@ -17,7 +16,7 @@ export function generateImage(
 
   const stream = async () => {
     try {
-      const response: Response = await fetch(`${chatServerUrl}/image/generate`, {
+      const response: Response = await fetch(`${serverUrl}/image/generate`, {
         method: 'POST',
         body: formData,
         signal: abortController.signal,
@@ -50,14 +49,9 @@ export function generateImage(
             const dataJson: string = line.substring(5);
             try {
               const progressData: ImageGenerationProgress = JSON.parse(dataJson.trim());
-              const status: string = progressData.status;
-              if (status === IMAGE_GEN_STATUS_SUCCESS) {
+              if (progressData.status === ImageGenerationStatus.SUCCESS) {
                 callbacks.onSuccess(`data:image/png;base64,${progressData.image_data}`);
-              } else if (status === 'progress') {
-                callbacks.onProgress(progressData);
-              } else if (status === 'starting_image') {
-                callbacks.onProgress(progressData);
-              } else if (status) {
+              } else {
                 callbacks.onProgress(progressData);
               }
             } catch (e: unknown) {
@@ -74,9 +68,9 @@ export function generateImage(
   return abortController;
 }
 
-export async function getImageModels(chatServerUrl: string): Promise<DiffusionModel[]> {
+export async function getImageModels(serverUrl: string): Promise<DiffusionModel[]> {
   try {
-    const response: Response = await fetch(`${chatServerUrl}/image/models`);
+    const response: Response = await fetch(`${serverUrl}/image/models`);
     if (!response.ok) {
       console.error('Error fetching image models:', response.statusText);
       return [];

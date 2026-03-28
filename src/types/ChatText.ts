@@ -1,9 +1,17 @@
 import { ChatRole } from '@/types/ChatRoleDefinition';
 import { ImageToSend } from '@/types/ImageToSend';
-import { Message } from 'ollama';
 
-export type ChatText = Message & {
-  date: string;
+export interface Message {
+  role: string;
+  content: string;
+  images?: string[];
+  thinking?: string;
+}
+
+export interface ChatText {
   role: ChatRole;
+  content: string;
+  thinking?: string;
+  date: string;
   image?: ImageToSend;
-};
+}

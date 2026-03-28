@@ -1,7 +1,7 @@
 import { ChatRole } from '@/types/ChatRoleDefinition';
 import { ChatSession } from '@/types/ChatSession';
 import { ImageToSend } from '@/types/ImageToSend';
-import { Message } from 'ollama';
+import { Message } from '@/types';
 import { Dispatch, RefObject, SetStateAction } from 'react';
 
 export type MessageContextType = {

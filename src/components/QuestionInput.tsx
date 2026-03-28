@@ -1,14 +1,13 @@
 'use client';
 
-import { ActionIcon, Textarea } from '@mantine/core';
+import { ActionIcon } from '@mantine/core';
 import { Loader, Play } from 'react-feather';
 import { useTranslation } from 'react-i18next';
-import { useState, useContext, SetStateAction, Dispatch } from 'react';
+import { useState, useContext, SetStateAction, Dispatch, ReactElement } from 'react';
 import { MessageContext } from '@/context/MessageContextDefinition';
 import { getLineNumber, getTotalLines } from '@/utils/tools';
-import { Message } from 'ollama';
-import { ChatRole } from '@/types/ChatRoleDefinition';
-import { MessageContextType } from '@/types';
+import { Message, ChatRole, MessageContextType } from '@/types';
+import { ControlledTextarea } from './ControlledTextarea';
 
 interface QuestionInputProps {
   userPrompt: string;
@@ -19,14 +18,14 @@ interface QuestionInputProps {
   disabled: boolean;
 }
 
-export const QuestionInput: React.FC<QuestionInputProps> = ({ userPrompt, setUserPrompt, onSend, onStop, loading, disabled }) => {
+export function QuestionInput({ userPrompt, setUserPrompt, onSend, onStop, loading, disabled }: QuestionInputProps): ReactElement {
   const { t } = useTranslation();
   const { conversation }: MessageContextType = useContext(MessageContext)!;
   const [historyIndex, setHistoryIndex] = useState<number | null>(null);
   const [promptBeforeNav, setPromptBeforeNav] = useState<string | null>(null);
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setUserPrompt(event.currentTarget.value);
+  const handleInputChange = (value: string) => {
+    setUserPrompt(value);
     setHistoryIndex(null);
     setPromptBeforeNav(null);
   };
@@ -70,7 +69,7 @@ export const QuestionInput: React.FC<QuestionInputProps> = ({ userPrompt, setUse
   };
 
   return (
-    <Textarea
+    <ControlledTextarea
       placeholder={t('chat.placeholder')}
       value={userPrompt}
       rightSection={
@@ -80,10 +79,8 @@ export const QuestionInput: React.FC<QuestionInputProps> = ({ userPrompt, setUse
           {loading ? <Loader className='spin-animation' /> : <Play />}
         </ActionIcon>
       }
-      onChange={handleInputChange}
+      onValueChange={handleInputChange}
       onKeyDown={onArrowPressed}
-      maxRows={10}
-      autosize
     />
   );
-};
+}

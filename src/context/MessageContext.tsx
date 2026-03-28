@@ -5,7 +5,7 @@ import { ModelContext } from '@/context/ModelContextDefinition';
 import usePersistentState from '@/hooks/usePersistentState';
 import { ChatHistory, ChatRole, ChatSession, ChatText, ImageToSend } from '@/types';
 import { sortSessionsByDate } from '@/utils/tools';
-import { Message } from 'ollama';
+import { Message } from '@/types';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
@@ -84,14 +84,12 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
           role: m.role,
           content: m.content,
           images: m.image?.data?.split(',')[1] !== undefined ? [m.image.data.split(',')[1] as string] : undefined,
-        }));
+        })) as Message[];
     }
   }, [activeSession]);
 
   const addMessage = useCallback(
     (role: ChatRole, content: string, image?: ImageToSend, sessionId?: string): void => {
-      // todo: Handle large images
-      // const messageToStore: ImageToSend | undefined = image ? { ...image, data: '' } : undefined;
       const newMsg: ChatText = {
         role,
         content,
@@ -108,11 +106,32 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
       findAndUpdateSession((s: ChatSession) => {
         const messages: ChatText[] = [...s.messages];
         const lastMessage: ChatText | undefined = messages[messages.length - 1];
+        
+        let newContent = (lastMessage?.content ?? '') + (message.content ?? '');
+        let newThinking = (lastMessage?.thinking ?? '') + (message.thinking ?? '');
+        
+        // Handle models that stream <think> tags in content
+        if (newContent.includes('<think>')) {
+          const thinkParts = newContent.split('<think>');
+          const beforeThink = thinkParts[0];
+          const afterThink = thinkParts.slice(1).join('<think>');
+          
+          if (afterThink.includes('</think>')) {
+            const endThinkParts = afterThink.split('</think>');
+            newThinking += endThinkParts[0];
+            newContent = (beforeThink || '') + endThinkParts.slice(1).join('</think>');
+          } else {
+            // Still thinking...
+            newThinking += afterThink;
+            newContent = beforeThink || '';
+          }
+        }
+        
         messages[messages.length - 1] = {
           ...lastMessage,
-          role: lastMessage?.role ?? ChatRole.user,
-          content: (lastMessage?.content ?? '') + message.content,
-          thinking: (lastMessage?.thinking ?? '') + (message.thinking ?? ''),
+          role: lastMessage?.role ?? ChatRole.assistant,
+          content: newContent,
+          thinking: newThinking,
           date: lastMessage?.date ?? new Date().toISOString(),
         };
         return { ...s, messages };

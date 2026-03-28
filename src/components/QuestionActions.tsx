@@ -25,7 +25,7 @@ interface QuestionActionsProps {
 
 export const QuestionActions: React.FC<QuestionActionsProps> = ({ image, visible, onImageSelect, onTranscript, setLoading }) => {
   const { t } = useTranslation();
-  const { currentModel, embeddingModels, isChatServerOnline } = useContext(ModelContext)!;
+  const { currentModel, embeddingModels, isServerOnline } = useContext(ModelContext)!;
   const { setIsGenerateModalOpen, setIsRagModalOpen } = useContext(ModalContext)!;
   const { selectedRagModel } = useContext(RagContext)!;
   const { isTtsEnabled, setIsTtsEnabled, isSpeaking, cancel } = useTts();
@@ -44,14 +44,14 @@ export const QuestionActions: React.FC<QuestionActionsProps> = ({ image, visible
         <ActionIcon
           onClick={() => setIsGenerateModalOpen(true)}
           title={t('actions.generate_image_title')}
-          disabled={!isChatServerOnline}>
+          disabled={!isServerOnline}>
           <GenerateImageSVG />
         </ActionIcon>
 
         <ActionIcon
           onClick={() => setIsRagModalOpen(true)}
           title={t('actions.rag_settings_title')}
-          disabled={!(isChatServerOnline && embeddingModels.length)}>
+          disabled={!(isServerOnline && embeddingModels.length)}>
           <Database color={selectedRagModel ? 'var(--maincolor)' : 'currentColor'} />
         </ActionIcon>
 

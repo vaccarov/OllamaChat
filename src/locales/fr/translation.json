@@ -1,46 +1,46 @@
 {
   "app": {
-    "title": "Ollama Chat"
+    "title": "AnswR Chat"
   },
   "common": {
     "app_language": "Langue de l'application",
-    "speech_language": "Langue de la transcription vocale",
+    "speech_language": "Langue de lecture",
     "settings": "Paramètres",
     "hide": "Masquer",
     "reasoning": "Raisonnement"
   },
   "chat": {
-    "placeholder": "Écrivez votre message ici...",
+    "placeholder": "Tapez votre message ici...",
     "send": "Envoyer",
-    "new": "Nouveau Chat",
-    "name": "Nom du Chat",
+    "new": "Nouvelle Discussion",
+    "name": "Nom de la discussion",
     "rename": "Renommer",
     "duplicate": "Dupliquer",
     "delete": "Supprimer",
-    "export": "Exporter les sessions",
-    "import": "Importer les sessions",
-    "name_prompt": "Entrez le nouveau nom du chat :",
-    "new_chat_default_name": "Nouvelle Discussion",
+    "export": "Exporter les discussions",
+    "import": "Importer des discussions",
+    "name_prompt": "Entrez le nouveau nom de la discussion :",
+    "new_chat_default_name": "Nouvelle discussion",
     "history": {
-      "invalid_format": "Fichier d'historique de chat invalide. Veuillez sélectionner un fichier JSON valide.",
-      "parsing_error": "Erreur lors de l'importation de l'historique de chat. Veuillez vous assurer que le fichier est un JSON valide.",
-      "filename": "chat_history.json"
+      "invalid_format": "Fichier d'historique invalide. Veuillez sélectionner un fichier JSON valide.",
+      "parsing_error": "Erreur lors de l'importation de l'historique. Assurez-vous que le fichier est un JSON valide.",
+      "filename": "historique_chat.json"
     },
     "copy_suffix": " (copie)",
     "empty_chat_invitation": "Posez votre première question pour commencer la discussion.",
-    "no_models_setup_message": "Aucun modèle n'est configuré. Veuillez définir votre serveur Ollama dans les paramètres, et sélectionnez un modèle"
+    "no_models_setup_message": "Aucun modèle n'est configuré. Veuillez définir votre serveur LLM dans les paramètres, et sélectionnez un modèle"
   },
   "system_prompt": {
     "title": "Prompt Système",
-    "list": "Liste de prompts",
-    "select": "Selectionner le prompt"
+    "list": "Liste des prompts",
+    "select": "Sélectionner un prompt"
   },
   "model": {
-    "select": "Sélectionner le Modèle",
+    "select": "Sélectionner un modèle",
     "changed": "Modèle changé pour {{selectedModel}}",
     "capabilities": {
       "images": "Peut analyser des images",
-      "thinking": "Peut montrer son processus de raisonnement",
+      "thinking": "Peut afficher son raisonnement",
       "insert": "Peut compléter du code partiel",
       "embedding": "Peut être utilisé pour les embeddings"
     }
@@ -53,26 +53,22 @@
     "start_recording": "Démarrer l'enregistrement"
   },
   "errors": {
-    "prefix": "Erreur: ",
+    "prefix": "Erreur : ",
     "unknown": "Une erreur inconnue est survenue.",
     "request_aborted": "La requête a été annulée.",
     "fetching_models": "Erreur lors de la récupération des modèles",
-    "server": "Erreur du serveur:",
-    "transcription_code": "Erreur de transcription (code: {{code}})",
-    "sending_audio": "Erreur lors de l'envoi de l'audio:",
-    "contacting_transcription_server": "Erreur: Impossible de contacter le serveur de transcription.",
-    "microphone_access": "Impossible d'accéder au microphone:",
-    "microphone_required": "L'accès au microphone est nécessaire pour l'enregistrement. Veuillez autoriser l'accès dans les paramètres de votre navigateur.",
-    "use_ollama_error": "useOllama must be used within an OllamaProvider"
-  },
-  "ollama_server": {
-    "url": "URL du serveur Ollama",
-    "placeholder": "ex: http://localhost:11434"
+    "server": "Erreur serveur :",
+    "transcription_code": "Erreur de transcription (code : {{code}})",
+    "sending_audio": "Erreur lors de l'envoi de l'audio :",
+    "contacting_transcription_server": "Erreur : Impossible de contacter le serveur de transcription.",
+    "microphone_access": "Impossible d'accéder au microphone :",
+    "microphone_required": "L'accès au microphone est requis pour l'enregistrement. Veuillez autoriser l'accès dans les paramètres de votre navigateur.",
+    "llm_server_not_available": "Erreur : Serveur LLM indisponible."
   },
   "settings": {
     "title": "Paramètres",
-    "ollama_url": "URL du serveur Ollama",
-    "server_url": "URL de ChatServer (optionnel)",
+    "llm_url": "URL du serveur LLM (Ollama/LM Studio)",
+    "server_url": "URL du Backend (optionnel)",
     "tabs": {
       "servers": "Serveurs",
       "language": "Langue",
@@ -80,50 +76,50 @@
     },
     "urls": {
       "title": "Comment configurer les URLs",
-      "intro1": "Utiliser un serveur <1>localhost</1> ne fonctionne que localement. C'est une mesure de sécurité des navigateurs modernes, les pages <2>HTTPS</2> ne peuvent pas requêter des URLs <3>HTTP</3>.",
-      "intro2": "Pour l'utiliser depuis l'URL Vercel, vous avez 2 solutions :",
-      "solution1": "Utilisez l'URL de votre serveur public Ollama (et/ou de transcription) en <1>HTTPS</1>",
-      "solution2": "Transformez votre <1>localhost</1> en une URL <2>HTTPS</2> (suivez les étapes ci-dessous).",
+      "intro1": "L'utilisation du serveur <1>localhost</1> ne peut fonctionner que localement. C'est une mesure de sécurité des navigateurs modernes, les pages <2>HTTPS</2> ne peuvent pas requêter des URLs <3>HTTP</3>.",
+      "intro2": "Pour pouvoir l'utiliser depuis l'URL Vercel, vous avez 2 solutions :",
+      "solution1": "Utilisez l'URL de votre serveur public LLM (et/ou de backend) en <1>HTTPS</1>",
+      "solution2": "Passez votre <1>localhost</1> en une URL <2>HTTPS</2> (suivez les étapes ci-dessous).",
       "step1Title": "Étape 1 : Obtenez une URL réseau pour votre serveur",
       "step1Text": "Utilisez un VPN privé gratuit comme <1>Tailscale</1> pour créer une URL <2>HTTPS</2> (ex: <3>https://VOTRE_URL_PRIVEE.ts.net</3>)",
       "step2Title": "Étape 2 : Configurez le reverse proxy",
       "step2Text": "Utilisez un reverse proxy comme <1>Caddy</1>. Créez un fichier <2>Caddyfile</2>, voici un exemple de configuration :",
-      "step2Subtext": "Allez dans le dossier du <1>Caddyfile</1> et exécutez <2>caddy run</2>",
+      "step2Subtext": "Allez dans le dossier du <1>Caddyfile</1> et lancez <2>caddy run</2>",
       "step3Title": "Étape 3 : Configurez Ollama pour accepter les connexions distantes",
       "step3Text": "Par défaut, Ollama n'écoute que les requêtes sur <1>localhost</1>. Vous devez configurer 2 variables.",
       "step3Link": "Comment configurer les variables .env d'Ollama ?",
       "step3Var1": "Définissez <1>OLLAMA_HOST=0.0.0.0</1> OU, dans les paramètres d'Ollama, cochez <2>Expose Ollama to the network</2>",
       "step3Var2": "Définissez <1>OLLAMA_ORIGINS='{{url}}'</1> pour accepter les requêtes de cette URL afin d'éviter les erreurs CORS.",
-      "step4Title": "Étape 4 : Utilisez vos URLs <1>HTTPS</1> locales dans les champs ci-dessus",
+      "step4Title": "Étape 4 : Utilisez vos URLs locales <1>HTTPS</1> dans les champs ci-dessus",
       "step4Url1": "<1>https://VOTRE_URL_PRIVEE.ts.net/ollama</1> → redirige vers <2>localhost:11434</2>",
       "step4Url2": "<1>https://VOTRE_URL_PRIVEE.ts.net/server</1> → redirige vers <2>localhost:8000</2>"
     }
   },
   "image_generation": {
     "title": "Générer une image",
-    "prompt_tooltip": "Le prompt textuel principal pour guider la génération de l'image.",
+    "prompt_tooltip": "Le prompt textuel principal pour guider la génération d'image.",
     "prompt_placeholder": "Prompt",
     "negative_prompt_placeholder": "Prompt négatif",
-    "negative_prompt_tooltip": "Prompt textuel pour éloigner la génération de l'image de concepts spécifiés.",
+    "negative_prompt_tooltip": "Prompt textuel pour guider la génération d'image à l'écart de certains concepts.",
     "model_placeholder": "Modèle",
-    "use_refiner": "Utiliser le raffineur",
-    "model_tooltip": "Sélectionnez le modèle de génération d'images à utiliser, et si vous souhaitez utiliser un modèle de raffinement pour améliorer la qualité de l'image générée (uniquement disponible pour SDXL).",
+    "use_refiner": "Utiliser le Refiner",
+    "model_tooltip": "Sélectionnez le modèle de génération d'image à utiliser, et si vous souhaitez utiliser un modèle de raffinement pour améliorer la qualité de l'image générée (uniquement disponible pour SDXL).",
     "steps": "Étapes",
-    "steps_tooltip": "Nombre d'étapes de diffusion. Des valeurs plus élevées donnent généralement une meilleure qualité mais prennent plus de temps.",
+    "steps_tooltip": "Nombre d'étapes de diffusion. Des valeurs plus élevées conduisent généralement à une meilleure qualité mais prennent plus de temps.",
     "images": "Images",
-    "images_tooltip": "Nombre d'images à générer par prompt. Limité à 1 pour l'image-à-image.",
+    "images_tooltip": "Nombre d'images à générer par prompt. Limité à 1 pour l'image-to-image.",
     "set_image_placeholder": "Définir une image à modifier",
-    "set_image_tooltip": "Téléchargez une image à utiliser comme base pour la génération d'image-à-image.",
+    "set_image_tooltip": "Téléchargez une image à utiliser comme base pour la génération d'image à image.",
     "guidance_scale": "Échelle de guidage",
-    "guidance_scale_tooltip": "Contrôle à quel point la génération de l'image adhère au prompt. Des valeurs plus élevées signifient plus d'adhérence.",
-    "denoising": "Débruitage",
+    "guidance_scale_tooltip": "Contrôle la force avec laquelle la génération d'image adhère au prompt. Des valeurs plus élevées signifient plus d'adhérence.",
+    "denoising": "Denoising",
     "denoising_tooltip": "Contrôle la quantité de bruit ajoutée à l'image d'entrée. Des valeurs plus élevées signifient plus de créativité mais moins de ressemblance avec l'original.",
     "strength": "Force",
-    "strength_tooltip": "Contrôle à quel point l'image générée ressemble à l'image d'entrée. Uniquement pour l'image-à-image.",
-    "export_config": "Exporter la configuration",
-    "import_config": "Importer la configuration",
-    "show_less_options": "Afficher moins d'options",
-    "show_more_options": "Afficher plus d'options",
+    "strength_tooltip": "Contrôle à quel point l'image générée ressemble à l'image d'entrée. Uniquement pour l'image-to-image.",
+    "export_config": "Exporter config",
+    "import_config": "Importer config",
+    "show_less_options": "Moins d'options",
+    "show_more_options": "Plus d'options",
     "generate": "Générer",
     "starting_generation": "Démarrage de la génération...",
     "step_progress": "Étape {{step}}/{{total_steps}}",
@@ -139,9 +135,9 @@
   },
   "actions": {
     "generate_image_title": "Générer une image",
-    "upload_documents_title": "Téléverser des documents",
+    "upload_documents_title": "Charger des documents",
     "rag_settings_title": "Paramètres RAG",
-    "think_title": "Activer/Désactiver le processus de réflexion",
+    "think_title": "Afficher le raisonnement",
     "image_picker_title": "Choisir une image"
   },
   "modals": {
@@ -152,7 +148,7 @@
       "pick_model_placeholder": "Choisir un modèle",
       "documents_in_collection_label": "Documents dans la collection :",
       "no_documents_found": "Aucun document trouvé pour ce chat.",
-      "select_files_placeholder": "Sélectionner des fichiers à téléverser"
+      "select_files_placeholder": "Sélectionner des fichiers à charger"
     }
   }
 }

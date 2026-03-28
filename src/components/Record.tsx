@@ -15,7 +15,7 @@ export default function AudioRecorder({
 }): React.ReactElement {
   const { t } = useTranslation();
   const [recording, setRecording] = useState<boolean>(false);
-  const { currentModel, chatServerUrl, isChatServerOnline } = useContext(ModelContext)!;
+  const { currentModel, serverUrl, isServerOnline } = useContext(ModelContext)!;
   const { speechLang } = useContext(MessageContext)!;
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -40,7 +40,7 @@ export default function AudioRecorder({
         const audioBlob: Blob = new Blob(chunks, { type: 'audio/webm' });
         try {
           setLoading(true);
-          const { transcript }: { transcript: string } = await transcribe(audioBlob, speechLang, chatServerUrl);
+          const { transcript }: { transcript: string } = await transcribe(audioBlob, speechLang, serverUrl);
           onTranscript(transcript);
         } catch (error) {
           console.error(t('errors.sending_audio'), error);
@@ -78,7 +78,7 @@ export default function AudioRecorder({
   return (
     <ActionIcon
       onClick={handleRecordClick}
-      disabled={!currentModel?.model || !isChatServerOnline}
+      disabled={!currentModel?.model || !isServerOnline}
       title={recording ? t('audio.stop_recording') : t('audio.start_recording')}>
       {recording ? <MicOff color='red' /> : <Mic />}
     </ActionIcon>

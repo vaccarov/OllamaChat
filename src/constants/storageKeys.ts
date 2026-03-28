@@ -1,9 +1,11 @@
 export const STORAGE_KEYS = {
-  selectedModel: 'ollamachat_selectedModel',
-  showChatList: 'ollamachat_showChatList',
-  speechLang: 'ollamachat_speechLang',
-  ttsEnabled: 'ollamachat_tts-enabled',
-  chatHistory: 'ollamachat_chatHistory',
-  ollamaServerUrl: 'ollamachat_ollamaServerUrl',
-  chatServerUrl: 'ollamachat_chatServerUrl',
+  selectedModel: 'chat_selectedModel',
+  showChatList: 'chat_showChatList',
+  speechLang: 'chat_speechLang',
+  ttsEnabled: 'chat_tts_enabled',
+  chatHistory: 'chat_chatHistory',
+  chatServerUrl: 'chat_chatServerUrl',
+  serverUrl: 'chat_serverUrl',
+  chatServerUrlInput: 'chat_chatServerUrlInput',
+  serverUrlInput: 'chat_serverUrlInput',
 };

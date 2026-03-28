@@ -17,7 +17,7 @@ interface RagModalProps {
 export const RagModal: React.FC<RagModalProps> = ({ opened, onClose }) => {
   const { t } = useTranslation();
   const { selectedRagModel, setSelectedRagModel, ragDocuments, setRagDocuments, includeAllDocuments, setIncludeAllDocuments } = useContext(RagContext)!;
-  const { chatServerUrl, embeddingModels } = useContext(ModelContext)!;
+  const { serverUrl, embeddingModels } = useContext(ModelContext)!;
   const { activeSession }: MessageContextType = useContext(MessageContext)!;
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState<boolean>(false);
@@ -29,8 +29,8 @@ export const RagModal: React.FC<RagModalProps> = ({ opened, onClose }) => {
     setUploadError(null);
     try {
       const chatId: string | undefined = includeAllDocuments ? undefined : activeSession?.id;
-      await uploadDocuments(chatServerUrl, filesToUpload, selectedRagModel, chatId);
-      const docs: RagDocument[] = await listDocuments(chatServerUrl, selectedRagModel, chatId);
+      await uploadDocuments(serverUrl, filesToUpload, selectedRagModel, chatId);
+      const docs: RagDocument[] = await listDocuments(serverUrl, selectedRagModel, chatId);
       setRagDocuments(docs);
       setFilesToUpload([]);
     } catch (error) {

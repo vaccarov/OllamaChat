@@ -1,9 +1,8 @@
 import { CAPABILITIES } from '@/constants/capabilities';
 import { MessageContext } from '@/context/MessageContextDefinition';
 import { ModelContext } from '@/context/ModelContextDefinition';
-import { Capability, ChatRole, MessageContextType, ModelContextDefinition, OllamaModel } from '@/types';
+import { Capability, ChatRole, MessageContextType, ModelContextDefinition, LlmModel } from '@/types';
 import { ActionIcon, Select, Tooltip } from '@mantine/core';
-import { ShowResponse } from 'ollama/browser';
 import React, { useCallback, useContext, useMemo } from 'react';
 import { HelpCircle, RefreshCw } from 'react-feather';
 import { useTranslation } from 'react-i18next';
@@ -22,16 +21,18 @@ export const LLMPicker: React.FC = (): React.ReactElement => {
     }
   };
 
-  const getModelCapabilities = useCallback((m: ShowResponse): Capability[] => CAPABILITIES.filter((capability: Capability) => m.capabilities?.includes(capability.id)), []);
+  const getModelCapabilities = useCallback((m: LlmModel['show']): Capability[] => CAPABILITIES.filter((capability: Capability) => m.capabilities?.includes(capability.id)), []);
 
   const capabilitiesDescription: string = useMemo(() => CAPABILITIES.map((capability: Capability) => `${capability.icon}: ${t(capability.tooltipKey)}`).join('\n'), [t]);
 
   const selectData = useMemo(
     () =>
-      models.map((m: OllamaModel) => {
+      models.map((m: LlmModel) => {
         const capabilities: Capability[] = getModelCapabilities(m.show);
         const icons: string = capabilities.map((c: Capability) => c.icon).join(' ');
-        const label: string = `${m.name} (${(m.size / 1e9).toFixed(2)} GB)`;
+        const size = m.size_bytes || m.size;
+        const sizeGB = size ? (size / 1e9).toFixed(2) : '0.00';
+        const label: string = `${m.name || m.model} (${sizeGB} GB)`;
         return {
           value: m.model,
           label: icons ? `${icons} ${label}` : label,

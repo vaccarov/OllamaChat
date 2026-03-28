@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "Ollama Chat"
+    "title": "AnswR Chat"
   },
   "common": {
     "app_language": "Application language",
@@ -28,7 +28,7 @@
     },
     "copy_suffix": " (copy)",
     "empty_chat_invitation": "Ask your first question to start the discussion.",
-    "no_models_setup_message": "No models are configured. Please set up your Ollama server in the settings and select a model."
+    "no_models_setup_message": "No models are configured. Please set up your LLM server in the settings and select a model."
   },
   "system_prompt": {
     "title": "System Prompt",
@@ -63,16 +63,12 @@
     "contacting_transcription_server": "Error: Could not contact transcription server.",
     "microphone_access": "Could not access microphone:",
     "microphone_required": "Microphone access is required for recording. Please allow access in your browser settings.",
-    "use_ollama_error": "useOllama must be used within an OllamaProvider"
-  },
-  "ollama_server": {
-    "url": "Ollama Server URL",
-    "placeholder": "e.g. http://localhost:11434"
+    "llm_server_not_available": "Error: LLM server not available."
   },
   "settings": {
     "title": "Settings",
-    "ollama_url": "Ollama Server URL",
-    "server_url": "ChatServer URL (optionnal)",
+    "llm_url": "LLM Server URL (Ollama/LM Studio)",
+    "server_url": "Backend Server URL (optional)",
     "tabs": {
       "servers": "Servers",
       "language": "Language",
@@ -82,7 +78,7 @@
       "title": "How to configure the URLs",
       "intro1": "Using <1>localhost</1> server can only work locally. This is a security measure from modern browsers, <2>HTTPS</2> pages cannot request <3>HTTP</3> URLs.",
       "intro2": "In order to use it from the Vercel URL, you have 2 solutions:",
-      "solution1": "Use your public Ollama (and/or transcription) server URL using <1>HTTPS</1>",
+      "solution1": "Use your public LLM server (and/or backend) server URL using <1>HTTPS</1>",
       "solution2": "Set your <1>localhost</1> into an <2>HTTPS</2> URL (follow the steps below).",
       "step1Title": "Step 1: Get a network URL for your server",
       "step1Text": "Use a free private VPN like <1>Tailscale</1> to create an <2>HTTPS</2> URL (e.g. <3>https://YOUR_PRIVATE_URL.ts.net</3>)",
