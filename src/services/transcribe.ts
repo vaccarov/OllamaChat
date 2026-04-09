@@ -4,9 +4,9 @@ import { apiFetch } from '@/utils/api';
 
 export async function checkChatServer(serverUrl: string): Promise<{ success: boolean }> {
   try {
-    const response = await fetch(serverUrl);
+    const response: Response = await fetch(serverUrl);
     return { success: response.ok };
-  } catch (_error) {
+  } catch {
     return { success: false };
   }
 }

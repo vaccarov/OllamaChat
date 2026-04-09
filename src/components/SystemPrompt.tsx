@@ -2,7 +2,7 @@
 
 import { systemPromptPresets } from '@/constants/prompts';
 import { MessageContext } from '@/context/MessageContextDefinition';
-import { MessageContextType, PromptItem } from '@/types';
+import { MessageContextType } from '@/types';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ControlledTextarea } from './ControlledTextarea';

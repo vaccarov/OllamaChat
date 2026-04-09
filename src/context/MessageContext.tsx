@@ -249,19 +249,12 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
   );
 
   const sessionsInGroup: Record<string, ChatSession[]> = useMemo(() => {
-    return sortSessionsByDate(sessions).reduce(
-      (acc: Record<string, ChatSession[]>, session: ChatSession) => {
-        const lastMessage: ChatText | undefined = session.messages[session.messages.length - 1];
-        const lastMessageDate: Date = new Date(lastMessage?.date || '');
-        const formattedDate: string = new Intl.DateTimeFormat(i18n.language, {
-          dateStyle: 'long',
-        }).format(lastMessageDate);
-        if (!acc[formattedDate]) acc[formattedDate] = [];
-        acc[formattedDate].push(session);
-        return acc;
-      },
-      {} as Record<string, ChatSession[]>
-    );
+    const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(i18n.language, { dateStyle: 'long' });
+    return sortSessionsByDate(sessions).reduce((acc: Record<string, ChatSession[]>, s: ChatSession) => {
+      const date: string = formatter.format(new Date(s.messages[s.messages.length - 1]?.date || ''));
+      (acc[date] ||= []).push(s);
+      return acc;
+    }, {});
   }, [sessions, i18n.language]);
 
   return (

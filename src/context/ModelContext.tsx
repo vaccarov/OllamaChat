@@ -13,7 +13,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 const normalizeUrl = (url: string): string => {
   if (!url) return '';
-  let normalized = url.trim().replace(/\/$/, '');
+  const normalized = url.trim().replace(/\/$/, '');
   return `${normalized}/`;
 };
 
@@ -37,17 +37,12 @@ export const ModelProvider = ({ children }: { children: React.ReactNode }): Reac
   const [serverStatus, setServerStatus] = useState<ApiStatus>(ApiStatus.UNKNOWN);
   const isServerOnline: boolean = useMemo(() => serverStatus === ApiStatus.VALID, [serverStatus]);
 
-  useEffect(() => {
-    if (URL_REGEX.test(chatServerUrlInput)) {
-      setChatServerUrl(normalizeUrl(chatServerUrlInput));
-    }
-  }, [chatServerUrlInput, setChatServerUrl]);
+  const syncUrl = useCallback((input: string, setUrl: (u: string) => void) => {
+    if (URL_REGEX.test(input)) setUrl(normalizeUrl(input));
+  }, []);
 
-  useEffect(() => {
-    if (URL_REGEX.test(serverUrlInput)) {
-      setServerUrl(normalizeUrl(serverUrlInput));
-    }
-  }, [serverUrlInput, setServerUrl]);
+  useEffect(() => syncUrl(chatServerUrlInput, setChatServerUrl), [chatServerUrlInput, setChatServerUrl, syncUrl]);
+  useEffect(() => syncUrl(serverUrlInput, setServerUrl), [serverUrlInput, setServerUrl, syncUrl]);
 
   const refreshModels = useCallback(async (): Promise<void> => {
     if (!chatServerUrl) {
@@ -57,20 +52,12 @@ export const ModelProvider = ({ children }: { children: React.ReactNode }): Reac
     }
 
     setChatServerStatus(ApiStatus.CHECKING);
-    const result = await listModels(chatServerUrl);
-    if (result.models.length > 0) {
+    const { models: fetched, type } = await listModels(chatServerUrl);
+    if (fetched.length > 0) {
       setChatServerStatus(ApiStatus.VALID);
-      setServerType(result.type);
-      const fetchedModels = result.models;
-      setEmbeddingModels(
-        fetchedModels
-          .filter((m: LlmModel) => m.show.capabilities?.includes('embedding'))
-          .map((m: LlmModel) => ({
-            value: m.model,
-            label: m.model,
-          }))
-      );
-      setModels(fetchedModels.filter((m: LlmModel) => !m.show.capabilities?.includes('embedding')));
+      setServerType(type);
+      setEmbeddingModels(fetched.filter((m: LlmModel) => m.show.capabilities?.includes('embedding')).map((m: LlmModel) => ({ value: m.model, label: m.model })));
+      setModels(fetched.filter((m: LlmModel) => !m.show.capabilities?.includes('embedding')));
     } else {
       setChatServerStatus(ApiStatus.INVALID);
       setModels([]);
@@ -78,22 +65,17 @@ export const ModelProvider = ({ children }: { children: React.ReactNode }): Reac
   }, [chatServerUrl]);
 
   useEffect(() => {
-    const handler: NodeJS.Timeout = setTimeout(() => {
-      refreshModels();
-    }, DEBOUNCE_SERVER_URL_MS);
-    return () => clearTimeout(handler);
+    const t: NodeJS.Timeout = setTimeout(refreshModels, DEBOUNCE_SERVER_URL_MS);
+    return () => clearTimeout(t);
   }, [refreshModels]);
 
   useEffect(() => {
-    if (serverUrl) {
-      setServerStatus(ApiStatus.CHECKING);
-      const handler: NodeJS.Timeout = setTimeout(() => {
-        checkChatServer(serverUrl).then((result: { success: boolean }) => {
-          setServerStatus(result.success ? ApiStatus.VALID : ApiStatus.INVALID);
-        });
-      }, DEBOUNCE_SERVER_URL_MS);
-      return () => clearTimeout(handler);
-    }
+    if (!serverUrl) return;
+    setServerStatus(ApiStatus.CHECKING);
+    const t: NodeJS.Timeout = setTimeout(() => {
+      checkChatServer(serverUrl).then((r: { success: boolean }) => setServerStatus(r.success ? ApiStatus.VALID : ApiStatus.INVALID));
+    }, DEBOUNCE_SERVER_URL_MS);
+    return () => clearTimeout(t);
   }, [serverUrl]);
 
   useEffect(() => {

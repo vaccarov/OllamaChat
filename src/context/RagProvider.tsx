@@ -18,14 +18,12 @@ export const RagProvider: React.FC<RagProviderProps> = ({ children }) => {
   const { activeSession }: MessageContextType = useContext(MessageContext)!;
 
   useEffect(() => {
-    if (selectedRagModel) {
-      const chatId: string | undefined = includeAllDocuments ? undefined : activeSession?.id;
-      listDocuments(chatServerUrl, selectedRagModel, chatId)
+    const chatId: string | undefined = includeAllDocuments ? undefined : activeSession?.id;
+    selectedRagModel 
+      ? listDocuments(chatServerUrl, selectedRagModel, chatId)
         .then(setRagDocuments)
-        .catch((_) => setRagDocuments([]));
-    } else {
-      setRagDocuments([]);
-    }
+        .catch(() => setRagDocuments([]))
+      : setRagDocuments([]);
   }, [chatServerUrl, selectedRagModel, activeSession?.id, includeAllDocuments]);
 
   const contextValue: RagContextDefinition = useMemo(
