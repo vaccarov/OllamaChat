@@ -14,7 +14,6 @@ import type { Message } from '@/types';
 import { ChatRole } from '@/types/ChatRoleDefinition';
 import type { RagChatResponse } from '@/types/document';
 import type { ImageToSend } from '@/types/ImageToSend';
-import type { MessageContextType } from '@/types/MessageContextDefinition';
 import { mapIsoToBcp47 } from '@/utils/tools';
 import './Question.css';
 import { QuestionActions } from './QuestionActions';
@@ -22,22 +21,23 @@ import { QuestionInput } from './QuestionInput';
 
 export const Question: React.FC = (): ReactElement | null => {
   const { t } = useTranslation();
-  const { chatServerUrl, serverUrl, serverType, currentModel } = useContext(ModelContext)!;
-  const {
-    conversation,
-    addMessage,
-    addChunk,
-    activeSession,
-    speechLang,
-    isThinkingEnabled,
-  }: MessageContextType = useContext(MessageContext)!;
-  const { includeAllDocuments, selectedRagModel } = useContext(RagContext)!;
+  const modelContext = useContext(ModelContext);
+  const messageContext = useContext(MessageContext);
+  const ragContext = useContext(RagContext);
+
   const [userPrompt, setUserPrompt] = useState<string>('');
   const [image, setImage] = useState<ImageToSend | undefined>();
   const [loading, setLoading] = useState<boolean>(false);
   const [actionsVisible, setActionsVisible] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const { speak, cancel } = useTts();
+
+  if (!modelContext || !messageContext || !ragContext) return null;
+
+  const { chatServerUrl, serverUrl, serverType, currentModel } = modelContext;
+  const { conversation, addMessage, addChunk, activeSession, speechLang, isThinkingEnabled } =
+    messageContext;
+  const { includeAllDocuments, selectedRagModel } = ragContext;
 
   const stopRequest = (): void => {
     if (abortControllerRef.current) {
@@ -99,7 +99,7 @@ export const Question: React.FC = (): ReactElement | null => {
       chatServerUrl,
       serverType,
       {
-        model: currentModel!.model,
+        model: currentModel?.model || '',
         messages: messagesForApi,
       },
       {

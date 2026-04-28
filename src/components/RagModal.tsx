@@ -16,7 +16,6 @@ import { MessageContext } from '@/context/MessageContextDefinition';
 import { ModelContext } from '@/context/ModelContextDefinition';
 import { RagContext } from '@/context/RagContextDefinition';
 import { listDocuments, uploadDocuments } from '@/services/document';
-import type { MessageContextType } from '@/types';
 import type { RagDocument } from '@/types/document';
 
 interface RagModalProps {
@@ -26,6 +25,16 @@ interface RagModalProps {
 
 export const RagModal: React.FC<RagModalProps> = ({ opened, onClose }) => {
   const { t } = useTranslation();
+  const ragContext = useContext(RagContext);
+  const modelContext = useContext(ModelContext);
+  const messageContext = useContext(MessageContext);
+
+  const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  if (!ragContext || !modelContext || !messageContext) return null;
+
   const {
     selectedRagModel,
     setSelectedRagModel,
@@ -33,12 +42,10 @@ export const RagModal: React.FC<RagModalProps> = ({ opened, onClose }) => {
     setRagDocuments,
     includeAllDocuments,
     setIncludeAllDocuments,
-  } = useContext(RagContext)!;
-  const { serverUrl, embeddingModels } = useContext(ModelContext)!;
-  const { activeSession }: MessageContextType = useContext(MessageContext)!;
-  const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
-  const [isUploading, setIsUploading] = useState<boolean>(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
+  } = ragContext;
+
+  const { serverUrl, embeddingModels } = modelContext;
+  const { activeSession } = messageContext;
 
   const handleUpload = async () => {
     if (filesToUpload.length === 0 || !selectedRagModel) return;

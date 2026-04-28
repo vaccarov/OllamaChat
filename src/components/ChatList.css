@@ -25,18 +25,25 @@
 .chatListItem {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   margin: 0.5rem 0;
-  padding: 0.8rem;
   cursor: pointer;
 
   .conversationLink {
+    flex: 1;
     overflow: hidden;
-    text-overflow: ellipsis;
+    padding: 0.8rem;
+    text-align: left;
+
+    & > div {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 
   .moreVerticals {
     visibility: hidden;
+    margin-right: 0.8rem;
   }
 
   &:hover {

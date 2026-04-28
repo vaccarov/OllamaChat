@@ -12,12 +12,16 @@ interface ChatRenameModalProps {
 
 export const ChatRenameModal = ({ opened, onClose, session }: ChatRenameModalProps) => {
   const { t } = useTranslation();
-  const { renameSession, startNewSession } = useContext(MessageContext)!;
+  const messageContext = useContext(MessageContext);
   const [name, setName] = useState<string>('');
 
   useEffect(() => {
     if (opened) setName(session?.name || '');
   }, [opened, session]);
+
+  if (!messageContext) return null;
+
+  const { renameSession, startNewSession } = messageContext;
 
   const handleSubmit = (): void => {
     if (name) {

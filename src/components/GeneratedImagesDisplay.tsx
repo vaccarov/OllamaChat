@@ -25,11 +25,26 @@ const GeneratedImagesDisplay = memo(({ images }: { images: string[] }) => {
       direction='row'
       wrap='wrap'>
       {images.map((src: string, index: number) => (
-        <div
-          key={index}
+        <button
+          type='button'
+          key={src}
+          className='imageItem'
           onMouseEnter={() => setHovered(index)}
           onMouseLeave={() => setHovered(null)}
-          style={{ position: 'relative' }}>
+          onFocus={() => setHovered(index)}
+          onBlur={() => setHovered(null)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              handleImageDownload(src, index + 1);
+            }
+          }}
+          style={{
+            position: 'relative',
+            border: 'none',
+            background: 'none',
+            padding: 0,
+            cursor: 'pointer',
+          }}>
           <MantineImage
             src={src}
             alt={t('image_generation.generated_image_alt', {
@@ -43,12 +58,14 @@ const GeneratedImagesDisplay = memo(({ images }: { images: string[] }) => {
               backgroundOpacity={0.5}
               center
               radius='lg'>
-              <ActionIcon onClick={() => handleImageDownload(src, index + 1)}>
+              <ActionIcon
+                onClick={() => handleImageDownload(src, index + 1)}
+                aria-label={t('common.download')}>
                 <Download />
               </ActionIcon>
             </Overlay>
           )}
-        </div>
+        </button>
       ))}
     </Flex>
   );

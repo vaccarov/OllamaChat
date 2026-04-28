@@ -18,7 +18,7 @@ import { sortSessionsByDate } from '@/utils/tools';
 
 export const MessageProvider = ({ children }: { children: React.ReactNode }): React.JSX.Element => {
   const { t, i18n } = useTranslation();
-  const { currentModel, setModel } = React.useContext(ModelContext)!;
+  const modelContext = React.useContext(ModelContext);
   const [history, setHistory] = usePersistentState<ChatHistory>(STORAGE_KEYS.chatHistory, {
     sessions: [],
     activeSessionId: '',
@@ -37,7 +37,9 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
     (model: string = '', name: string = t('chat.new_chat_default_name')): ChatSession => ({
       id: uuidv4(),
       name,
-      messages: [{ role: ChatRole.system, content: '', date: new Date().toISOString() }],
+      messages: [
+        { id: uuidv4(), role: ChatRole.system, content: '', date: new Date().toISOString() },
+      ],
       systemPrompt: '',
       model,
     }),
@@ -90,10 +92,10 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
   );
 
   useEffect(() => {
-    if (activeSession && activeSession.model !== currentModel?.model) {
-      setModel(activeSession.model);
+    if (activeSession && modelContext && activeSession.model !== modelContext.currentModel?.model) {
+      modelContext.setModel(activeSession.model);
     }
-  }, [activeSession, currentModel, setModel]);
+  }, [activeSession, modelContext]);
 
   useEffect(() => {
     if (activeSession) {
@@ -113,6 +115,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
   const addMessage = useCallback(
     (role: ChatRole, content: string, image?: ImageToSend, sessionId?: string): void => {
       const newMsg: ChatText = {
+        id: uuidv4(),
         role,
         content,
         date: new Date().toISOString(),
@@ -154,6 +157,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
 
         messages[messages.length - 1] = {
           ...lastMessage,
+          id: lastMessage?.id ?? uuidv4(),
           role: lastMessage?.role ?? ChatRole.assistant,
           content: newContent,
           thinking: newThinking,
@@ -167,11 +171,14 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
 
   const startNewSession = useCallback(
     (name: string): void => {
-      const newSession: ChatSession = createNewSession(currentModel?.model || '', name);
+      const newSession: ChatSession = createNewSession(
+        modelContext?.currentModel?.model || '',
+        name
+      );
       setSessions((prevSessions: ChatSession[]) => [...prevSessions, newSession]);
       setActiveSessionId(newSession.id);
     },
-    [createNewSession, currentModel?.model, setActiveSessionId, setSessions]
+    [createNewSession, modelContext?.currentModel?.model, setActiveSessionId, setSessions]
   );
 
   const updateSystemPrompt = useCallback(
@@ -209,19 +216,19 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
         );
         if (remainingSessions.length === 0) {
           const newSession: ChatSession = createNewSession(
-            currentModel?.model || '',
+            modelContext?.currentModel?.model || '',
             t('chat.new_chat_default_name')
           );
           return { sessions: [newSession], activeSessionId: newSession.id };
         }
         const newActiveId: string | null =
           prev.activeSessionId === id
-            ? sortSessionsByDate(remainingSessions)[0]!.id
+            ? sortSessionsByDate(remainingSessions)[0]?.id
             : prev.activeSessionId;
         return { sessions: remainingSessions, activeSessionId: newActiveId };
       });
     },
-    [createNewSession, currentModel?.model, t, setHistory]
+    [createNewSession, modelContext?.currentModel?.model, t, setHistory]
   );
 
   const duplicateSession = useCallback(
@@ -270,9 +277,15 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
         ) {
           setHistory((prev: ChatHistory) => {
             const existingIds: Set<string> = new Set(prev.sessions.map((s: ChatSession) => s.id));
-            const newSessions: ChatSession[] = importedHistory.sessions.filter(
-              (s: ChatSession) => !existingIds.has(s.id)
-            );
+            const newSessions: ChatSession[] = importedHistory.sessions
+              .filter((s: ChatSession) => !existingIds.has(s.id))
+              .map((s: ChatSession) => ({
+                ...s,
+                messages: s.messages.map((m: ChatText) => ({
+                  ...m,
+                  id: m.id || uuidv4(),
+                })),
+              }));
             return {
               ...prev,
               sessions: [...prev.sessions, ...newSessions],
@@ -300,7 +313,8 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
         const date: string = formatter.format(
           new Date(s.messages[s.messages.length - 1]?.date || '')
         );
-        (acc[date] ||= []).push(s);
+        if (!acc[date]) acc[date] = [];
+        acc[date].push(s);
         return acc;
       },
       {}

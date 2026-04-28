@@ -12,13 +12,18 @@ export default function AudioRecorder({
 }: {
   onTranscript: (text: string, error?: boolean) => void;
   setLoading: (loading: boolean) => void;
-}): React.ReactElement {
+}): React.ReactElement | null {
   const { t } = useTranslation();
   const [recording, setRecording] = useState<boolean>(false);
-  const { currentModel, serverUrl, isServerOnline } = useContext(ModelContext)!;
-  const { speechLang } = useContext(MessageContext)!;
+  const modelContext = useContext(ModelContext);
+  const messageContext = useContext(MessageContext);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+
+  if (!modelContext || !messageContext) return null;
+
+  const { currentModel, serverUrl, isServerOnline } = modelContext;
+  const { speechLang } = messageContext;
 
   const startRecording = async (): Promise<void> => {
     try {
@@ -65,7 +70,9 @@ export default function AudioRecorder({
       mediaRecorderRef.current.stop();
     }
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track: MediaStreamTrack) => track.stop());
+      streamRef.current.getTracks().forEach((track: MediaStreamTrack) => {
+        track.stop();
+      });
       streamRef.current = null;
     }
     setRecording(false);

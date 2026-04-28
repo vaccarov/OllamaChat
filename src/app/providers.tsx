@@ -10,14 +10,16 @@ import { MantineProvider } from '@mantine/core';
 import type React from 'react';
 import { useEffect, useState } from 'react';
 
-export const AppProviders = ({ children }: { children: React.ReactNode }): React.JSX.Element => {
+export const AppProviders = ({
+  children,
+}: {
+  children: React.ReactNode;
+}): React.JSX.Element | null => {
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
   useEffect(() => setIsLoaded(true), []);
 
-  return !isLoaded ? (
-    <></>
-  ) : (
+  return !isLoaded ? null : (
     <MantineProvider
       defaultColorScheme='dark'
       theme={theme}>

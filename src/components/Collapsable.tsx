@@ -1,3 +1,4 @@
+import { UnstyledButton } from '@mantine/core';
 import type React from 'react';
 import { ChevronDown, ChevronUp } from 'react-feather';
 import { useTranslation } from 'react-i18next';
@@ -10,17 +11,16 @@ interface CollapsibleProps {
 }
 
 export function Collapsible({ children, isOpen, onToggle }: CollapsibleProps): React.ReactElement {
-  console.log('OOO Collapsible');
   const { t } = useTranslation();
 
   return (
     <div className='thinkTag'>
-      <div
+      <UnstyledButton
         className='thinkButton'
         onClick={onToggle}>
         {isOpen ? t('common.hide') : t('common.reasoning')}
         {isOpen ? <ChevronUp /> : <ChevronDown />}
-      </div>
+      </UnstyledButton>
       {isOpen && <div className='thinkContent'>{children}</div>}
     </div>
   );

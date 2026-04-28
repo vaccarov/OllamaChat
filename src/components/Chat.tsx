@@ -6,17 +6,17 @@ import { useTranslation } from 'react-i18next';
 import ChatBubble from '@/components/ChatBubble';
 import { SCROLL_TOLERANCE } from '@/constants/list';
 import { MessageContext } from '@/context/MessageContextDefinition';
-import { ModalContext, type SettingsContextDefinition } from '@/context/ModalContextDefinition';
+import { ModalContext } from '@/context/ModalContextDefinition';
 import { ModelContext } from '@/context/ModelContextDefinition';
-import type { ChatSession, ModelContextDefinition } from '@/types';
 import type { ChatText } from '@/types/ChatText';
 import './Chat.css';
 
 export const Chat: React.FC = (): React.ReactElement | null => {
   const { t } = useTranslation();
-  const { activeSession }: { activeSession: ChatSession | undefined } = useContext(MessageContext)!;
-  const { models }: ModelContextDefinition = useContext(ModelContext)!;
-  const { setIsSettingsOpen }: SettingsContextDefinition = useContext(ModalContext)!;
+  const messageContext = useContext(MessageContext);
+  const modelContext = useContext(ModelContext);
+  const modalContext = useContext(ModalContext);
+
   const chatRef: React.RefObject<HTMLDivElement | null> = useRef<HTMLDivElement>(null);
   const [isAtBottom, setIsAtBottom] = useState<boolean>(true);
   const [showTopArrow, setShowTopArrow] = useState<boolean>(false);
@@ -42,13 +42,19 @@ export const Chat: React.FC = (): React.ReactElement | null => {
     el.addEventListener('scroll', handleScroll);
     handleScroll();
     return () => el.removeEventListener('scroll', handleScroll);
-  }, [activeSession?.id]);
+  }, []);
 
   useEffect(() => {
     if (isAtBottom) scrollToBottom();
-  }, [activeSession?.messages, isAtBottom, scrollToBottom]);
+  }, [isAtBottom, scrollToBottom]);
 
-  useEffect(() => scrollToBottom(), [activeSession?.id, scrollToBottom]);
+  useEffect(() => scrollToBottom(), [scrollToBottom]);
+
+  if (!messageContext || !modelContext || !modalContext) return null;
+
+  const { activeSession } = messageContext;
+  const { models } = modelContext;
+  const { setIsSettingsOpen } = modalContext;
 
   return (
     <div className='chatContainer'>
@@ -70,10 +76,10 @@ export const Chat: React.FC = (): React.ReactElement | null => {
         className='chat'
         ref={chatRef}>
         {activeSession?.messages && activeSession.messages.length > 1 ? (
-          activeSession?.messages.slice(1).map((msg: ChatText, i: number) => (
+          activeSession?.messages.slice(1).map((msg: ChatText) => (
             <ChatBubble
               message={msg}
-              key={i}
+              key={msg.id}
             />
           ))
         ) : !models || models.length === 0 ? (

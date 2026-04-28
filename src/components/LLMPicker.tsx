@@ -6,28 +6,13 @@ import { useTranslation } from 'react-i18next';
 import { CAPABILITIES } from '@/constants/capabilities';
 import { MessageContext } from '@/context/MessageContextDefinition';
 import { ModelContext } from '@/context/ModelContextDefinition';
-import {
-  type Capability,
-  ChatRole,
-  type LlmModel,
-  type MessageContextType,
-  type ModelContextDefinition,
-} from '@/types';
+import { type Capability, ChatRole, type LlmModel } from '@/types';
 import './LLMPicker.css';
 
-export const LLMPicker: React.FC = (): React.ReactElement => {
+export const LLMPicker: React.FC = (): React.ReactElement | null => {
   const { t } = useTranslation();
-  const { setModel, models, currentModel, refreshModels }: ModelContextDefinition =
-    useContext(ModelContext)!;
-  const { updateModel, addMessage }: MessageContextType = useContext(MessageContext)!;
-
-  const handleModelChange = (selectedModel: string | null): void => {
-    if (selectedModel) {
-      setModel(selectedModel);
-      updateModel(selectedModel);
-      addMessage(ChatRole.custom, t('model.changed', { selectedModel }));
-    }
-  };
+  const modelContext = useContext(ModelContext);
+  const messageContext = useContext(MessageContext);
 
   const getModelCapabilities = useCallback(
     (m: LlmModel['show']): Capability[] =>
@@ -45,7 +30,7 @@ export const LLMPicker: React.FC = (): React.ReactElement => {
 
   const selectData = useMemo(
     () =>
-      models.map((m: LlmModel) => {
+      modelContext?.models.map((m: LlmModel) => {
         const capabilities: Capability[] = getModelCapabilities(m.show);
         const icons: string = capabilities.map((c: Capability) => c.icon).join(' ');
         const size = m.size_bytes || m.size;
@@ -56,9 +41,21 @@ export const LLMPicker: React.FC = (): React.ReactElement => {
           label: icons ? `${icons} ${label}` : label,
           description: m.details?.family,
         };
-      }),
-    [models, getModelCapabilities]
+      }) || [],
+    [modelContext?.models, getModelCapabilities]
   );
+
+  if (!modelContext || !messageContext) return null;
+
+  const { currentModel, refreshModels } = modelContext;
+
+  const handleModelChange = (selectedModel: string | null): void => {
+    if (selectedModel) {
+      modelContext.setModel(selectedModel);
+      messageContext.updateModel(selectedModel);
+      messageContext.addMessage(ChatRole.custom, t('model.changed', { selectedModel }));
+    }
+  };
 
   return (
     <div className='pickerContainer'>

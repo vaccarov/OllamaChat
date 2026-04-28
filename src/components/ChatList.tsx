@@ -1,26 +1,28 @@
-import { ActionIcon, Menu, Text } from '@mantine/core';
+import { ActionIcon, Menu, Text, UnstyledButton } from '@mantine/core';
 import { useContext, useState } from 'react';
 import { Copy, Edit, MoreVertical, Settings, Trash2 } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import { ChatRenameModal } from '@/components/ChatRenameModal';
 import { MessageContext } from '@/context/MessageContextDefinition';
-import { ModalContext, type SettingsContextDefinition } from '@/context/ModalContextDefinition';
+import { ModalContext } from '@/context/ModalContextDefinition';
 import { AddMessageSVG } from '@/lib/icons';
-import type { ChatSession, MessageContextType } from '@/types';
+import type { ChatSession } from '@/types';
 import './ChatList.css';
 
 export function ChatList({ show }: { show: boolean }): React.ReactElement | null {
   const { t } = useTranslation();
-  const {
-    activeSession,
-    sessionsInGroup,
-    setActiveSessionId,
-    deleteSession,
-    duplicateSession,
-  }: MessageContextType = useContext(MessageContext)!;
-  const { setIsSettingsOpen }: SettingsContextDefinition = useContext(ModalContext)!;
+  const messageContext = useContext(MessageContext);
+  const modalContext = useContext(ModalContext);
+
   const [renameModalOpen, setRenameModalOpen] = useState<boolean>(false);
   const [sessionToEdit, setSessionToEdit] = useState<ChatSession | null>(null);
+
+  if (!messageContext || !modalContext) return null;
+
+  const { activeSession, sessionsInGroup, setActiveSessionId, deleteSession, duplicateSession } =
+    messageContext;
+
+  const { setIsSettingsOpen } = modalContext;
 
   const handleRenameClick = (session: ChatSession | null): void => {
     setSessionToEdit(session);
@@ -60,14 +62,15 @@ export function ChatList({ show }: { show: boolean }): React.ReactElement | null
             {sessionsInGroup.map((session: ChatSession) => (
               <div
                 key={session.id}
-                className={`chatListItem ${session.id === activeSession?.id && 'active'}`}
-                onClick={() => setActiveSessionId(session.id)}>
-                <Text className='conversationLink'>{session.name}</Text>
+                className={`chatListItem ${session.id === activeSession?.id && 'active'}`}>
+                <UnstyledButton
+                  className='conversationLink'
+                  onClick={() => setActiveSessionId(session.id)}>
+                  <Text>{session.name}</Text>
+                </UnstyledButton>
                 <Menu width={200}>
                   <Menu.Target>
-                    <ActionIcon
-                      className='moreVerticals'
-                      onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                    <ActionIcon className='moreVerticals'>
                       <MoreVertical size={16} />
                     </ActionIcon>
                   </Menu.Target>

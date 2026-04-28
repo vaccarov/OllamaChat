@@ -67,9 +67,11 @@ export const ImageGenerationModal = ({
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [models, setModels] = useState<ComboboxData>([]);
   const [modelsLoading, setModelsLoading] = useState<boolean>(false);
-  const { serverUrl } = useContext(ModelContext)!;
+  const modelContext = useContext(ModelContext);
+
   const importFileInputRef: RefObject<HTMLInputElement | null> = useRef<HTMLInputElement>(null);
   const viewportRef: React.RefObject<HTMLDivElement | null> = useRef<HTMLDivElement>(null);
+
   const form = useForm<ImageGenerationFormValues>({
     initialValues: {
       prompt: '',
@@ -127,10 +129,10 @@ export const ImageGenerationModal = ({
   };
 
   useEffect(() => {
-    if (opened) {
+    if (opened && modelContext?.serverUrl) {
       const fetchModels = async () => {
         setModelsLoading(true);
-        const fetchedModels: ComboboxData = (await getImageModels(serverUrl)).map(
+        const fetchedModels: ComboboxData = (await getImageModels(modelContext.serverUrl)).map(
           (m: DiffusionModel) => ({
             value: m.name,
             label: m.fullname,
@@ -141,7 +143,7 @@ export const ImageGenerationModal = ({
       };
       fetchModels();
     }
-  }, [opened, serverUrl]);
+  }, [opened, modelContext?.serverUrl]);
 
   useEffect(() => {
     if (generatedImages.length > 0) {
@@ -189,7 +191,7 @@ export const ImageGenerationModal = ({
 
   const handleGenerate: (values: ImageGenerationFormValues) => Promise<void> = useCallback(
     async (values: ImageGenerationFormValues): Promise<void> => {
-      if (!form.isValid()) return;
+      if (!form.isValid() || !modelContext?.serverUrl) return;
       setLoading(true);
       setProgress(t('image_generation.starting_generation'));
       setError(null);
@@ -229,7 +231,7 @@ export const ImageGenerationModal = ({
       }
 
       try {
-        generateImage(serverUrl, formData, {
+        generateImage(modelContext.serverUrl, formData, {
           onProgress: (progressData: ImageGenerationProgress) => {
             const status: string = progressData.status;
             if (status === IMAGE_GEN_STATUS_PROGRESS) {
@@ -269,8 +271,10 @@ export const ImageGenerationModal = ({
         setError((err as Error).message);
       }
     },
-    [form, t, serverUrl]
+    [form, t, modelContext?.serverUrl]
   );
+
+  if (!modelContext) return null;
 
   return (
     <Modal.Root

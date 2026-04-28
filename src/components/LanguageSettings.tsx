@@ -3,12 +3,15 @@ import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { APP_LANGS, SPEECH_LANGS } from '@/constants/langs';
 import { MessageContext } from '@/context/MessageContextDefinition';
-import type { MessageContextType } from '@/types';
 import './SettingsModal.css';
 
 export const LanguageSettings = () => {
   const { i18n, t } = useTranslation();
-  const { speechLang, setSpeechLang }: MessageContextType = useContext(MessageContext)!;
+  const messageContext = useContext(MessageContext);
+
+  if (!messageContext) return null;
+
+  const { speechLang, setSpeechLang } = messageContext;
 
   const changeLanguage = (lang: string) => {
     i18n.changeLanguage(lang);

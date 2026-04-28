@@ -16,10 +16,23 @@ export function parseLlmChunk(
   if (!trimmed) return null;
 
   try {
-    const data: any = JSON.parse(trimmed.startsWith('data: ') ? trimmed.slice(6) : trimmed);
+    const data = JSON.parse(trimmed.startsWith('data: ') ? trimmed.slice(6) : trimmed) as {
+      message?: Message;
+      done?: boolean;
+      type?: string;
+      content?: string;
+      response_id?: string;
+      choices?: {
+        delta?: {
+          content?: string;
+          reasoning_content?: string;
+        };
+      }[];
+    };
     if (type === 'ollama') {
-      const msg: Message = data.message;
-      if (msg?.content?.includes('<think>')) {
+      const msg: Message | undefined = data.message;
+      if (!msg) return null;
+      if (msg.content?.includes('<think>')) {
         const match: RegExpMatchArray | null = msg.content.match(/<think>([\s\S]*?)<\/think>/);
         if (match)
           return {
@@ -31,7 +44,7 @@ export function parseLlmChunk(
             done: data.done,
           };
       }
-      return { message: data.message, done: data.done };
+      return { message: msg, done: data.done };
     }
     if (type === 'lmstudio') {
       if (data.type === 'message.delta' && data.content)
@@ -114,10 +127,15 @@ export async function listModels(
               method: 'POST',
               body: JSON.stringify({ name }),
             });
-            const show: any = await showRes.json();
+            const show = (await showRes.json()) as {
+              details?: { family: string; families?: string[] };
+              template?: string;
+              system?: string;
+              modality?: string[];
+            };
             const caps: string[] = ['chat'];
             if (
-              /clip/i.test(show.details?.family) ||
+              (show.details?.family && /clip/i.test(show.details.family)) ||
               show.details?.families?.some((f: string) => /clip/i.test(f))
             )
               caps.push('vision');
@@ -190,7 +208,7 @@ export function streamChat(
       };
       if (options?.apiKey) headers.Authorization = `Bearer ${options.apiKey}`;
       let url: string = `${baseUrl}chat`;
-      let req: any;
+      let req: Record<string, unknown>;
 
       if (type === 'ollama') {
         req = {
@@ -204,7 +222,7 @@ export function streamChat(
         const msgs: Message[] = body.messages.filter((m) => m.role !== 'system');
         const last: Message = msgs[msgs.length - 1];
         // LM Studio Stateful API (/api/v1/chat) expects 'content' and 'type: text|image'
-        let input: any = last.content;
+        let input: string | { type: string; content: string | undefined }[] = last.content || '';
         if (last.images?.length) {
           input = [
             { type: 'text', content: last.content },

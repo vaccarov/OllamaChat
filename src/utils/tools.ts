@@ -56,7 +56,7 @@ export const getVisualLineCount = (textarea: HTMLTextAreaElement, text: string):
     let currentLineText: string = '';
     const words: string[] = line.split(' ');
     for (let i: number = 0; i < words.length; i++) {
-      const word: string = words[i]!;
+      const word: string = words[i] as string;
       const testLine: string = currentLineText + (currentLineText ? ' ' : '') + word;
       const metrics: TextMetrics = context.measureText(testLine);
       if (metrics.width > textAreaWidth && currentLineText !== '') {

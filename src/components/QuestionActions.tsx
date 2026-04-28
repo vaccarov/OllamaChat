@@ -13,7 +13,6 @@ import { RagContext } from '@/context/RagContextDefinition';
 import { useTts } from '@/hooks/useTts';
 import { GenerateImageSVG, ThinkSVG } from '@/lib/icons';
 import type { ImageToSend } from '@/types/ImageToSend';
-import type { MessageContextType } from '@/types/MessageContextDefinition';
 
 interface QuestionActionsProps {
   image: ImageToSend | undefined;
@@ -31,12 +30,18 @@ export const QuestionActions: React.FC<QuestionActionsProps> = ({
   setLoading,
 }) => {
   const { t } = useTranslation();
-  const { currentModel, embeddingModels, isServerOnline } = useContext(ModelContext)!;
-  const { setIsGenerateModalOpen, setIsRagModalOpen } = useContext(ModalContext)!;
-  const { selectedRagModel } = useContext(RagContext)!;
+  const modelContext = useContext(ModelContext);
+  const modalContext = useContext(ModalContext);
+  const ragContext = useContext(RagContext);
+  const messageContext = useContext(MessageContext);
   const { isTtsEnabled, setIsTtsEnabled, isSpeaking, cancel } = useTts();
-  const { isThinkingEnabled, setIsThinkingEnabled }: MessageContextType =
-    useContext(MessageContext)!;
+
+  if (!modelContext || !modalContext || !ragContext || !messageContext) return null;
+
+  const { currentModel, embeddingModels, isServerOnline } = modelContext;
+  const { setIsGenerateModalOpen, setIsRagModalOpen } = modalContext;
+  const { selectedRagModel } = ragContext;
+  const { isThinkingEnabled, setIsThinkingEnabled } = messageContext;
 
   const handleTtsButtonClick = (): void => {
     setIsTtsEnabled(!isTtsEnabled);

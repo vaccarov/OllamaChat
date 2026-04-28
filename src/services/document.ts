@@ -8,7 +8,9 @@ export async function uploadDocuments(
   chatId?: string
 ): Promise<{ message: string }> {
   const formData: FormData = new FormData();
-  files.forEach((f: File) => formData.append('files', f));
+  files.forEach((f: File) => {
+    formData.append('files', f);
+  });
   formData.append('embedding_model', embeddingModel);
   if (chatId) formData.append('chat_id', chatId);
 

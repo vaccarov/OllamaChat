@@ -5,7 +5,7 @@ import { type Dispatch, type ReactElement, type SetStateAction, useContext, useS
 import { Loader, Play } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import { MessageContext } from '@/context/MessageContextDefinition';
-import { ChatRole, type Message, type MessageContextType } from '@/types';
+import { ChatRole, type Message } from '@/types';
 import { getLineNumber, getTotalLines } from '@/utils/tools';
 import { ControlledTextarea } from './ControlledTextarea';
 
@@ -25,9 +25,9 @@ export function QuestionInput({
   onStop,
   loading,
   disabled,
-}: QuestionInputProps): ReactElement {
+}: QuestionInputProps): ReactElement | null {
   const { t } = useTranslation();
-  const { conversation }: MessageContextType = useContext(MessageContext)!;
+  const messageContext = useContext(MessageContext);
   const [historyIndex, setHistoryIndex] = useState<number | null>(null);
   const [promptBeforeNav, setPromptBeforeNav] = useState<string | null>(null);
 
@@ -36,6 +36,10 @@ export function QuestionInput({
     setHistoryIndex(null);
     setPromptBeforeNav(null);
   };
+
+  if (!messageContext) return null;
+
+  const { conversation } = messageContext;
 
   const onArrowPressed = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const userMessages: Message[] =

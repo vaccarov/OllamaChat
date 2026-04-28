@@ -1,4 +1,4 @@
-import { Modal } from '@mantine/core';
+import { Image, Modal, UnstyledButton } from '@mantine/core';
 import { type ReactElement, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
@@ -16,18 +16,21 @@ export default function ChatBubble({ message }: { message: ChatText }): ReactEle
       title={message.date}>
       {message.image?.data.startsWith('data:image') && (
         <>
-          <img
-            src={message.image.data}
-            alt={message.image.name}
+          <UnstyledButton
             onClick={() => setIsModalOpen(true)}
-            className='imageBubble'
-          />
+            className='imageButton'>
+            <Image
+              src={message.image.data}
+              alt={message.image.name}
+              className='imageBubble'
+            />
+          </UnstyledButton>
           <Modal
             opened={isModalOpen}
             size='xl'
             onClose={() => setIsModalOpen(false)}
             title={message.image.name}>
-            <img
+            <Image
               src={message.image.data}
               alt={message.image.name}
               className='imageModal'

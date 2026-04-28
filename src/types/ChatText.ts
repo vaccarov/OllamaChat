@@ -9,6 +9,7 @@ export interface Message {
 }
 
 export interface ChatText {
+  id: string;
   role: ChatRole;
   content: string;
   thinking?: string;

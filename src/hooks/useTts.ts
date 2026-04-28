@@ -8,7 +8,7 @@ import { apiFetch } from '@/utils/api';
 import usePersistentState from './usePersistentState';
 
 export const useTts = (): UseTtsReturn => {
-  const { serverUrl } = useContext(ModelContext)!;
+  const modelContext = useContext(ModelContext);
   const [isTtsEnabled, setIsTtsEnabled] = usePersistentState<boolean>(
     STORAGE_KEYS.ttsEnabled,
     false
@@ -18,10 +18,10 @@ export const useTts = (): UseTtsReturn => {
 
   const speak = useCallback(
     async (text: string, _lang: string): Promise<void> => {
-      if (!isTtsEnabled || !serverUrl) return;
+      if (!isTtsEnabled || !modelContext?.serverUrl) return;
 
       try {
-        const blob = await apiFetch<Blob>(serverUrl, '/tts', {
+        const blob = await apiFetch<Blob>(modelContext.serverUrl, '/tts', {
           method: 'POST',
           body: JSON.stringify({ text }),
           responseType: 'blob',
@@ -52,7 +52,7 @@ export const useTts = (): UseTtsReturn => {
         setIsSpeaking(false);
       }
     },
-    [isTtsEnabled, serverUrl]
+    [isTtsEnabled, modelContext?.serverUrl]
   );
 
   const cancel = useCallback((): void => {

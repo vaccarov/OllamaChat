@@ -5,19 +5,22 @@ import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { systemPromptPresets } from '@/constants/prompts';
 import { MessageContext } from '@/context/MessageContextDefinition';
-import type { MessageContextType } from '@/types';
 import { ControlledTextarea } from './ControlledTextarea';
 
-export const SystemPrompt: React.FC = (): React.ReactElement => {
+export const SystemPrompt: React.FC = (): React.ReactElement | null => {
   const { t } = useTranslation();
-  const { activeSession, updateSystemPrompt }: MessageContextType = useContext(MessageContext)!;
+  const messageContext = useContext(MessageContext);
   const [prompt, setPrompt] = useState<string>('');
 
   useEffect(() => {
-    if (activeSession) {
-      setPrompt(activeSession.systemPrompt);
+    if (messageContext?.activeSession) {
+      setPrompt(messageContext.activeSession.systemPrompt);
     }
-  }, [activeSession]);
+  }, [messageContext?.activeSession]);
+
+  if (!messageContext) return null;
+
+  const { updateSystemPrompt } = messageContext;
 
   const handlePromptChange = (value: string) => {
     setPrompt(value);

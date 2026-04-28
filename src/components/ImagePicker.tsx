@@ -31,7 +31,7 @@ const ImagePicker = memo<ImagePickerProps>(({ onImageSelect, disabled }): ReactE
   return (
     <ActionIcon
       disabled={disabled}
-      onClick={() => fileInputRef.current!.click()}
+      onClick={() => fileInputRef.current?.click()}
       title={t('actions.image_picker_title')}>
       <ImageIcon />
       <input
