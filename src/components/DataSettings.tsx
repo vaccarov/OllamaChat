@@ -1,9 +1,9 @@
-import { MessageContext } from '@/context/MessageContextDefinition';
-import { MessageContextType } from '@/types';
 import { Button } from '@mantine/core';
-import { ReactElement, useContext, useRef } from 'react';
+import { type ReactElement, useContext, useRef } from 'react';
 import { Download, Upload } from 'react-feather';
 import { useTranslation } from 'react-i18next';
+import { MessageContext } from '@/context/MessageContextDefinition';
+import type { MessageContextType } from '@/types';
 
 export function DataSettings(): ReactElement {
   const { t } = useTranslation();

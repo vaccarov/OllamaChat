@@ -11,7 +11,7 @@ export async function apiFetch<T>(
 ): Promise<T> {
   const url = `${baseUrl}/${endpoint}`;
   const { responseType = 'json', ...fetchOptions } = options;
-  
+
   const headers = {
     'Content-Type': 'application/json',
     ...(fetchOptions.headers || {}),

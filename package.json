@@ -7,9 +7,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint . --no-cache",
-    "fixlint": "eslint . --no-cache --fix",
-    "format": "prettier --write ."
+    "lint": "biome lint --write",
+    "format": "biome format --write",
+    "check": "biome check --write"
   },
   "dependencies": {
     "@mantine/core": "^8.3.3",

@@ -1,6 +1,6 @@
 import { Modal, Tabs } from '@mantine/core';
-import { TFunction } from 'i18next';
-import { ReactElement } from 'react';
+import type { TFunction } from 'i18next';
+import type { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DataSettings } from './DataSettings';
 import { LanguageSettings } from './LanguageSettings';

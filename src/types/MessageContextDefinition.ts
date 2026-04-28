@@ -1,8 +1,8 @@
-import { ChatRole } from '@/types/ChatRoleDefinition';
-import { ChatSession } from '@/types/ChatSession';
-import { ImageToSend } from '@/types/ImageToSend';
-import { Message } from '@/types';
-import { Dispatch, RefObject, SetStateAction } from 'react';
+import type { Dispatch, RefObject, SetStateAction } from 'react';
+import type { Message } from '@/types';
+import type { ChatRole } from '@/types/ChatRoleDefinition';
+import type { ChatSession } from '@/types/ChatSession';
+import type { ImageToSend } from '@/types/ImageToSend';
 
 export type MessageContextType = {
   activeSession: ChatSession | undefined;

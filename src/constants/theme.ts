@@ -1,4 +1,4 @@
-import { MantineTheme } from '@mantine/core';
+import type { MantineTheme } from '@mantine/core';
 
 const RADIUS: string = 'xl';
 const INPUT_SIZE: string = 'lg';

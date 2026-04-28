@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react';
 
 const isBrowser: boolean = typeof window !== 'undefined';
 
-function usePersistentState<T>(key: string, initialState: T): [T, React.Dispatch<React.SetStateAction<T>>] {
+function usePersistentState<T>(
+  key: string,
+  initialState: T
+): [T, React.Dispatch<React.SetStateAction<T>>] {
   const [state, setState] = useState<T>(() => {
     if (!isBrowser) return initialState;
     try {

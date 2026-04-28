@@ -1,10 +1,11 @@
+import type React from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { listDocuments } from '@/services/document';
-import { MessageContextType } from '@/types';
-import { RagDocument } from '@/types/document';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import type { MessageContextType } from '@/types';
+import type { RagDocument } from '@/types/document';
 import { MessageContext } from './MessageContextDefinition';
 import { ModelContext } from './ModelContextDefinition';
-import { RagContext, RagContextDefinition } from './RagContextDefinition';
+import { RagContext, type RagContextDefinition } from './RagContextDefinition';
 
 interface RagProviderProps {
   children: React.ReactNode;
@@ -19,10 +20,10 @@ export const RagProvider: React.FC<RagProviderProps> = ({ children }) => {
 
   useEffect(() => {
     const chatId: string | undefined = includeAllDocuments ? undefined : activeSession?.id;
-    selectedRagModel 
+    selectedRagModel
       ? listDocuments(chatServerUrl, selectedRagModel, chatId)
-        .then(setRagDocuments)
-        .catch(() => setRagDocuments([]))
+          .then(setRagDocuments)
+          .catch(() => setRagDocuments([]))
       : setRagDocuments([]);
   }, [chatServerUrl, selectedRagModel, activeSession?.id, includeAllDocuments]);
 

@@ -1,19 +1,19 @@
 'use client';
 
-import ImagePicker from '@/components/ImagePicker';
-import AudioRecorder from '@/components/Record';
-import { ModalContext } from '@/context/ModalContextDefinition';
-import { MessageContext } from '@/context/MessageContextDefinition';
-import { ModelContext } from '@/context/ModelContextDefinition';
-import { RagContext } from '@/context/RagContextDefinition';
-import { useTts } from '@/hooks/useTts';
-import { GenerateImageSVG, ThinkSVG } from '@/lib/icons';
-import { ImageToSend } from '@/types/ImageToSend';
-import { MessageContextType } from '@/types/MessageContextDefinition';
 import { ActionIcon, Chip, Collapse } from '@mantine/core';
 import { useContext } from 'react';
 import { Database, Volume2, VolumeX, X } from 'react-feather';
 import { useTranslation } from 'react-i18next';
+import ImagePicker from '@/components/ImagePicker';
+import AudioRecorder from '@/components/Record';
+import { MessageContext } from '@/context/MessageContextDefinition';
+import { ModalContext } from '@/context/ModalContextDefinition';
+import { ModelContext } from '@/context/ModelContextDefinition';
+import { RagContext } from '@/context/RagContextDefinition';
+import { useTts } from '@/hooks/useTts';
+import { GenerateImageSVG, ThinkSVG } from '@/lib/icons';
+import type { ImageToSend } from '@/types/ImageToSend';
+import type { MessageContextType } from '@/types/MessageContextDefinition';
 
 interface QuestionActionsProps {
   image: ImageToSend | undefined;
@@ -23,13 +23,20 @@ interface QuestionActionsProps {
   setLoading: (loading: boolean) => void;
 }
 
-export const QuestionActions: React.FC<QuestionActionsProps> = ({ image, visible, onImageSelect, onTranscript, setLoading }) => {
+export const QuestionActions: React.FC<QuestionActionsProps> = ({
+  image,
+  visible,
+  onImageSelect,
+  onTranscript,
+  setLoading,
+}) => {
   const { t } = useTranslation();
   const { currentModel, embeddingModels, isServerOnline } = useContext(ModelContext)!;
   const { setIsGenerateModalOpen, setIsRagModalOpen } = useContext(ModalContext)!;
   const { selectedRagModel } = useContext(RagContext)!;
   const { isTtsEnabled, setIsTtsEnabled, isSpeaking, cancel } = useTts();
-  const { isThinkingEnabled, setIsThinkingEnabled }: MessageContextType = useContext(MessageContext)!;
+  const { isThinkingEnabled, setIsThinkingEnabled }: MessageContextType =
+    useContext(MessageContext)!;
 
   const handleTtsButtonClick = (): void => {
     setIsTtsEnabled(!isTtsEnabled);
@@ -73,7 +80,13 @@ export const QuestionActions: React.FC<QuestionActionsProps> = ({ image, visible
 
         <ActionIcon
           onClick={handleTtsButtonClick}
-          title={isTtsEnabled ? (isSpeaking ? t('audio.stop_reading') : t('audio.disable_reading')) : t('audio.enable_reading')}>
+          title={
+            isTtsEnabled
+              ? isSpeaking
+                ? t('audio.stop_reading')
+                : t('audio.disable_reading')
+              : t('audio.enable_reading')
+          }>
           {isTtsEnabled ? <Volume2 /> : <VolumeX />}
         </ActionIcon>
 

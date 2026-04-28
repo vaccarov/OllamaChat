@@ -1,16 +1,24 @@
+import { ActionIcon, Select, Tooltip } from '@mantine/core';
+import type React from 'react';
+import { useCallback, useContext, useMemo } from 'react';
+import { HelpCircle, RefreshCw } from 'react-feather';
+import { useTranslation } from 'react-i18next';
 import { CAPABILITIES } from '@/constants/capabilities';
 import { MessageContext } from '@/context/MessageContextDefinition';
 import { ModelContext } from '@/context/ModelContextDefinition';
-import { Capability, ChatRole, MessageContextType, ModelContextDefinition, LlmModel } from '@/types';
-import { ActionIcon, Select, Tooltip } from '@mantine/core';
-import React, { useCallback, useContext, useMemo } from 'react';
-import { HelpCircle, RefreshCw } from 'react-feather';
-import { useTranslation } from 'react-i18next';
+import {
+  type Capability,
+  ChatRole,
+  type LlmModel,
+  type MessageContextType,
+  type ModelContextDefinition,
+} from '@/types';
 import './LLMPicker.css';
 
 export const LLMPicker: React.FC = (): React.ReactElement => {
   const { t } = useTranslation();
-  const { setModel, models, currentModel, refreshModels }: ModelContextDefinition = useContext(ModelContext)!;
+  const { setModel, models, currentModel, refreshModels }: ModelContextDefinition =
+    useContext(ModelContext)!;
   const { updateModel, addMessage }: MessageContextType = useContext(MessageContext)!;
 
   const handleModelChange = (selectedModel: string | null): void => {
@@ -21,9 +29,19 @@ export const LLMPicker: React.FC = (): React.ReactElement => {
     }
   };
 
-  const getModelCapabilities = useCallback((m: LlmModel['show']): Capability[] => CAPABILITIES.filter((capability: Capability) => m.capabilities?.includes(capability.id)), []);
+  const getModelCapabilities = useCallback(
+    (m: LlmModel['show']): Capability[] =>
+      CAPABILITIES.filter((capability: Capability) => m.capabilities?.includes(capability.id)),
+    []
+  );
 
-  const capabilitiesDescription: string = useMemo(() => CAPABILITIES.map((capability: Capability) => `${capability.icon}: ${t(capability.tooltipKey)}`).join('\n'), [t]);
+  const capabilitiesDescription: string = useMemo(
+    () =>
+      CAPABILITIES.map(
+        (capability: Capability) => `${capability.icon}: ${t(capability.tooltipKey)}`
+      ).join('\n'),
+    [t]
+  );
 
   const selectData = useMemo(
     () =>

@@ -1,12 +1,12 @@
 'use client';
 
 import { ActionIcon } from '@mantine/core';
+import { type Dispatch, type ReactElement, type SetStateAction, useContext, useState } from 'react';
 import { Loader, Play } from 'react-feather';
 import { useTranslation } from 'react-i18next';
-import { useState, useContext, SetStateAction, Dispatch, ReactElement } from 'react';
 import { MessageContext } from '@/context/MessageContextDefinition';
+import { ChatRole, type Message, type MessageContextType } from '@/types';
 import { getLineNumber, getTotalLines } from '@/utils/tools';
-import { Message, ChatRole, MessageContextType } from '@/types';
 import { ControlledTextarea } from './ControlledTextarea';
 
 interface QuestionInputProps {
@@ -18,7 +18,14 @@ interface QuestionInputProps {
   disabled: boolean;
 }
 
-export function QuestionInput({ userPrompt, setUserPrompt, onSend, onStop, loading, disabled }: QuestionInputProps): ReactElement {
+export function QuestionInput({
+  userPrompt,
+  setUserPrompt,
+  onSend,
+  onStop,
+  loading,
+  disabled,
+}: QuestionInputProps): ReactElement {
   const { t } = useTranslation();
   const { conversation }: MessageContextType = useContext(MessageContext)!;
   const [historyIndex, setHistoryIndex] = useState<number | null>(null);
@@ -31,7 +38,8 @@ export function QuestionInput({ userPrompt, setUserPrompt, onSend, onStop, loadi
   };
 
   const onArrowPressed = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    const userMessages: Message[] = conversation.current?.filter((c: Message) => c.role === ChatRole.user) || [];
+    const userMessages: Message[] =
+      conversation.current?.filter((c: Message) => c.role === ChatRole.user) || [];
     const textarea = e.currentTarget;
     const currentLine = getLineNumber(textarea);
     const totalLines = getTotalLines(textarea);

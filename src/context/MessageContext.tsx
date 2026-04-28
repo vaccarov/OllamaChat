@@ -1,20 +1,32 @@
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { v4 as uuidv4 } from 'uuid';
 import { DEFAULT_SPEECH_LANG } from '@/constants/langs';
 import { STORAGE_KEYS } from '@/constants/storageKeys';
 import { MessageContext } from '@/context/MessageContextDefinition';
 import { ModelContext } from '@/context/ModelContextDefinition';
 import usePersistentState from '@/hooks/usePersistentState';
-import { ChatHistory, ChatRole, ChatSession, ChatText, ImageToSend } from '@/types';
+import {
+  type ChatHistory,
+  ChatRole,
+  type ChatSession,
+  type ChatText,
+  type ImageToSend,
+  type Message,
+} from '@/types';
 import { sortSessionsByDate } from '@/utils/tools';
-import { Message } from '@/types';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { v4 as uuidv4 } from 'uuid';
 
 export const MessageProvider = ({ children }: { children: React.ReactNode }): React.JSX.Element => {
   const { t, i18n } = useTranslation();
   const { currentModel, setModel } = React.useContext(ModelContext)!;
-  const [history, setHistory] = usePersistentState<ChatHistory>(STORAGE_KEYS.chatHistory, { sessions: [], activeSessionId: '' });
-  const [speechLang, setSpeechLang] = usePersistentState<string>(STORAGE_KEYS.speechLang, DEFAULT_SPEECH_LANG);
+  const [history, setHistory] = usePersistentState<ChatHistory>(STORAGE_KEYS.chatHistory, {
+    sessions: [],
+    activeSessionId: '',
+  });
+  const [speechLang, setSpeechLang] = usePersistentState<string>(
+    STORAGE_KEYS.speechLang,
+    DEFAULT_SPEECH_LANG
+  );
   const [isThinkingEnabled, setIsThinkingEnabled] = useState<boolean>(false);
   const { sessions, activeSessionId }: ChatHistory = history;
   const conversation = useRef<Message[]>([]);
@@ -42,7 +54,8 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
   const setSessions = useCallback(
     (updater: React.SetStateAction<ChatSession[]>) => {
       setHistory((prev: ChatHistory) => {
-        const newSessions: ChatSession[] = typeof updater === 'function' ? updater(prev.sessions) : updater;
+        const newSessions: ChatSession[] =
+          typeof updater === 'function' ? updater(prev.sessions) : updater;
         return { ...prev, sessions: newSessions };
       });
     },
@@ -52,7 +65,8 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
   const setActiveSessionId = useCallback(
     (updater: React.SetStateAction<string | null>) => {
       setHistory((prev: ChatHistory) => {
-        const newId: string | null = typeof updater === 'function' ? updater(prev.activeSessionId) : updater;
+        const newId: string | null =
+          typeof updater === 'function' ? updater(prev.activeSessionId) : updater;
         return { ...prev, activeSessionId: newId };
       });
     },
@@ -63,12 +77,17 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
   const findAndUpdateSession = useCallback(
     (updater: (session: ChatSession) => ChatSession, sessionIdToUpdate?: string) => {
       const targetSessionId: string | null = sessionIdToUpdate || activeSessionId;
-      setSessions((prevSessions: ChatSession[]) => prevSessions.map((s: ChatSession) => (s.id === targetSessionId ? updater(s) : s)));
+      setSessions((prevSessions: ChatSession[]) =>
+        prevSessions.map((s: ChatSession) => (s.id === targetSessionId ? updater(s) : s))
+      );
     },
     [activeSessionId, setSessions]
   );
 
-  const activeSession: ChatSession | undefined = useMemo(() => sessions.find((s: ChatSession) => s.id === activeSessionId), [sessions, activeSessionId]);
+  const activeSession: ChatSession | undefined = useMemo(
+    () => sessions.find((s: ChatSession) => s.id === activeSessionId),
+    [sessions, activeSessionId]
+  );
 
   useEffect(() => {
     if (activeSession && activeSession.model !== currentModel?.model) {
@@ -83,7 +102,10 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
         .map((m: ChatText) => ({
           role: m.role,
           content: m.content,
-          images: m.image?.data?.split(',')[1] !== undefined ? [m.image.data.split(',')[1] as string] : undefined,
+          images:
+            m.image?.data?.split(',')[1] !== undefined
+              ? [m.image.data.split(',')[1] as string]
+              : undefined,
         })) as Message[];
     }
   }, [activeSession]);
@@ -96,7 +118,10 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
         date: new Date().toISOString(),
         image,
       };
-      findAndUpdateSession((s: ChatSession) => ({ ...s, messages: [...s.messages, newMsg] }), sessionId);
+      findAndUpdateSession(
+        (s: ChatSession) => ({ ...s, messages: [...s.messages, newMsg] }),
+        sessionId
+      );
     },
     [findAndUpdateSession]
   );
@@ -106,16 +131,16 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
       findAndUpdateSession((s: ChatSession) => {
         const messages: ChatText[] = [...s.messages];
         const lastMessage: ChatText | undefined = messages[messages.length - 1];
-        
+
         let newContent = (lastMessage?.content ?? '') + (message.content ?? '');
         let newThinking = (lastMessage?.thinking ?? '') + (message.thinking ?? '');
-        
+
         // Handle models that stream <think> tags in content
         if (newContent.includes('<think>')) {
           const thinkParts = newContent.split('<think>');
           const beforeThink = thinkParts[0];
           const afterThink = thinkParts.slice(1).join('<think>');
-          
+
           if (afterThink.includes('</think>')) {
             const endThinkParts = afterThink.split('</think>');
             newThinking += endThinkParts[0];
@@ -126,7 +151,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
             newContent = beforeThink || '';
           }
         }
-        
+
         messages[messages.length - 1] = {
           ...lastMessage,
           role: lastMessage?.role ?? ChatRole.assistant,
@@ -154,7 +179,9 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
       findAndUpdateSession((s: ChatSession) => ({
         ...s,
         systemPrompt,
-        messages: s.messages.map((msg: ChatText) => (msg.role === ChatRole.system ? { ...msg, content: systemPrompt } : msg)),
+        messages: s.messages.map((msg: ChatText) =>
+          msg.role === ChatRole.system ? { ...msg, content: systemPrompt } : msg
+        ),
       }));
     },
     [findAndUpdateSession]
@@ -177,12 +204,20 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
   const deleteSession = useCallback(
     (id: string): void => {
       setHistory((prev: ChatHistory) => {
-        const remainingSessions: ChatSession[] = prev.sessions.filter((s: ChatSession) => s.id !== id);
+        const remainingSessions: ChatSession[] = prev.sessions.filter(
+          (s: ChatSession) => s.id !== id
+        );
         if (remainingSessions.length === 0) {
-          const newSession: ChatSession = createNewSession(currentModel?.model || '', t('chat.new_chat_default_name'));
+          const newSession: ChatSession = createNewSession(
+            currentModel?.model || '',
+            t('chat.new_chat_default_name')
+          );
           return { sessions: [newSession], activeSessionId: newSession.id };
         }
-        const newActiveId: string | null = prev.activeSessionId === id ? sortSessionsByDate(remainingSessions)[0]!.id : prev.activeSessionId;
+        const newActiveId: string | null =
+          prev.activeSessionId === id
+            ? sortSessionsByDate(remainingSessions)[0]!.id
+            : prev.activeSessionId;
         return { sessions: remainingSessions, activeSessionId: newActiveId };
       });
     },
@@ -192,7 +227,9 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
   const duplicateSession = useCallback(
     (id: string): void => {
       setHistory((prev: ChatHistory) => {
-        const sessionToDuplicate: ChatSession | undefined = prev.sessions.find((s: ChatSession) => s.id === id);
+        const sessionToDuplicate: ChatSession | undefined = prev.sessions.find(
+          (s: ChatSession) => s.id === id
+        );
         if (!sessionToDuplicate) return prev;
         const newSession: ChatSession = {
           ...sessionToDuplicate,
@@ -226,10 +263,16 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
     (jsonString: string): void => {
       try {
         const importedHistory: ChatHistory = JSON.parse(jsonString);
-        if (importedHistory && Array.isArray(importedHistory.sessions) && typeof importedHistory.activeSessionId === 'string') {
+        if (
+          importedHistory &&
+          Array.isArray(importedHistory.sessions) &&
+          typeof importedHistory.activeSessionId === 'string'
+        ) {
           setHistory((prev: ChatHistory) => {
             const existingIds: Set<string> = new Set(prev.sessions.map((s: ChatSession) => s.id));
-            const newSessions: ChatSession[] = importedHistory.sessions.filter((s: ChatSession) => !existingIds.has(s.id));
+            const newSessions: ChatSession[] = importedHistory.sessions.filter(
+              (s: ChatSession) => !existingIds.has(s.id)
+            );
             return {
               ...prev,
               sessions: [...prev.sessions, ...newSessions],
@@ -249,12 +292,19 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
   );
 
   const sessionsInGroup: Record<string, ChatSession[]> = useMemo(() => {
-    const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(i18n.language, { dateStyle: 'long' });
-    return sortSessionsByDate(sessions).reduce((acc: Record<string, ChatSession[]>, s: ChatSession) => {
-      const date: string = formatter.format(new Date(s.messages[s.messages.length - 1]?.date || ''));
-      (acc[date] ||= []).push(s);
-      return acc;
-    }, {});
+    const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(i18n.language, {
+      dateStyle: 'long',
+    });
+    return sortSessionsByDate(sessions).reduce(
+      (acc: Record<string, ChatSession[]>, s: ChatSession) => {
+        const date: string = formatter.format(
+          new Date(s.messages[s.messages.length - 1]?.date || '')
+        );
+        (acc[date] ||= []).push(s);
+        return acc;
+      },
+      {}
+    );
   }, [sessions, i18n.language]);
 
   return (

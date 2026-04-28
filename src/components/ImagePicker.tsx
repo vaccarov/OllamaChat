@@ -1,8 +1,8 @@
-import { ImageToSend } from '@/types/ImageToSend';
 import { ActionIcon } from '@mantine/core';
-import { ChangeEvent, memo, ReactElement, useRef } from 'react';
+import { type ChangeEvent, memo, type ReactElement, useRef } from 'react';
 import { Image as ImageIcon } from 'react-feather';
 import { useTranslation } from 'react-i18next';
+import type { ImageToSend } from '@/types/ImageToSend';
 
 interface ImagePickerProps {
   onImageSelect: (image: ImageToSend) => void;

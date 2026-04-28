@@ -7,7 +7,8 @@ import { ModelProvider } from '@/context/ModelContext';
 import { RagProvider } from '@/context/RagProvider';
 import '@/i18n';
 import { MantineProvider } from '@mantine/core';
-import React, { useEffect, useState } from 'react';
+import type React from 'react';
+import { useEffect, useState } from 'react';
 
 export const AppProviders = ({ children }: { children: React.ReactNode }): React.JSX.Element => {
   const [isLoaded, setIsLoaded] = useState<boolean>(false);

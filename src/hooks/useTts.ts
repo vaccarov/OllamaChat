@@ -1,15 +1,18 @@
 'use client';
 
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { STORAGE_KEYS } from '@/constants/storageKeys';
 import { ModelContext } from '@/context/ModelContextDefinition';
-import { UseTtsReturn } from '@/types/Tts';
+import type { UseTtsReturn } from '@/types/Tts';
 import { apiFetch } from '@/utils/api';
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import usePersistentState from './usePersistentState';
 
 export const useTts = (): UseTtsReturn => {
   const { serverUrl } = useContext(ModelContext)!;
-  const [isTtsEnabled, setIsTtsEnabled] = usePersistentState<boolean>(STORAGE_KEYS.ttsEnabled, false);
+  const [isTtsEnabled, setIsTtsEnabled] = usePersistentState<boolean>(
+    STORAGE_KEYS.ttsEnabled,
+    false
+  );
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -25,14 +28,14 @@ export const useTts = (): UseTtsReturn => {
         });
 
         const url = URL.createObjectURL(blob);
-        
+
         if (audioRef.current) {
           audioRef.current.pause();
         }
 
         const audio = new Audio(url);
         audioRef.current = audio;
-        
+
         audio.onplay = () => setIsSpeaking(true);
         audio.onended = () => {
           setIsSpeaking(false);

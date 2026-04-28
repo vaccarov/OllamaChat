@@ -1,13 +1,23 @@
+import {
+  ActionIcon,
+  Box,
+  FileInput,
+  List,
+  Loader,
+  Modal,
+  Select,
+  Switch,
+  Text,
+} from '@mantine/core';
+import { type ChangeEvent, Fragment, useContext, useState } from 'react';
+import { Upload } from 'react-feather';
+import { useTranslation } from 'react-i18next';
 import { MessageContext } from '@/context/MessageContextDefinition';
 import { ModelContext } from '@/context/ModelContextDefinition';
 import { RagContext } from '@/context/RagContextDefinition';
 import { listDocuments, uploadDocuments } from '@/services/document';
-import { MessageContextType } from '@/types';
-import { RagDocument } from '@/types/document';
-import { ActionIcon, Box, FileInput, List, Loader, Modal, Select, Switch, Text } from '@mantine/core';
-import { ChangeEvent, Fragment, useContext, useState } from 'react';
-import { Upload } from 'react-feather';
-import { useTranslation } from 'react-i18next';
+import type { MessageContextType } from '@/types';
+import type { RagDocument } from '@/types/document';
 
 interface RagModalProps {
   opened: boolean;
@@ -16,7 +26,14 @@ interface RagModalProps {
 
 export const RagModal: React.FC<RagModalProps> = ({ opened, onClose }) => {
   const { t } = useTranslation();
-  const { selectedRagModel, setSelectedRagModel, ragDocuments, setRagDocuments, includeAllDocuments, setIncludeAllDocuments } = useContext(RagContext)!;
+  const {
+    selectedRagModel,
+    setSelectedRagModel,
+    ragDocuments,
+    setRagDocuments,
+    includeAllDocuments,
+    setIncludeAllDocuments,
+  } = useContext(RagContext)!;
   const { serverUrl, embeddingModels } = useContext(ModelContext)!;
   const { activeSession }: MessageContextType = useContext(MessageContext)!;
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
@@ -63,7 +80,9 @@ export const RagModal: React.FC<RagModalProps> = ({ opened, onClose }) => {
               <Switch
                 label={t('modals.rag.include_all_documents')}
                 checked={includeAllDocuments}
-                onChange={(event: ChangeEvent<HTMLInputElement>) => setIncludeAllDocuments(event.currentTarget.checked)}
+                onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                  setIncludeAllDocuments(event.currentTarget.checked)
+                }
               />
               <Text size='sm'>{t('modals.rag.documents_in_collection_label')}</Text>
               {ragDocuments.length > 0 ? (

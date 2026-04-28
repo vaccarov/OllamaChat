@@ -13,7 +13,6 @@ export interface OllamaTagsResponse {
   }[];
 }
 
-
 export interface OpenAiModelsResponse {
   data: {
     id: string;

@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import { ChevronDown, ChevronUp } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import './ChatBubble.css';

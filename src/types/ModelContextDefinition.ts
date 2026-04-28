@@ -1,7 +1,7 @@
-import { LlmModel } from '@/types';
-import { ApiStatus } from '@/types/api';
-import { ComboboxData } from '@mantine/core';
-import { Dispatch, SetStateAction } from 'react';
+import type { ComboboxData } from '@mantine/core';
+import type { Dispatch, SetStateAction } from 'react';
+import type { LlmModel } from '@/types';
+import type { ApiStatus } from '@/types/api';
 
 export interface ModelContextDefinition {
   currentModel: LlmModel | undefined;

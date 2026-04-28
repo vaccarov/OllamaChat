@@ -1,19 +1,11 @@
 'use client';
 
-import { GeneratedImagesDisplay } from '@/components/GeneratedImagesDisplay';
-import { IMAGE_GEN_STATUS_PROGRESS, IMAGE_GEN_STATUS_STARTING_IMAGE, MAX_PROMPT_TOKENS, MODEL_LCM, MODEL_SDXL } from '@/constants/list';
-import { imageNegativePromptPresets, imagePromptPresets } from '@/constants/prompts';
-import { ModelContext } from '@/context/ModelContextDefinition';
-import { PromptListSVG } from '@/lib/icons';
-import { generateImage, getImageModels } from '@/services/image';
-import { PromptItem } from '@/types';
-import { DiffusionModel, ImageGenerationFormValues, ImageGenerationProgress } from '@/types/image-generation';
 import {
   ActionIcon,
   Alert,
   Button,
   Collapse,
-  ComboboxData,
+  type ComboboxData,
   FileInput,
   Group,
   Loader,
@@ -24,17 +16,49 @@ import {
   Slider,
   Switch,
   Text,
-  TextInput,
   Textarea,
+  TextInput,
   Tooltip,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { ChangeEvent, RefObject, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import {
+  type ChangeEvent,
+  type RefObject,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { Download, HelpCircle, Image as ImageIcon, Upload } from 'react-feather';
 import { useTranslation } from 'react-i18next';
+import { GeneratedImagesDisplay } from '@/components/GeneratedImagesDisplay';
+import {
+  IMAGE_GEN_STATUS_PROGRESS,
+  IMAGE_GEN_STATUS_STARTING_IMAGE,
+  MAX_PROMPT_TOKENS,
+  MODEL_LCM,
+  MODEL_SDXL,
+} from '@/constants/list';
+import { imageNegativePromptPresets, imagePromptPresets } from '@/constants/prompts';
+import { ModelContext } from '@/context/ModelContextDefinition';
+import { PromptListSVG } from '@/lib/icons';
+import { generateImage, getImageModels } from '@/services/image';
+import type { PromptItem } from '@/types';
+import type {
+  DiffusionModel,
+  ImageGenerationFormValues,
+  ImageGenerationProgress,
+} from '@/types/image-generation';
 import './ImageGenerationModal.css';
 
-export const ImageGenerationModal = ({ opened, onClose }: { opened: boolean; onClose: () => void }) => {
+export const ImageGenerationModal = ({
+  opened,
+  onClose,
+}: {
+  opened: boolean;
+  onClose: () => void;
+}) => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState<boolean>(false);
   const [showOptions, setShowOptions] = useState<boolean>(false);
@@ -62,7 +86,9 @@ export const ImageGenerationModal = ({ opened, onClose }: { opened: boolean; onC
     validate: {
       prompt: (value: string) => {
         const wordCount: number = value.trim().split(/\s+/).filter(Boolean).length;
-        return wordCount > MAX_PROMPT_TOKENS ? `Prompt exceeds ${MAX_PROMPT_TOKENS} tokens (current: ${wordCount}).` : null;
+        return wordCount > MAX_PROMPT_TOKENS
+          ? `Prompt exceeds ${MAX_PROMPT_TOKENS} tokens (current: ${wordCount}).`
+          : null;
       },
     },
     onValuesChange: (values: ImageGenerationFormValues) => {
@@ -83,14 +109,18 @@ export const ImageGenerationModal = ({ opened, onClose }: { opened: boolean; onC
   });
 
   const handlePromptSelect = (value: string) => {
-    const selectedPrompt: PromptItem | undefined = imagePromptPresets.find((p: PromptItem) => p.id === value);
+    const selectedPrompt: PromptItem | undefined = imagePromptPresets.find(
+      (p: PromptItem) => p.id === value
+    );
     if (selectedPrompt) {
       form.setFieldValue('prompt', selectedPrompt.prompt);
     }
   };
 
   const handleNegativePromptSelect = (value: string) => {
-    const selectedPrompt: PromptItem | undefined = imageNegativePromptPresets.find((p: PromptItem) => p.id === value);
+    const selectedPrompt: PromptItem | undefined = imageNegativePromptPresets.find(
+      (p: PromptItem) => p.id === value
+    );
     if (selectedPrompt) {
       form.setFieldValue('negative_prompt', selectedPrompt.prompt);
     }
@@ -100,10 +130,12 @@ export const ImageGenerationModal = ({ opened, onClose }: { opened: boolean; onC
     if (opened) {
       const fetchModels = async () => {
         setModelsLoading(true);
-        const fetchedModels: ComboboxData = (await getImageModels(serverUrl)).map((m: DiffusionModel) => ({
-          value: m.name,
-          label: m.fullname,
-        }));
+        const fetchedModels: ComboboxData = (await getImageModels(serverUrl)).map(
+          (m: DiffusionModel) => ({
+            value: m.name,
+            label: m.fullname,
+          })
+        );
         setModels(fetchedModels);
         setModelsLoading(false);
       };
@@ -141,7 +173,9 @@ export const ImageGenerationModal = ({ opened, onClose }: { opened: boolean; onC
         const reader: FileReader = new FileReader();
         reader.onload = (e: ProgressEvent<FileReader>) => {
           try {
-            const importedConfig: Partial<ImageGenerationFormValues> = JSON.parse(e.target?.result as string);
+            const importedConfig: Partial<ImageGenerationFormValues> = JSON.parse(
+              e.target?.result as string
+            );
             form.setValues({ ...form.values, ...importedConfig });
           } catch (_err: unknown) {
             setError(t('image_generation.parse_config_error'));
@@ -213,7 +247,9 @@ export const ImageGenerationModal = ({ opened, onClose }: { opened: boolean; onC
                 })
               );
             } else if (status) {
-              const capitalizedStatus: string = status.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
+              const capitalizedStatus: string = status
+                .replace(/_/g, ' ')
+                .replace(/\b\w/g, (l: string) => l.toUpperCase());
               setProgress(`${capitalizedStatus}...`);
             }
           },
@@ -486,7 +522,11 @@ export const ImageGenerationModal = ({ opened, onClose }: { opened: boolean; onC
               </Group>
             </Collapse>
             <Group justify='space-between'>
-              <Button onClick={() => setShowOptions(!showOptions)}>{showOptions ? t('image_generation.show_less_options') : t('image_generation.show_more_options')}</Button>
+              <Button onClick={() => setShowOptions(!showOptions)}>
+                {showOptions
+                  ? t('image_generation.show_less_options')
+                  : t('image_generation.show_more_options')}
+              </Button>
               <Button
                 type='submit'
                 leftSection={loading && <Loader size='sm' />}

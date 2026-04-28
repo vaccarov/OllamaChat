@@ -1,5 +1,5 @@
-import { ChatRole } from '@/types/ChatRoleDefinition';
-import { ImageToSend } from '@/types/ImageToSend';
+import type { ChatRole } from '@/types/ChatRoleDefinition';
+import type { ImageToSend } from '@/types/ImageToSend';
 
 export interface Message {
   role: string;

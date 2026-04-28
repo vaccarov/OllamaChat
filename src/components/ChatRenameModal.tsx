@@ -1,8 +1,8 @@
-import { MessageContext } from '@/context/MessageContextDefinition';
-import { ChatSession } from '@/types';
 import { Button, Modal, TextInput } from '@mantine/core';
 import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { MessageContext } from '@/context/MessageContextDefinition';
+import type { ChatSession } from '@/types';
 
 interface ChatRenameModalProps {
   opened: boolean;
@@ -39,7 +39,9 @@ export const ChatRenameModal = ({ opened, onClose, session }: ChatRenameModalPro
       centered>
       <TextInput
         value={name}
-        onChange={(event: React.ChangeEvent<HTMLInputElement>) => setName(event.currentTarget.value)}
+        onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+          setName(event.currentTarget.value)
+        }
         data-autofocus
         placeholder={t('chat.name')}
         onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {

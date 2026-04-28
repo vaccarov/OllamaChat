@@ -1,10 +1,10 @@
-import { MessageContext } from '@/context/MessageContextDefinition';
-import { ModelContext } from '@/context/ModelContextDefinition';
-import { transcribe } from '@/services/transcribe';
 import { ActionIcon } from '@mantine/core';
 import { useContext, useRef, useState } from 'react';
 import { Mic, MicOff } from 'react-feather';
 import { useTranslation } from 'react-i18next';
+import { MessageContext } from '@/context/MessageContextDefinition';
+import { ModelContext } from '@/context/ModelContextDefinition';
+import { transcribe } from '@/services/transcribe';
 
 export default function AudioRecorder({
   onTranscript,
@@ -40,7 +40,11 @@ export default function AudioRecorder({
         const audioBlob: Blob = new Blob(chunks, { type: 'audio/webm' });
         try {
           setLoading(true);
-          const { transcript }: { transcript: string } = await transcribe(audioBlob, speechLang, serverUrl);
+          const { transcript }: { transcript: string } = await transcribe(
+            audioBlob,
+            speechLang,
+            serverUrl
+          );
           onTranscript(transcript);
         } catch (error) {
           console.error(t('errors.sending_audio'), error);

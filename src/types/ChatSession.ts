@@ -1,4 +1,4 @@
-import { ChatText } from '@/types/ChatText';
+import type { ChatText } from '@/types/ChatText';
 
 export type ChatSession = {
   id: string;

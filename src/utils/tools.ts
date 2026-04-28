@@ -1,4 +1,4 @@
-import { ChatSession } from '@/types';
+import type { ChatSession } from '@/types';
 
 export const formatSize = (bytes: number): string => {
   const units: string[] = ['octets', 'Ko', 'Mo', 'Go', 'To'];

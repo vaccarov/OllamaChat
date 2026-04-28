@@ -11,7 +11,11 @@ export async function checkChatServer(serverUrl: string): Promise<{ success: boo
   }
 }
 
-export async function transcribe(audioBlob: Blob, language: string, serverUrl: string): Promise<{ transcript: string }> {
+export async function transcribe(
+  audioBlob: Blob,
+  language: string,
+  serverUrl: string
+): Promise<{ transcript: string }> {
   const formData = new FormData();
   formData.append('file', audioBlob, 'audio.webm');
   formData.append('language', language);

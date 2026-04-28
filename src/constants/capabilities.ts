@@ -1,4 +1,4 @@
-import { Capability } from '@/types/Capability';
+import type { Capability } from '@/types/Capability';
 
 export const CAPABILITIES: Capability[] = [
   {

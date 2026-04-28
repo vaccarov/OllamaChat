@@ -1,8 +1,9 @@
+import type React from 'react';
+import { useMemo, useState } from 'react';
 import { ImageGenerationModal } from '@/components/ImageGenerationModal';
 import { RagModal } from '@/components/RagModal';
 import { SettingsModal } from '@/components/SettingsModal';
-import React, { useMemo, useState } from 'react';
-import { ModalContext, SettingsContextDefinition } from './ModalContextDefinition';
+import { ModalContext, type SettingsContextDefinition } from './ModalContextDefinition';
 
 interface ModalProviderProps {
   children: React.ReactNode;

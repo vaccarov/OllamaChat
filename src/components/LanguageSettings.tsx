@@ -1,9 +1,9 @@
-import { APP_LANGS, SPEECH_LANGS } from '@/constants/langs';
-import { MessageContext } from '@/context/MessageContextDefinition';
-import { MessageContextType } from '@/types';
 import { Select } from '@mantine/core';
 import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
+import { APP_LANGS, SPEECH_LANGS } from '@/constants/langs';
+import { MessageContext } from '@/context/MessageContextDefinition';
+import type { MessageContextType } from '@/types';
 import './SettingsModal.css';
 
 export const LanguageSettings = () => {

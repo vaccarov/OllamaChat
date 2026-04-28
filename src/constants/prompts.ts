@@ -1,4 +1,4 @@
-import { PromptItem } from '@/types/Prompt';
+import type { PromptItem } from '@/types/Prompt';
 
 export const systemPromptPresets: PromptItem[] = [
   {

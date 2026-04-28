@@ -1,10 +1,10 @@
 'use client';
 
-import { ActionIcon, Menu, Textarea, TextareaProps, Tooltip } from '@mantine/core';
-import { ReactElement, ChangeEventHandler } from 'react';
-import { PromptListSVG } from '@/lib/icons';
-import { PromptItem } from '@/types';
+import { ActionIcon, Menu, Textarea, type TextareaProps, Tooltip } from '@mantine/core';
+import type { ChangeEventHandler, ReactElement } from 'react';
 import { HelpCircle } from 'react-feather';
+import { PromptListSVG } from '@/lib/icons';
+import type { PromptItem } from '@/types';
 
 interface ControlledTextareaProps extends TextareaProps {
   value?: string;
@@ -72,7 +72,9 @@ export function ControlledTextarea({
               <HelpCircle />
             </ActionIcon>
           </Tooltip>
-        ) : others.rightSection
+        ) : (
+          others.rightSection
+        )
       }
       {...others}
     />

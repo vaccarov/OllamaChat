@@ -1,14 +1,15 @@
+import { ActionIcon } from '@mantine/core';
+import type React from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { ChevronDown, ChevronUp, Settings } from 'react-feather';
+import { useTranslation } from 'react-i18next';
 import ChatBubble from '@/components/ChatBubble';
 import { SCROLL_TOLERANCE } from '@/constants/list';
 import { MessageContext } from '@/context/MessageContextDefinition';
+import { ModalContext, type SettingsContextDefinition } from '@/context/ModalContextDefinition';
 import { ModelContext } from '@/context/ModelContextDefinition';
-import { ModalContext, SettingsContextDefinition } from '@/context/ModalContextDefinition';
-import { ChatSession, ModelContextDefinition } from '@/types';
-import { ChatText } from '@/types/ChatText';
-import { ActionIcon } from '@mantine/core';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { ChevronDown, ChevronUp, Settings } from 'react-feather';
-import { useTranslation } from 'react-i18next';
+import type { ChatSession, ModelContextDefinition } from '@/types';
+import type { ChatText } from '@/types/ChatText';
 import './Chat.css';
 
 export const Chat: React.FC = (): React.ReactElement | null => {
@@ -33,7 +34,8 @@ export const Chat: React.FC = (): React.ReactElement | null => {
     const el: HTMLDivElement | null = chatRef.current;
     if (!el) return;
     const handleScroll = (): void => {
-      const isScrolledToBottom: boolean = el.scrollHeight - el.scrollTop - el.clientHeight < SCROLL_TOLERANCE;
+      const isScrolledToBottom: boolean =
+        el.scrollHeight - el.scrollTop - el.clientHeight < SCROLL_TOLERANCE;
       setIsAtBottom(isScrolledToBottom);
       setShowTopArrow(el.scrollTop > SCROLL_TOLERANCE);
     };

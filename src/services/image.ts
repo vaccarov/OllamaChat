@@ -1,6 +1,10 @@
 'use client';
 
-import { DiffusionModel, ImageGenerationProgress, ImageGenerationStatus } from '@/types/image-generation';
+import {
+  type DiffusionModel,
+  type ImageGenerationProgress,
+  ImageGenerationStatus,
+} from '@/types/image-generation';
 import { apiFetch } from '@/utils/api';
 
 export function generateImage(
@@ -17,8 +21,15 @@ export function generateImage(
 
   (async (): Promise<void> => {
     try {
-      const res: Response = await fetch(`${serverUrl}/image/generate`, { method: 'POST', body: formData, signal: ctrl.signal });
-      if (!res.ok) throw new Error((await res.json() as { detail?: string }).detail || `Failed: ${res.status}`);
+      const res: Response = await fetch(`${serverUrl}/image/generate`, {
+        method: 'POST',
+        body: formData,
+        signal: ctrl.signal,
+      });
+      if (!res.ok)
+        throw new Error(
+          ((await res.json()) as { detail?: string }).detail || `Failed: ${res.status}`
+        );
       const reader: ReadableStreamDefaultReader<Uint8Array> | undefined = res.body?.getReader();
       if (!reader) throw new Error('No reader');
 

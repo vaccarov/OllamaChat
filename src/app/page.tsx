@@ -1,5 +1,9 @@
 'use client';
 
+import { ActionIcon } from '@mantine/core';
+import type React from 'react';
+import { useEffect, useState } from 'react';
+import { Sidebar, Tool } from 'react-feather';
 import { Chat } from '@/components/Chat';
 import { ChatList } from '@/components/ChatList';
 import { LLMPicker } from '@/components/LLMPicker';
@@ -9,17 +13,18 @@ import { MQ_MAX_WIDTH } from '@/constants/list';
 import { STORAGE_KEYS } from '@/constants/storageKeys';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import usePersistentState from '@/hooks/usePersistentState';
-import { ActionIcon } from '@mantine/core';
-import React, { useEffect, useState } from 'react';
-import { Sidebar, Tool } from 'react-feather';
 
 const HomePage: React.FC = (): React.ReactElement => {
-  const [showChatList, setShowChatList] = usePersistentState<boolean>(STORAGE_KEYS.showChatList, true);
+  const [showChatList, setShowChatList] = usePersistentState<boolean>(
+    STORAGE_KEYS.showChatList,
+    true
+  );
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const isMobile: boolean = useMediaQuery(`(max-width: ${MQ_MAX_WIDTH}px)`);
 
   useEffect(() => {
-    const setAppHeight = (): void => document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
+    const setAppHeight = (): void =>
+      document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
     window.addEventListener('resize', setAppHeight);
     setAppHeight();
     return () => window.removeEventListener('resize', setAppHeight);

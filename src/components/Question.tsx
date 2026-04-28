@@ -1,21 +1,21 @@
 'use client';
 
+import { ActionIcon } from '@mantine/core';
+import { type ReactElement, useContext, useRef, useState } from 'react';
+import { ChevronsDown, ChevronsUp } from 'react-feather';
+import { useTranslation } from 'react-i18next';
 import { MessageContext } from '@/context/MessageContextDefinition';
 import { ModelContext } from '@/context/ModelContextDefinition';
 import { RagContext } from '@/context/RagContextDefinition';
 import { useTts } from '@/hooks/useTts';
 import { ragChat } from '@/services/document';
 import { streamChat } from '@/services/llm';
+import type { Message } from '@/types';
 import { ChatRole } from '@/types/ChatRoleDefinition';
-import { RagChatResponse } from '@/types/document';
-import { ImageToSend } from '@/types/ImageToSend';
-import { MessageContextType } from '@/types/MessageContextDefinition';
+import type { RagChatResponse } from '@/types/document';
+import type { ImageToSend } from '@/types/ImageToSend';
+import type { MessageContextType } from '@/types/MessageContextDefinition';
 import { mapIsoToBcp47 } from '@/utils/tools';
-import { ActionIcon } from '@mantine/core';
-import { Message } from '@/types';
-import { ReactElement, useContext, useRef, useState } from 'react';
-import { ChevronsDown, ChevronsUp } from 'react-feather';
-import { useTranslation } from 'react-i18next';
 import './Question.css';
 import { QuestionActions } from './QuestionActions';
 import { QuestionInput } from './QuestionInput';
@@ -23,7 +23,14 @@ import { QuestionInput } from './QuestionInput';
 export const Question: React.FC = (): ReactElement | null => {
   const { t } = useTranslation();
   const { chatServerUrl, serverUrl, serverType, currentModel } = useContext(ModelContext)!;
-  const { conversation, addMessage, addChunk, activeSession, speechLang, isThinkingEnabled }: MessageContextType = useContext(MessageContext)!;
+  const {
+    conversation,
+    addMessage,
+    addChunk,
+    activeSession,
+    speechLang,
+    isThinkingEnabled,
+  }: MessageContextType = useContext(MessageContext)!;
   const { includeAllDocuments, selectedRagModel } = useContext(RagContext)!;
   const [userPrompt, setUserPrompt] = useState<string>('');
   const [image, setImage] = useState<ImageToSend | undefined>();
@@ -31,7 +38,7 @@ export const Question: React.FC = (): ReactElement | null => {
   const [actionsVisible, setActionsVisible] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const { speak, cancel } = useTts();
-  
+
   const stopRequest = (): void => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -56,7 +63,12 @@ export const Question: React.FC = (): ReactElement | null => {
       addMessage(ChatRole.custom, t('question.retrieving_context'));
       try {
         const chatId: string | undefined = includeAllDocuments ? undefined : activeSession?.id;
-        const ragResponse: RagChatResponse = await ragChat(serverUrl, prompt, selectedRagModel, chatId);
+        const ragResponse: RagChatResponse = await ragChat(
+          serverUrl,
+          prompt,
+          selectedRagModel,
+          chatId
+        );
         finalPrompt = ragResponse.prompt;
       } catch (error) {
         console.error('Error during RAG search:', error);
@@ -111,13 +123,15 @@ export const Question: React.FC = (): ReactElement | null => {
         },
         onError: (error: unknown) => {
           const errorMessage: string =
-            (error as Error).name === 'AbortError' ? t('errors.request_aborted') : `${t('errors.prefix')}${(error as Error).message || t('errors.unknown')}`;
+            (error as Error).name === 'AbortError'
+              ? t('errors.request_aborted')
+              : `${t('errors.prefix')}${(error as Error).message || t('errors.unknown')}`;
           addMessage(ChatRole.custom, errorMessage, undefined, currentSessionId);
           setLoading(false);
           abortControllerRef.current = null;
         },
       },
-      {think: isThinkingEnabled}
+      { think: isThinkingEnabled }
     );
   };
 

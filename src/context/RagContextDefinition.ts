@@ -1,5 +1,5 @@
-import { RagDocument } from '@/types/document';
-import { createContext, Dispatch, SetStateAction } from 'react';
+import { createContext, type Dispatch, type SetStateAction } from 'react';
+import type { RagDocument } from '@/types/document';
 
 export interface RagContextDefinition {
   selectedRagModel: string | null;

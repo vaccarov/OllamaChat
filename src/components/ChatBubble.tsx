@@ -1,20 +1,20 @@
-import { Collapsible } from '@/components/Collapsable';
-import { ChatText } from '@/types/ChatText';
 import { Modal } from '@mantine/core';
-import { useState, ReactElement } from 'react';
+import { type ReactElement, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
+import { Collapsible } from '@/components/Collapsable';
+import type { ChatText } from '@/types/ChatText';
 import './ChatBubble.css';
 
 export default function ChatBubble({ message }: { message: ChatText }): ReactElement | null {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isThinkingOpen, setIsThinkingOpen] = useState<boolean>(false);
-  
+
   return (
     <div
       className={`bubble ${message.role}`}
       title={message.date}>
-      {message.image && message.image.data.startsWith('data:image') && (
+      {message.image?.data.startsWith('data:image') && (
         <>
           <img
             src={message.image.data}
@@ -45,9 +45,7 @@ export default function ChatBubble({ message }: { message: ChatText }): ReactEle
       )}
 
       {message.content && (
-        <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-          {message.content}
-        </ReactMarkdown>
+        <ReactMarkdown rehypePlugins={[rehypeRaw]}>{message.content}</ReactMarkdown>
       )}
     </div>
   );

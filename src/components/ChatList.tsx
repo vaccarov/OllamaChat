@@ -1,17 +1,23 @@
-import { ChatRenameModal } from '@/components/ChatRenameModal';
-import { MessageContext } from '@/context/MessageContextDefinition';
-import { ModalContext, SettingsContextDefinition } from '@/context/ModalContextDefinition';
-import { AddMessageSVG } from '@/lib/icons';
-import { ChatSession, MessageContextType } from '@/types';
 import { ActionIcon, Menu, Text } from '@mantine/core';
 import { useContext, useState } from 'react';
 import { Copy, Edit, MoreVertical, Settings, Trash2 } from 'react-feather';
 import { useTranslation } from 'react-i18next';
+import { ChatRenameModal } from '@/components/ChatRenameModal';
+import { MessageContext } from '@/context/MessageContextDefinition';
+import { ModalContext, type SettingsContextDefinition } from '@/context/ModalContextDefinition';
+import { AddMessageSVG } from '@/lib/icons';
+import type { ChatSession, MessageContextType } from '@/types';
 import './ChatList.css';
 
 export function ChatList({ show }: { show: boolean }): React.ReactElement | null {
   const { t } = useTranslation();
-  const { activeSession, sessionsInGroup, setActiveSessionId, deleteSession, duplicateSession }: MessageContextType = useContext(MessageContext)!;
+  const {
+    activeSession,
+    sessionsInGroup,
+    setActiveSessionId,
+    deleteSession,
+    duplicateSession,
+  }: MessageContextType = useContext(MessageContext)!;
   const { setIsSettingsOpen }: SettingsContextDefinition = useContext(ModalContext)!;
   const [renameModalOpen, setRenameModalOpen] = useState<boolean>(false);
   const [sessionToEdit, setSessionToEdit] = useState<ChatSession | null>(null);

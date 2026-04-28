@@ -1,11 +1,11 @@
-import { ModelContext } from '@/context/ModelContextDefinition';
-import { ModelContextDefinition } from '@/types';
-import { ApiStatus } from '@/types/api';
 import { Anchor, Code, Group, List, Text, TextInput, Title } from '@mantine/core';
-import { TFunction } from 'i18next';
-import { ChangeEvent, ReactElement, useContext } from 'react';
+import type { TFunction } from 'i18next';
+import { type ChangeEvent, type ReactElement, useContext } from 'react';
 import { CheckCircle, Loader, XCircle } from 'react-feather';
 import { Trans, useTranslation } from 'react-i18next';
+import { ModelContext } from '@/context/ModelContextDefinition';
+import type { ModelContextDefinition } from '@/types';
+import { ApiStatus } from '@/types/api';
 import './SettingsModal.css';
 
 export function ServerSettings(): ReactElement {
@@ -27,7 +27,9 @@ export function ServerSettings(): ReactElement {
         label={t('settings.ollama_url')}
         placeholder='http://localhost:11434 or http://localhost:1234/v1'
         value={chatServerUrlInput}
-        onChange={(event: ChangeEvent<HTMLInputElement>) => setChatServerUrlInput(event.currentTarget.value)}
+        onChange={(event: ChangeEvent<HTMLInputElement>) =>
+          setChatServerUrlInput(event.currentTarget.value)
+        }
         rightSection={<StatusIcon status={chatServerStatus} />}
       />
       <TextInput
@@ -44,7 +46,9 @@ export function ServerSettings(): ReactElement {
           </Group>
         }
         value={serverUrlInput}
-        onChange={(event: ChangeEvent<HTMLInputElement>) => setServerUrlInput(event.currentTarget.value)}
+        onChange={(event: ChangeEvent<HTMLInputElement>) =>
+          setServerUrlInput(event.currentTarget.value)
+        }
         rightSection={<StatusIcon status={serverStatus} />}
       />
       <div style={{ marginTop: 'var(--mantine-spacing-lg)' }}>

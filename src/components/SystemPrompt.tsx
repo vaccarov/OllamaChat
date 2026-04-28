@@ -1,10 +1,11 @@
 'use client';
 
+import type React from 'react';
+import { useContext, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { systemPromptPresets } from '@/constants/prompts';
 import { MessageContext } from '@/context/MessageContextDefinition';
-import { MessageContextType } from '@/types';
-import React, { useContext, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import type { MessageContextType } from '@/types';
 import { ControlledTextarea } from './ControlledTextarea';
 
 export const SystemPrompt: React.FC = (): React.ReactElement => {
