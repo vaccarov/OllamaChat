@@ -6,6 +6,9 @@ import { AppProviders } from './providers';
 export const metadata: Metadata = {
   title: 'OllamaChat',
   description: 'A chat application using Ollama models',
+  icons: [
+    { rel: 'icon', url: '/favicon.svg', type: 'image/svg+xml' },
+  ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }): React.JSX.Element {
