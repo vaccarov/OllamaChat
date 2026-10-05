@@ -4,6 +4,6 @@ export interface UseTtsReturn {
   isTtsEnabled: boolean;
   setIsTtsEnabled: React.Dispatch<React.SetStateAction<boolean>>;
   isSpeaking: boolean;
-  speak: (text: string, lang: string) => void;
+  speak: (text: string) => void;
   cancel: () => void;
 }

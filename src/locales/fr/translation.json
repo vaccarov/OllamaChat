@@ -1,17 +1,14 @@
 {
-  "app": {
-    "title": "AnswR Chat"
-  },
   "common": {
     "app_language": "Langue de l'application",
     "speech_language": "Langue de lecture",
-    "settings": "Paramètres",
     "hide": "Masquer",
-    "reasoning": "Raisonnement"
+    "reasoning": "Raisonnement",
+    "close": "Fermer",
+    "download": "Télécharger"
   },
   "chat": {
     "placeholder": "Tapez votre message ici...",
-    "send": "Envoyer",
     "new": "Nouvelle Discussion",
     "name": "Nom de la discussion",
     "rename": "Renommer",
@@ -19,7 +16,6 @@
     "delete": "Supprimer",
     "export": "Exporter les discussions",
     "import": "Importer des discussions",
-    "name_prompt": "Entrez le nouveau nom de la discussion :",
     "new_chat_default_name": "Nouvelle discussion",
     "history": {
       "invalid_format": "Fichier d'historique invalide. Veuillez sélectionner un fichier JSON valide.",
@@ -32,7 +28,6 @@
   },
   "system_prompt": {
     "title": "Prompt Système",
-    "list": "Liste des prompts",
     "select": "Sélectionner un prompt"
   },
   "model": {
@@ -41,7 +36,6 @@
     "capabilities": {
       "images": "Peut analyser des images",
       "thinking": "Peut afficher son raisonnement",
-      "insert": "Peut compléter du code partiel",
       "embedding": "Peut être utilisé pour les embeddings"
     }
   },
@@ -56,9 +50,6 @@
     "prefix": "Erreur : ",
     "unknown": "Une erreur inconnue est survenue.",
     "request_aborted": "La requête a été annulée.",
-    "fetching_models": "Erreur lors de la récupération des modèles",
-    "server": "Erreur serveur :",
-    "transcription_code": "Erreur de transcription (code : {{code}})",
     "sending_audio": "Erreur lors de l'envoi de l'audio :",
     "contacting_transcription_server": "Erreur : Impossible de contacter le serveur de transcription.",
     "microphone_access": "Impossible d'accéder au microphone :",
@@ -73,32 +64,13 @@
       "servers": "Serveurs",
       "language": "Langue",
       "data": "Données"
-    },
-    "urls": {
-      "title": "Comment configurer les URLs",
-      "intro1": "L'utilisation du serveur <1>localhost</1> ne peut fonctionner que localement. C'est une mesure de sécurité des navigateurs modernes, les pages <2>HTTPS</2> ne peuvent pas requêter des URLs <3>HTTP</3>.",
-      "intro2": "Pour pouvoir l'utiliser depuis l'URL Vercel, vous avez 2 solutions :",
-      "solution1": "Utilisez l'URL de votre serveur public LLM (et/ou de backend) en <1>HTTPS</1>",
-      "solution2": "Passez votre <1>localhost</1> en une URL <2>HTTPS</2> (suivez les étapes ci-dessous).",
-      "step1Title": "Étape 1 : Obtenez une URL réseau pour votre serveur",
-      "step1Text": "Utilisez un VPN privé gratuit comme <1>Tailscale</1> pour créer une URL <2>HTTPS</2> (ex: <3>https://VOTRE_URL_PRIVEE.ts.net</3>)",
-      "step2Title": "Étape 2 : Configurez le reverse proxy",
-      "step2Text": "Utilisez un reverse proxy comme <1>Caddy</1>. Créez un fichier <2>Caddyfile</2>, voici un exemple de configuration :",
-      "step2Subtext": "Allez dans le dossier du <1>Caddyfile</1> et lancez <2>caddy run</2>",
-      "step3Title": "Étape 3 : Configurez Ollama pour accepter les connexions distantes",
-      "step3Text": "Par défaut, Ollama n'écoute que les requêtes sur <1>localhost</1>. Vous devez configurer 2 variables.",
-      "step3Link": "Comment configurer les variables .env d'Ollama ?",
-      "step3Var1": "Définissez <1>OLLAMA_HOST=0.0.0.0</1> OU, dans les paramètres d'Ollama, cochez <2>Expose Ollama to the network</2>",
-      "step3Var2": "Définissez <1>OLLAMA_ORIGINS='{{url}}'</1> pour accepter les requêtes de cette URL afin d'éviter les erreurs CORS.",
-      "step4Title": "Étape 4 : Utilisez vos URLs locales <1>HTTPS</1> dans les champs ci-dessus",
-      "step4Url1": "<1>https://VOTRE_URL_PRIVEE.ts.net/ollama</1> → redirige vers <2>localhost:11434</2>",
-      "step4Url2": "<1>https://VOTRE_URL_PRIVEE.ts.net/server</1> → redirige vers <2>localhost:8000</2>"
     }
   },
   "image_generation": {
     "title": "Générer une image",
     "prompt_tooltip": "Le prompt textuel principal pour guider la génération d'image.",
     "prompt_placeholder": "Prompt",
+    "presets": "Préréglages",
     "negative_prompt_placeholder": "Prompt négatif",
     "negative_prompt_tooltip": "Prompt textuel pour guider la génération d'image à l'écart de certains concepts.",
     "model_placeholder": "Modèle",
@@ -124,9 +96,7 @@
     "starting_generation": "Démarrage de la génération...",
     "step_progress": "Étape {{step}}/{{total_steps}}",
     "generating_image": "Génération de l'image {{image_number}} sur {{total_images}}",
-    "image_received": "Image reçue !",
     "parse_config_error": "Échec de l'analyse du fichier de configuration.",
-    "download": "Télécharger",
     "generated_image_alt": "Image générée {{index}}"
   },
   "question": {
@@ -135,7 +105,6 @@
   },
   "actions": {
     "generate_image_title": "Générer une image",
-    "upload_documents_title": "Charger des documents",
     "rag_settings_title": "Paramètres RAG",
     "think_title": "Afficher le raisonnement",
     "image_picker_title": "Choisir une image"

@@ -12,7 +12,7 @@ interface ImagePickerProps {
 const ImagePicker = memo<ImagePickerProps>(({ onImageSelect, disabled }): ReactElement => {
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>): Promise<void> => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const file: File | undefined = e.target.files?.[0];
     if (!file) return;
 

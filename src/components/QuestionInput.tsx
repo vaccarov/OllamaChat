@@ -6,7 +6,6 @@ import { Loader, Play } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import { MessageContext } from '@/context/MessageContextDefinition';
 import { ChatRole, type Message } from '@/types';
-import { getLineNumber, getTotalLines } from '@/utils/tools';
 import { ControlledTextarea } from './ControlledTextarea';
 
 interface QuestionInputProps {
@@ -43,10 +42,12 @@ export function QuestionInput({
 
   const onArrowPressed = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const userMessages: Message[] =
-      conversation.current?.filter((c: Message) => c.role === ChatRole.user) || [];
+      conversation.filter((c: Message) => c.role === ChatRole.user) || [];
     const textarea = e.currentTarget;
-    const currentLine = getLineNumber(textarea);
-    const totalLines = getTotalLines(textarea);
+    const beforeCaret = textarea.value.slice(0, textarea.selectionStart);
+    const afterCaret = textarea.value.slice(textarea.selectionStart);
+    const onFirstLine = !beforeCaret.includes('\n');
+    const onLastLine = !afterCaret.includes('\n');
 
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -54,7 +55,7 @@ export function QuestionInput({
       setUserPrompt('');
       setHistoryIndex(null);
       setPromptBeforeNav(null);
-    } else if (e.key === 'ArrowUp' && currentLine === 1 && userMessages.length > 0) {
+    } else if (e.key === 'ArrowUp' && onFirstLine && userMessages.length > 0) {
       e.preventDefault();
       let newIndex: number;
       if (historyIndex === null) {
@@ -65,7 +66,7 @@ export function QuestionInput({
       }
       setHistoryIndex(newIndex);
       setUserPrompt(userMessages[newIndex]?.content || '');
-    } else if (e.key === 'ArrowDown' && currentLine === totalLines) {
+    } else if (e.key === 'ArrowDown' && onLastLine) {
       if (historyIndex !== null && historyIndex < userMessages.length - 1) {
         e.preventDefault();
         const newIndex = historyIndex + 1;

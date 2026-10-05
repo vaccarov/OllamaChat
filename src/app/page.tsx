@@ -1,8 +1,9 @@
 'use client';
 
 import { ActionIcon } from '@mantine/core';
+import { useLocalStorage, useMediaQuery } from '@mantine/hooks';
 import type React from 'react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Sidebar, Tool } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import { Chat } from '@/components/Chat';
@@ -12,25 +13,15 @@ import { Question } from '@/components/Question';
 import { SystemPrompt } from '@/components/SystemPrompt';
 import { MQ_MAX_WIDTH } from '@/constants/list';
 import { STORAGE_KEYS } from '@/constants/storageKeys';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
-import usePersistentState from '@/hooks/usePersistentState';
 
 const HomePage: React.FC = (): React.ReactElement => {
   const { t } = useTranslation();
-  const [showChatList, setShowChatList] = usePersistentState<boolean>(
-    STORAGE_KEYS.showChatList,
-    true
-  );
+  const [showChatList, setShowChatList] = useLocalStorage<boolean>({
+    key: STORAGE_KEYS.showChatList,
+    defaultValue: true,
+  });
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const isMobile: boolean = useMediaQuery(`(max-width: ${MQ_MAX_WIDTH}px)`);
-
-  useEffect(() => {
-    const setAppHeight = (): void =>
-      document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
-    window.addEventListener('resize', setAppHeight);
-    setAppHeight();
-    return () => window.removeEventListener('resize', setAppHeight);
-  }, []);
 
   const toggleChatList = (): void => setShowChatList(!showChatList);
 

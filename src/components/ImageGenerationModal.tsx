@@ -9,15 +9,12 @@ import {
   FileInput,
   Group,
   Loader,
-  Menu,
   Modal,
   NumberInput,
   Select,
   Slider,
   Switch,
   Text,
-  Textarea,
-  TextInput,
   Tooltip,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
@@ -32,25 +29,39 @@ import {
 } from 'react';
 import { Download, HelpCircle, Image as ImageIcon, Upload } from 'react-feather';
 import { useTranslation } from 'react-i18next';
+import { ControlledTextarea } from '@/components/ControlledTextarea';
 import { GeneratedImagesDisplay } from '@/components/GeneratedImagesDisplay';
-import {
-  IMAGE_GEN_STATUS_PROGRESS,
-  IMAGE_GEN_STATUS_STARTING_IMAGE,
-  MAX_PROMPT_TOKENS,
-  MODEL_LCM,
-  MODEL_SDXL,
-} from '@/constants/list';
+import { MAX_PROMPT_TOKENS, MODEL_LCM, MODEL_SDXL } from '@/constants/list';
 import { imageNegativePromptPresets, imagePromptPresets } from '@/constants/prompts';
 import { ModelContext } from '@/context/ModelContextDefinition';
-import { PromptListSVG } from '@/lib/icons';
 import { generateImage, getImageModels } from '@/services/image';
 import type { PromptItem } from '@/types';
-import type {
-  DiffusionModel,
-  ImageGenerationFormValues,
-  ImageGenerationProgress,
+import {
+  type DiffusionModel,
+  type ImageGenerationFormValues,
+  type ImageGenerationProgress,
+  ImageGenerationStatus,
 } from '@/types/image-generation';
+import { downloadFile } from '@/utils/tools';
 import './ImageGenerationModal.css';
+
+const HelpTooltip = ({ label }: { label: string }) => (
+  <Tooltip
+    label={label}
+    multiline
+    withArrow>
+    <ActionIcon variant='transparent'>
+      <HelpCircle />
+    </ActionIcon>
+  </Tooltip>
+);
+
+const Field = ({ label, tooltip }: { label: string; tooltip: string }) => (
+  <Text className='label'>
+    {label}
+    <HelpTooltip label={tooltip} />
+  </Text>
+);
 
 export const ImageGenerationModal = ({
   opened,
@@ -110,39 +121,14 @@ export const ImageGenerationModal = ({
     },
   });
 
-  const handlePromptSelect = (value: string) => {
-    const selectedPrompt: PromptItem | undefined = imagePromptPresets.find(
-      (p: PromptItem) => p.id === value
-    );
-    if (selectedPrompt) {
-      form.setFieldValue('prompt', selectedPrompt.prompt);
-    }
-  };
-
-  const handleNegativePromptSelect = (value: string) => {
-    const selectedPrompt: PromptItem | undefined = imageNegativePromptPresets.find(
-      (p: PromptItem) => p.id === value
-    );
-    if (selectedPrompt) {
-      form.setFieldValue('negative_prompt', selectedPrompt.prompt);
-    }
-  };
-
   useEffect(() => {
-    if (opened && modelContext?.serverUrl) {
-      const fetchModels = async () => {
-        setModelsLoading(true);
-        const fetchedModels: ComboboxData = (await getImageModels(modelContext.serverUrl)).map(
-          (m: DiffusionModel) => ({
-            value: m.name,
-            label: m.fullname,
-          })
-        );
-        setModels(fetchedModels);
-        setModelsLoading(false);
-      };
-      fetchModels();
-    }
+    if (!opened || !modelContext?.serverUrl) return;
+    setModelsLoading(true);
+    getImageModels(modelContext.serverUrl)
+      .then((fetched: DiffusionModel[]) =>
+        setModels(fetched.map((m) => ({ value: m.name, label: m.fullname })))
+      )
+      .finally(() => setModelsLoading(false));
   }, [opened, modelContext?.serverUrl]);
 
   useEffect(() => {
@@ -156,34 +142,21 @@ export const ImageGenerationModal = ({
 
   const handleExportConfig: () => void = useCallback(() => {
     const { image, ...configToExport }: ImageGenerationFormValues = form.values;
-    const json: string = JSON.stringify(configToExport, null, 2);
-    const blob: Blob = new Blob([json], { type: 'application/json' });
-    const url: string = URL.createObjectURL(blob);
-    const a: HTMLAnchorElement = document.createElement('a');
-    a.href = url;
-    a.download = 'image_gen_config.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    const blob: Blob = new Blob([JSON.stringify(configToExport, null, 2)], {
+      type: 'application/json',
+    });
+    downloadFile('image_gen_config.json', URL.createObjectURL(blob));
   }, [form.values]);
 
   const handleImportConfigChange: (event: ChangeEvent<HTMLInputElement>) => void = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
       const file: File | undefined = event.target.files?.[0];
-      if (file) {
-        const reader: FileReader = new FileReader();
-        reader.onload = (e: ProgressEvent<FileReader>) => {
-          try {
-            const importedConfig: Partial<ImageGenerationFormValues> = JSON.parse(
-              e.target?.result as string
-            );
-            form.setValues({ ...form.values, ...importedConfig });
-          } catch (_err: unknown) {
-            setError(t('image_generation.parse_config_error'));
-          }
-        };
-        reader.readAsText(file);
+      if (!file) return;
+      try {
+        const importedConfig: Partial<ImageGenerationFormValues> = JSON.parse(await file.text());
+        form.setValues({ ...form.values, ...importedConfig });
+      } catch (_err: unknown) {
+        setError(t('image_generation.parse_config_error'));
       }
     },
     [form, t]
@@ -196,52 +169,33 @@ export const ImageGenerationModal = ({
       setProgress(t('image_generation.starting_generation'));
       setError(null);
 
+      const { image, ...params } = values;
       const formData: FormData = new FormData();
-      formData.append('prompt', values.prompt);
-      formData.append('model_name', values.model_name);
-      formData.append('steps', String(values.steps));
-
-      if (values.image) {
-        formData.append('num_images_per_prompt', '1');
-      } else {
-        formData.append('num_images_per_prompt', String(values.num_images_per_prompt));
+      const fields: Record<string, string | number | boolean | undefined> = {
+        ...params,
+        // Image-to-image is always a single image, and strength only applies to it.
+        num_images_per_prompt: image ? 1 : values.num_images_per_prompt,
+        use_refiner: values.model_name === MODEL_SDXL && values.use_refiner,
+      };
+      for (const [key, value] of Object.entries(fields)) {
+        if (value !== undefined && value !== null && value !== '' && value !== false) {
+          formData.append(key, String(value));
+        }
       }
-
-      if (values.negative_prompt) {
-        formData.append('negative_prompt', values.negative_prompt);
-      }
-
-      if (!!values.image && values.strength !== null) {
-        formData.append('strength', String(values.strength));
-      }
-
-      if (values.guidance_scale !== null) {
-        formData.append('guidance_scale', String(values.guidance_scale));
-      }
-      if (values.denoising !== null) {
-        formData.append('denoising', String(values.denoising));
-      }
-
-      if (values.model_name === MODEL_SDXL && values.use_refiner) {
-        formData.append('use_refiner', 'true');
-      }
-
-      if (values.image) {
-        formData.append('image', values.image);
-      }
+      if (image) formData.append('image', image);
 
       try {
         generateImage(modelContext.serverUrl, formData, {
           onProgress: (progressData: ImageGenerationProgress) => {
             const status: string = progressData.status;
-            if (status === IMAGE_GEN_STATUS_PROGRESS) {
+            if (status === ImageGenerationStatus.PROGRESS) {
               setProgress(
                 t('image_generation.step_progress', {
                   step: progressData.step,
                   total_steps: progressData.total_steps,
                 })
               );
-            } else if (status === IMAGE_GEN_STATUS_STARTING_IMAGE) {
+            } else if (status === ImageGenerationStatus.STARTING_IMAGE) {
               setProgress(
                 t('image_generation.generating_image', {
                   image_number: progressData.image_number,
@@ -291,77 +245,26 @@ export const ImageGenerationModal = ({
           <form
             onSubmit={form.onSubmit(handleGenerate)}
             className='spaceVertical'>
-            <Textarea
+            <ControlledTextarea
               required
-              leftSectionWidth={52}
-              leftSection={
-                <Menu width={200}>
-                  <Menu.Target>
-                    <ActionIcon>
-                      <PromptListSVG />
-                    </ActionIcon>
-                  </Menu.Target>
-                  <Menu.Dropdown>
-                    <Menu.Label>{t('image_generation.presets', 'Presets')}</Menu.Label>
-                    {imagePromptPresets.map((p: PromptItem) => (
-                      <Menu.Item
-                        key={p.id}
-                        onClick={() => handlePromptSelect(p.id)}>
-                        {p.name}
-                      </Menu.Item>
-                    ))}
-                  </Menu.Dropdown>
-                </Menu>
-              }
-              rightSection={
-                <Tooltip
-                  label={t('image_generation.prompt_tooltip')}
-                  multiline
-                  withArrow>
-                  <ActionIcon variant='transparent'>
-                    <HelpCircle />
-                  </ActionIcon>
-                </Tooltip>
-              }
+              presets={imagePromptPresets}
+              presetLabel={t('image_generation.presets')}
+              onPresetSelect={(preset: PromptItem) => form.setFieldValue('prompt', preset.prompt)}
+              tooltip={t('image_generation.prompt_tooltip')}
               placeholder={t('image_generation.prompt_placeholder')}
               {...form.getInputProps('prompt')}
-              autosize
             />
             <Collapse
               in={showOptions}
               className='spaceVertical'>
-              <TextInput
+              <ControlledTextarea
+                presets={imageNegativePromptPresets}
+                presetLabel={t('image_generation.presets')}
+                onPresetSelect={(preset: PromptItem) =>
+                  form.setFieldValue('negative_prompt', preset.prompt)
+                }
+                tooltip={t('image_generation.negative_prompt_tooltip')}
                 placeholder={t('image_generation.negative_prompt_placeholder')}
-                leftSectionWidth={52}
-                leftSection={
-                  <Menu width={200}>
-                    <Menu.Target>
-                      <ActionIcon>
-                        <PromptListSVG />
-                      </ActionIcon>
-                    </Menu.Target>
-                    <Menu.Dropdown>
-                      <Menu.Label>{t('image_generation.presets')}</Menu.Label>
-                      {imageNegativePromptPresets.map((p: PromptItem) => (
-                        <Menu.Item
-                          key={p.id}
-                          onClick={() => handleNegativePromptSelect(p.id)}>
-                          {p.name}
-                        </Menu.Item>
-                      ))}
-                    </Menu.Dropdown>
-                  </Menu>
-                }
-                rightSection={
-                  <Tooltip
-                    label={t('image_generation.negative_prompt_tooltip')}
-                    multiline
-                    withArrow>
-                    <ActionIcon variant='transparent'>
-                      <HelpCircle />
-                    </ActionIcon>
-                  </Tooltip>
-                }
                 {...form.getInputProps('negative_prompt')}
               />
               <div className='formLine'>
@@ -379,28 +282,14 @@ export const ImageGenerationModal = ({
                   disabled={form.values.model_name === MODEL_LCM}
                   {...form.getInputProps('use_refiner', { type: 'checkbox' })}
                 />
-                <Tooltip
-                  label={t('image_generation.model_tooltip')}
-                  multiline
-                  withArrow>
-                  <ActionIcon variant='transparent'>
-                    <HelpCircle />
-                  </ActionIcon>
-                </Tooltip>
+                <HelpTooltip label={t('image_generation.model_tooltip')} />
               </div>
               <div className='formLine'>
                 <div className='item'>
-                  <Text className='label'>
-                    {t('image_generation.steps')}
-                    <Tooltip
-                      label={t('image_generation.steps_tooltip')}
-                      multiline
-                      withArrow>
-                      <ActionIcon variant='transparent'>
-                        <HelpCircle />
-                      </ActionIcon>
-                    </Tooltip>
-                  </Text>
+                  <Field
+                    label={t('image_generation.steps')}
+                    tooltip={t('image_generation.steps_tooltip')}
+                  />
                   <NumberInput
                     min={1}
                     max={100}
@@ -409,17 +298,10 @@ export const ImageGenerationModal = ({
                   />
                 </div>
                 <div className='item'>
-                  <Text className='label'>
-                    {t('image_generation.images')}
-                    <Tooltip
-                      label={t('image_generation.images_tooltip')}
-                      multiline
-                      withArrow>
-                      <ActionIcon variant='transparent'>
-                        <HelpCircle />
-                      </ActionIcon>
-                    </Tooltip>
-                  </Text>
+                  <Field
+                    label={t('image_generation.images')}
+                    tooltip={t('image_generation.images_tooltip')}
+                  />
                   <NumberInput
                     min={1}
                     max={4}
@@ -432,30 +314,14 @@ export const ImageGenerationModal = ({
                 clearable
                 placeholder={t('image_generation.set_image_placeholder')}
                 leftSection={<ImageIcon />}
-                rightSection={
-                  <Tooltip
-                    label={t('image_generation.set_image_tooltip')}
-                    multiline
-                    withArrow>
-                    <ActionIcon variant='transparent'>
-                      <HelpCircle />
-                    </ActionIcon>
-                  </Tooltip>
-                }
+                rightSection={<HelpTooltip label={t('image_generation.set_image_tooltip')} />}
                 {...form.getInputProps('image')}
                 onChange={(file: File | null) => file && form.setFieldValue('image', file)}
               />
-              <Text className='label'>
-                {t('image_generation.guidance_scale')}
-                <Tooltip
-                  label={t('image_generation.guidance_scale_tooltip')}
-                  multiline
-                  withArrow>
-                  <ActionIcon variant='transparent'>
-                    <HelpCircle />
-                  </ActionIcon>
-                </Tooltip>
-              </Text>
+              <Field
+                label={t('image_generation.guidance_scale')}
+                tooltip={t('image_generation.guidance_scale_tooltip')}
+              />
               <Slider
                 labelAlwaysOn
                 min={0}
@@ -463,17 +329,10 @@ export const ImageGenerationModal = ({
                 step={0.01}
                 {...form.getInputProps('guidance_scale')}
               />
-              <Text className='label'>
-                {t('image_generation.denoising')}
-                <Tooltip
-                  label={t('image_generation.denoising_tooltip')}
-                  multiline
-                  withArrow>
-                  <ActionIcon variant='transparent'>
-                    <HelpCircle />
-                  </ActionIcon>
-                </Tooltip>
-              </Text>
+              <Field
+                label={t('image_generation.denoising')}
+                tooltip={t('image_generation.denoising_tooltip')}
+              />
               <Slider
                 labelAlwaysOn
                 min={0}
@@ -483,17 +342,10 @@ export const ImageGenerationModal = ({
               />
               {form.values.image && (
                 <>
-                  <Text className='label'>
-                    {t('image_generation.strength')}
-                    <Tooltip
-                      label={t('image_generation.strength_tooltip')}
-                      multiline
-                      withArrow>
-                      <ActionIcon variant='transparent'>
-                        <HelpCircle />
-                      </ActionIcon>
-                    </Tooltip>
-                  </Text>
+                  <Field
+                    label={t('image_generation.strength')}
+                    tooltip={t('image_generation.strength_tooltip')}
+                  />
                   <Slider
                     labelAlwaysOn
                     min={0}

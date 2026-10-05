@@ -1,12 +1,14 @@
 import { Image, Modal, UnstyledButton } from '@mantine/core';
 import { type ReactElement, useState } from 'react';
+import { ChevronDown, ChevronUp } from 'react-feather';
+import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
-import { Collapsible } from '@/components/Collapsable';
 import type { ChatText } from '@/types/ChatText';
 import './ChatBubble.css';
 
 export default function ChatBubble({ message }: { message: ChatText }): ReactElement | null {
+  const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isThinkingOpen, setIsThinkingOpen] = useState<boolean>(false);
 
@@ -40,11 +42,19 @@ export default function ChatBubble({ message }: { message: ChatText }): ReactEle
       )}
 
       {message.thinking && (
-        <Collapsible
-          isOpen={isThinkingOpen}
-          onToggle={() => setIsThinkingOpen(!isThinkingOpen)}>
-          <ReactMarkdown rehypePlugins={[rehypeRaw]}>{message.thinking}</ReactMarkdown>
-        </Collapsible>
+        <div className='thinkTag'>
+          <UnstyledButton
+            className='thinkButton'
+            onClick={() => setIsThinkingOpen(!isThinkingOpen)}>
+            {isThinkingOpen ? t('common.hide') : t('common.reasoning')}
+            {isThinkingOpen ? <ChevronUp /> : <ChevronDown />}
+          </UnstyledButton>
+          {isThinkingOpen && (
+            <div className='thinkContent'>
+              <ReactMarkdown rehypePlugins={[rehypeRaw]}>{message.thinking}</ReactMarkdown>
+            </div>
+          )}
+        </div>
       )}
 
       {message.content && (

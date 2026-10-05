@@ -9,13 +9,13 @@ import {
   Switch,
   Text,
 } from '@mantine/core';
-import { type ChangeEvent, Fragment, useContext, useState } from 'react';
+import { type ChangeEvent, useContext, useState } from 'react';
 import { Upload } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import { MessageContext } from '@/context/MessageContextDefinition';
 import { ModelContext } from '@/context/ModelContextDefinition';
 import { RagContext } from '@/context/RagContextDefinition';
-import { listDocuments, uploadDocuments } from '@/services/document';
+import { type EmbeddingTarget, listDocuments, uploadDocuments } from '@/services/document';
 import type { RagDocument } from '@/types/document';
 
 interface RagModalProps {
@@ -44,8 +44,9 @@ export const RagModal: React.FC<RagModalProps> = ({ opened, onClose }) => {
     setIncludeAllDocuments,
   } = ragContext;
 
-  const { serverUrl, embeddingModels } = modelContext;
+  const { serverUrl, embeddingModels, chatServerUrl, llmProvider } = modelContext;
   const { activeSession } = messageContext;
+  const embeddingTarget: EmbeddingTarget = { provider: llmProvider, baseUrl: chatServerUrl };
 
   const handleUpload = async () => {
     if (filesToUpload.length === 0 || !selectedRagModel) return;
@@ -53,7 +54,7 @@ export const RagModal: React.FC<RagModalProps> = ({ opened, onClose }) => {
     setUploadError(null);
     try {
       const chatId: string | undefined = includeAllDocuments ? undefined : activeSession?.id;
-      await uploadDocuments(serverUrl, filesToUpload, selectedRagModel, chatId);
+      await uploadDocuments(serverUrl, filesToUpload, selectedRagModel, embeddingTarget, chatId);
       const docs: RagDocument[] = await listDocuments(serverUrl, selectedRagModel, chatId);
       setRagDocuments(docs);
       setFilesToUpload([]);
@@ -80,10 +81,8 @@ export const RagModal: React.FC<RagModalProps> = ({ opened, onClose }) => {
           clearable
         />
         {selectedRagModel && (
-          <Fragment>
-            <Box
-              key='documents-in-collection'
-              className='vertical'>
+          <>
+            <Box className='vertical'>
               <Switch
                 label={t('modals.rag.include_all_documents')}
                 checked={includeAllDocuments}
@@ -106,9 +105,7 @@ export const RagModal: React.FC<RagModalProps> = ({ opened, onClose }) => {
                 </Text>
               )}
             </Box>
-            <Box
-              key='upload-documents'
-              className='horizontal'>
+            <Box className='horizontal'>
               <FileInput
                 placeholder={t('modals.rag.select_files_placeholder')}
                 className='space'
@@ -132,7 +129,7 @@ export const RagModal: React.FC<RagModalProps> = ({ opened, onClose }) => {
                 {uploadError}
               </Text>
             )}
-          </Fragment>
+          </>
         )}
       </div>
     </Modal>

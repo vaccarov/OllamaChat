@@ -1,17 +1,14 @@
 {
-  "app": {
-    "title": "AnswR Chat"
-  },
   "common": {
     "app_language": "Application language",
     "speech_language": "Speech language",
-    "settings": "Settings",
     "hide": "Hide",
-    "reasoning": "Reasoning"
+    "reasoning": "Reasoning",
+    "close": "Close",
+    "download": "Download"
   },
   "chat": {
     "placeholder": "Type your message here...",
-    "send": "Send",
     "new": "New Chat",
     "name": "Chat name",
     "rename": "Rename",
@@ -19,7 +16,6 @@
     "delete": "Delete",
     "export": "Export Sessions",
     "import": "Import Sessions",
-    "name_prompt": "Enter the new chat name:",
     "new_chat_default_name": "New Chat",
     "history": {
       "invalid_format": "Invalid chat history file. Please select a valid JSON file.",
@@ -32,7 +28,6 @@
   },
   "system_prompt": {
     "title": "System Prompt",
-    "list": "Prompt list",
     "select": "Select prompt"
   },
   "model": {
@@ -41,7 +36,6 @@
     "capabilities": {
       "images": "Can analyze images",
       "thinking": "Can show its reasoning process",
-      "insert": "Can complete partial code",
       "embedding": "Can be used for embeddings"
     }
   },
@@ -56,9 +50,6 @@
     "prefix": "Error: ",
     "unknown": "An unknown error occurred.",
     "request_aborted": "The request was cancelled.",
-    "fetching_models": "Error fetching models",
-    "server": "Server error:",
-    "transcription_code": "Transcription error (code: {{code}})",
     "sending_audio": "Error sending audio:",
     "contacting_transcription_server": "Error: Could not contact transcription server.",
     "microphone_access": "Could not access microphone:",
@@ -73,32 +64,13 @@
       "servers": "Servers",
       "language": "Language",
       "data": "Data"
-    },
-    "urls": {
-      "title": "How to configure the URLs",
-      "intro1": "Using <1>localhost</1> server can only work locally. This is a security measure from modern browsers, <2>HTTPS</2> pages cannot request <3>HTTP</3> URLs.",
-      "intro2": "In order to use it from the Vercel URL, you have 2 solutions:",
-      "solution1": "Use your public LLM server (and/or backend) server URL using <1>HTTPS</1>",
-      "solution2": "Set your <1>localhost</1> into an <2>HTTPS</2> URL (follow the steps below).",
-      "step1Title": "Step 1: Get a network URL for your server",
-      "step1Text": "Use a free private VPN like <1>Tailscale</1> to create an <2>HTTPS</2> URL (e.g. <3>https://YOUR_PRIVATE_URL.ts.net</3>)",
-      "step2Title": "Step 2: Configure the reverse proxy",
-      "step2Text": "Use a reverse proxy like <1>Caddy</1>. Create a file <2>Caddyfile</2>, here is an example configuration:",
-      "step2Subtext": "Go in the folder of the <1>Caddyfile</1> and run <2>caddy run</2>",
-      "step3Title": "Step 3: Configure Ollama to accept remote connections",
-      "step3Text": "By default, Ollama only listens for requests on <1>localhost</1>. You must configure 2 variables.",
-      "step3Link": "How do I configure Ollama .env variables?",
-      "step3Var1": "Set <1>OLLAMA_HOST=0.0.0.0</1> OR, in Ollama settings, check <2>Expose Ollama to the network</2>",
-      "step3Var2": "Set <1>OLLAMA_ORIGINS='{{url}}'</1> to accept requests from this URL to prevent CORS errors.",
-      "step4Title": "Step 4: Use your local <1>HTTPS</1> URLs in the inputs above",
-      "step4Url1": "<1>https://YOUR_PRIVATE_URL.ts.net/ollama</1> → redirects to <2>localhost:11434</2>",
-      "step4Url2": "<1>https://YOUR_PRIVATE_URL.ts.net/server</1> → redirects to <2>localhost:8000</2>"
     }
   },
   "image_generation": {
     "title": "Generate Image",
     "prompt_tooltip": "The main text prompt to guide the image generation.",
     "prompt_placeholder": "Prompt",
+    "presets": "Presets",
     "negative_prompt_placeholder": "Negative Prompt",
     "negative_prompt_tooltip": "Text prompt to guide the image generation away from specified concepts.",
     "model_placeholder": "Model",
@@ -124,9 +96,7 @@
     "starting_generation": "Starting generation...",
     "step_progress": "Step {{step}}/{{total_steps}}",
     "generating_image": "Generating image {{image_number}} of {{total_images}}",
-    "image_received": "Image received!",
     "parse_config_error": "Failed to parse configuration file.",
-    "download": "Download",
     "generated_image_alt": "Generated image {{index}}"
   },
   "question": {
@@ -135,7 +105,6 @@
   },
   "actions": {
     "generate_image_title": "Generate Image",
-    "upload_documents_title": "Upload Documents",
     "rag_settings_title": "RAG Settings",
     "think_title": "Toggle Thinking Process",
     "image_picker_title": "Pick Image"

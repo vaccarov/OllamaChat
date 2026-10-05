@@ -10,11 +10,8 @@ import { RagContext } from '@/context/RagContextDefinition';
 import { useTts } from '@/hooks/useTts';
 import { ragChat } from '@/services/document';
 import { streamChat } from '@/services/llm';
-import type { Message } from '@/types';
-import { ChatRole } from '@/types/ChatRoleDefinition';
+import { ChatRole, type ImageToSend, type Message } from '@/types';
 import type { RagChatResponse } from '@/types/document';
-import type { ImageToSend } from '@/types/ImageToSend';
-import { mapIsoToBcp47 } from '@/utils/tools';
 import './Question.css';
 import { QuestionActions } from './QuestionActions';
 import { QuestionInput } from './QuestionInput';
@@ -34,9 +31,8 @@ export const Question: React.FC = (): ReactElement | null => {
 
   if (!modelContext || !messageContext || !ragContext) return null;
 
-  const { chatServerUrl, serverUrl, serverType, currentModel } = modelContext;
-  const { conversation, addMessage, addChunk, activeSession, speechLang, isThinkingEnabled } =
-    messageContext;
+  const { chatServerUrl, serverUrl, currentModel, llmProvider } = modelContext;
+  const { conversation, addMessage, addChunk, activeSession, isThinkingEnabled } = messageContext;
   const { includeAllDocuments, selectedRagModel } = ragContext;
 
   const stopRequest = (): void => {
@@ -67,6 +63,10 @@ export const Question: React.FC = (): ReactElement | null => {
           serverUrl,
           prompt,
           selectedRagModel,
+          {
+            provider: llmProvider,
+            baseUrl: chatServerUrl,
+          },
           chatId
         );
         finalPrompt = ragResponse.prompt;
@@ -79,7 +79,7 @@ export const Question: React.FC = (): ReactElement | null => {
     }
 
     const messagesForApi: Message[] = [
-      ...(conversation.current || []),
+      ...conversation,
       {
         role: 'user',
         content: finalPrompt,
@@ -92,12 +92,10 @@ export const Question: React.FC = (): ReactElement | null => {
     setImage(undefined);
 
     let sentenceBuffer: string = '';
-    const currentSpeechLang: string = mapIsoToBcp47(speechLang);
 
     addMessage(ChatRole.assistant, '', undefined, currentSessionId);
     abortControllerRef.current = streamChat(
       chatServerUrl,
-      serverType,
       {
         model: currentModel?.model || '',
         messages: messagesForApi,
@@ -110,13 +108,13 @@ export const Question: React.FC = (): ReactElement | null => {
           const sentenceEndIndex: number = sentenceBuffer.search(/[.!?]/);
           if (sentenceEndIndex !== -1) {
             const sentence: string = sentenceBuffer.substring(0, sentenceEndIndex + 1);
-            speak(sentence, currentSpeechLang);
+            speak(sentence);
             sentenceBuffer = sentenceBuffer.substring(sentenceEndIndex + 1);
           }
         },
         onComplete: () => {
           if (sentenceBuffer.trim()) {
-            speak(sentenceBuffer, currentSpeechLang);
+            speak(sentenceBuffer);
           }
           setLoading(false);
           abortControllerRef.current = null;

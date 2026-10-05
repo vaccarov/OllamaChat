@@ -21,15 +21,15 @@ export const RagProvider: React.FC<RagProviderProps> = ({ children }) => {
     const chatId: string | undefined = includeAllDocuments
       ? undefined
       : messageContext?.activeSession?.id;
-    if (modelContext?.chatServerUrl && selectedRagModel) {
-      listDocuments(modelContext.chatServerUrl, selectedRagModel, chatId)
+    if (modelContext?.serverUrl && selectedRagModel) {
+      listDocuments(modelContext.serverUrl, selectedRagModel, chatId)
         .then(setRagDocuments)
         .catch(() => setRagDocuments([]));
     } else {
       setRagDocuments([]);
     }
   }, [
-    modelContext?.chatServerUrl,
+    modelContext?.serverUrl,
     selectedRagModel,
     messageContext?.activeSession?.id,
     includeAllDocuments,

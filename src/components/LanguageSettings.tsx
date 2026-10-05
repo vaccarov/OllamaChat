@@ -13,10 +13,6 @@ export const LanguageSettings = () => {
 
   const { speechLang, setSpeechLang } = messageContext;
 
-  const changeLanguage = (lang: string) => {
-    i18n.changeLanguage(lang);
-  };
-
   return (
     <div className='settingsContainer'>
       <Select
@@ -24,7 +20,7 @@ export const LanguageSettings = () => {
         className='languagePicker'
         data={APP_LANGS}
         defaultValue={i18n.language}
-        onChange={(value: string | null) => value && changeLanguage(value)}
+        onChange={(value: string | null) => value && i18n.changeLanguage(value)}
       />
       <Select
         label={t('common.speech_language')}

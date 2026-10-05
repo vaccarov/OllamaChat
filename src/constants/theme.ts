@@ -23,7 +23,8 @@ export const theme: Partial<MantineTheme> = {
         radius: RADIUS,
       },
     },
-    ModalContent: {
+    // Modal.Root is what sets `--modal-radius`; ModalContent's radius prop is dead weight.
+    ModalRoot: {
       defaultProps: {
         radius: RADIUS,
       },

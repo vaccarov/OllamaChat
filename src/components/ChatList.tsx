@@ -14,8 +14,8 @@ export function ChatList({ show }: { show: boolean }): React.ReactElement | null
   const messageContext = useContext(MessageContext);
   const modalContext = useContext(ModalContext);
 
-  const [renameModalOpen, setRenameModalOpen] = useState<boolean>(false);
-  const [sessionToEdit, setSessionToEdit] = useState<ChatSession | null>(null);
+  // undefined = closed, null = new chat, a session = rename it.
+  const [sessionToEdit, setSessionToEdit] = useState<ChatSession | null | undefined>(undefined);
 
   if (!messageContext || !modalContext) return null;
 
@@ -24,28 +24,17 @@ export function ChatList({ show }: { show: boolean }): React.ReactElement | null
 
   const { setIsSettingsOpen } = modalContext;
 
-  const handleRenameClick = (session: ChatSession | null): void => {
-    setSessionToEdit(session);
-    setRenameModalOpen(true);
-  };
-
-  const closeRenameModal = (): void => {
-    setRenameModalOpen(false);
-    setSessionToEdit(null);
-  };
-
   return (
     <div className={`chatListContainer ${show && 'show'}`}>
       <ChatRenameModal
-        opened={renameModalOpen}
-        onClose={closeRenameModal}
+        onClose={() => setSessionToEdit(undefined)}
         session={sessionToEdit}
       />
       <div className='sessionActions'>
         <ActionIcon onClick={() => setIsSettingsOpen(true)}>
           <Settings />
         </ActionIcon>
-        <ActionIcon onClick={() => handleRenameClick(null)}>
+        <ActionIcon onClick={() => setSessionToEdit(null)}>
           <AddMessageSVG />
         </ActionIcon>
       </div>
@@ -79,7 +68,7 @@ export function ChatList({ show }: { show: boolean }): React.ReactElement | null
                       leftSection={<Edit size={14} />}
                       onClick={(e: React.MouseEvent) => {
                         e.stopPropagation();
-                        handleRenameClick(session);
+                        setSessionToEdit(session);
                       }}>
                       {t('chat.rename')}
                     </Menu.Item>

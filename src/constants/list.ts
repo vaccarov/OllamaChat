@@ -7,7 +7,3 @@ export const MAX_PROMPT_TOKENS: number = 77;
 
 export const MODEL_SDXL: string = 'sdxl';
 export const MODEL_LCM: string = 'lcm';
-
-export const IMAGE_GEN_STATUS_SUCCESS: string = 'success';
-export const IMAGE_GEN_STATUS_PROGRESS: string = 'progress';
-export const IMAGE_GEN_STATUS_STARTING_IMAGE: string = 'starting_image';

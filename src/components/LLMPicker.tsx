@@ -1,6 +1,6 @@
 import { ActionIcon, Select, Tooltip } from '@mantine/core';
 import type React from 'react';
-import { useCallback, useContext, useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import { HelpCircle, RefreshCw } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import { CAPABILITIES } from '@/constants/capabilities';
@@ -14,35 +14,27 @@ export const LLMPicker: React.FC = (): React.ReactElement | null => {
   const modelContext = useContext(ModelContext);
   const messageContext = useContext(MessageContext);
 
-  const getModelCapabilities = useCallback(
-    (m: LlmModel['show']): Capability[] =>
-      CAPABILITIES.filter((capability: Capability) => m.capabilities?.includes(capability.id)),
-    []
-  );
-
-  const capabilitiesDescription: string = useMemo(
-    () =>
-      CAPABILITIES.map(
-        (capability: Capability) => `${capability.icon}: ${t(capability.tooltipKey)}`
-      ).join('\n'),
-    [t]
-  );
+  const capabilitiesDescription: string = CAPABILITIES.map(
+    (capability: Capability) => `${capability.icon}: ${t(capability.tooltipKey)}`
+  ).join('\n');
 
   const selectData = useMemo(
     () =>
       modelContext?.models.map((m: LlmModel) => {
-        const capabilities: Capability[] = getModelCapabilities(m.show);
+        const capabilities: Capability[] = CAPABILITIES.filter((capability: Capability) =>
+          m.show.capabilities?.includes(capability.id)
+        );
         const icons: string = capabilities.map((c: Capability) => c.icon).join(' ');
-        const size = m.size_bytes || m.size;
-        const sizeGB = size ? (size / 1e9).toFixed(2) : '0.00';
-        const label: string = `${m.name || m.model} (${sizeGB} GB)`;
+        const label: string = m.size
+          ? `${m.name || m.model} (${(m.size / 1e9).toFixed(2)} GB)`
+          : m.name || m.model;
         return {
           value: m.model,
           label: icons ? `${icons} ${label}` : label,
           description: m.details?.family,
         };
       }) || [],
-    [modelContext?.models, getModelCapabilities]
+    [modelContext?.models]
   );
 
   if (!modelContext || !messageContext) return null;

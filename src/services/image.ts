@@ -5,7 +5,7 @@ import {
   type ImageGenerationProgress,
   ImageGenerationStatus,
 } from '@/types/image-generation';
-import { apiFetch } from '@/utils/api';
+import { apiFetch, joinUrl } from '@/utils/api';
 
 export function generateImage(
   serverUrl: string,
@@ -21,7 +21,7 @@ export function generateImage(
 
   (async (): Promise<void> => {
     try {
-      const res: Response = await fetch(`${serverUrl}/image/generate`, {
+      const res: Response = await fetch(joinUrl(serverUrl, '/image/generate'), {
         method: 'POST',
         body: formData,
         signal: ctrl.signal,

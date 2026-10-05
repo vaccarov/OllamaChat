@@ -78,17 +78,9 @@ export default function AudioRecorder({
     setRecording(false);
   };
 
-  const handleRecordClick = (): void => {
-    if (recording) {
-      stopRecording();
-    } else {
-      startRecording();
-    }
-  };
-
   return (
     <ActionIcon
-      onClick={handleRecordClick}
+      onClick={() => (recording ? stopRecording() : startRecording())}
       disabled={!currentModel?.model || !isServerOnline}
       title={recording ? t('audio.stop_recording') : t('audio.start_recording')}>
       {recording ? <MicOff color='red' /> : <Mic />}

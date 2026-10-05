@@ -14,18 +14,9 @@ export function DataSettings(): ReactElement {
   const fileInputRef: React.RefObject<HTMLInputElement | null> = useRef<HTMLInputElement>(null);
   const { exportSessions, importSessions } = messageContext;
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
     const file: File | undefined = event.target.files?.[0];
-    if (file) {
-      const reader: FileReader = new FileReader();
-      reader.onload = (e: ProgressEvent<FileReader>): void => {
-        const content: string | ArrayBuffer | null | undefined = e.target?.result;
-        if (typeof content === 'string' && importSessions) {
-          importSessions(content);
-        }
-      };
-      reader.readAsText(file);
-    }
+    if (file) importSessions(await file.text());
   };
 
   return (

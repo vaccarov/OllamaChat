@@ -26,16 +26,13 @@ export function ControlledTextarea({
   ...others
 }: ControlledTextareaProps): ReactElement {
   const handleChange: ChangeEventHandler<HTMLTextAreaElement> = (event) => {
-    if (onValueChange) {
-      onValueChange(event.currentTarget.value);
-    }
-    if (onChange) {
-      onChange(event);
-    }
+    onValueChange?.(event.currentTarget.value);
+    onChange?.(event);
   };
 
   return (
     <Textarea
+      {...others}
       value={value}
       onChange={handleChange}
       autosize
@@ -51,7 +48,7 @@ export function ControlledTextarea({
             </Menu.Target>
             <Menu.Dropdown>
               {presetLabel && <Menu.Label>{presetLabel}</Menu.Label>}
-              {presets.map((p) => (
+              {presets.map((p: PromptItem) => (
                 <Menu.Item
                   key={p.id}
                   onClick={() => onPresetSelect?.(p)}>
@@ -76,7 +73,6 @@ export function ControlledTextarea({
           others.rightSection
         )
       }
-      {...others}
     />
   );
 }

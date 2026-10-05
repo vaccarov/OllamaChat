@@ -12,11 +12,6 @@ export const CAPABILITIES: Capability[] = [
     tooltipKey: 'model.capabilities.thinking',
   },
   {
-    id: 'insert',
-    icon: '✍️',
-    tooltipKey: 'model.capabilities.insert',
-  },
-  {
     id: 'embedding',
     icon: '📚',
     tooltipKey: 'model.capabilities.embedding',

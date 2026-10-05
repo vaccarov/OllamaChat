@@ -2,26 +2,52 @@
 
 import type {
   LlmModel,
-  LmStudioModelsResponse,
+  LlmProvider,
+  LmStudioV0ModelsResponse,
   Message,
+  OllamaShowResponse,
   OllamaTagsResponse,
   OpenAiModelsResponse,
 } from '@/types';
 
-export function parseLlmChunk(
-  line: string,
-  type: 'ollama' | 'lmstudio'
-): { message?: Message; done?: boolean; response_id?: string } | null {
-  const trimmed: string = line.trim();
+/** Matches a trailing `/api`, `/v1` or `/api/v1` so `host`, `host/v1` and `host/api` all work. */
+const API_SUFFIX = /\/(?:api|v1)(?:\/v1)?$/;
+
+const apiRoot = (url: string): string => url.replace(/\/+$/, '').replace(API_SUFFIX, '');
+
+const VISION_RE =
+  /vision|visual|vlm\b|multimodal|llava|clip|florence|cogvlm|internvl|qwen.*vl|phi.*vision|deepseek.*vl/i;
+const THINKING_RE = /think|reasoning|reason|deepseek.*r1|qwq/i;
+const EMBEDDING_RE = /embed|bge|gte|e5-|nomic/i;
+
+/** Best-effort capability guess for servers that expose no capability metadata. */
+const guessCapabilities = (id: string): string[] => {
+  if (EMBEDDING_RE.test(id)) return ['embedding'];
+  return [
+    'chat',
+    ...(VISION_RE.test(id) ? ['vision'] : []),
+    ...(THINKING_RE.test(id) ? ['thinking'] : []),
+  ];
+};
+
+/** The three Ollama capabilities the UI understands; `completion` and `tools` are implied. */
+const OLLAMA_CAPS = ['vision', 'thinking', 'embedding'];
+
+const mapOllamaCapabilities = (raw: string[]): string[] => {
+  const mapped = raw.filter((c: string) => OLLAMA_CAPS.includes(c));
+  // Embedding models report `embedding` only; everything else is a chat model.
+  return mapped.includes('embedding') ? mapped : ['chat', ...mapped];
+};
+
+function parseLlmChunk(line: string): { message?: Message; done?: boolean } | null {
+  const trimmed = line.trim();
   if (!trimmed) return null;
 
   try {
-    const data = JSON.parse(trimmed.startsWith('data: ') ? trimmed.slice(6) : trimmed) as {
-      message?: Message;
-      done?: boolean;
-      type?: string;
-      content?: string;
-      response_id?: string;
+    const raw = trimmed.startsWith('data: ') ? trimmed.slice(6) : trimmed;
+    if (raw === '[DONE]') return { done: true };
+
+    const data = JSON.parse(raw) as {
       choices?: {
         delta?: {
           content?: string;
@@ -29,39 +55,10 @@ export function parseLlmChunk(
         };
       }[];
     };
-    if (type === 'ollama') {
-      const msg: Message | undefined = data.message;
-      if (!msg) return null;
-      if (msg.content?.includes('<think>')) {
-        const match: RegExpMatchArray | null = msg.content.match(/<think>([\s\S]*?)<\/think>/);
-        if (match)
-          return {
-            message: {
-              ...msg,
-              thinking: match[1],
-              content: msg.content.replace(/<think>[\s\S]*?<\/think>/, '').trim(),
-            },
-            done: data.done,
-          };
-      }
-      return { message: msg, done: data.done };
-    }
-    if (type === 'lmstudio') {
-      if (data.type === 'message.delta' && data.content)
-        return {
-          message: { role: 'assistant', content: data.content },
-          done: false,
-        };
-      if (data.type === 'reasoning.delta' && data.content)
-        return {
-          message: { role: 'assistant', content: '', thinking: data.content },
-          done: false,
-        };
-      if (data.type === 'chat.end') return { done: true, response_id: data.response_id };
-    }
 
     if (data.choices?.[0]?.delta) {
-      const { content = '', reasoning_content: thinking = '' } = data.choices[0].delta;
+      const content = data.choices[0].delta.content ?? '';
+      const thinking = data.choices[0].delta.reasoning_content ?? '';
       if (content || thinking)
         return {
           message: { role: 'assistant', content, thinking },
@@ -74,206 +71,178 @@ export function parseLlmChunk(
   }
 }
 
-export async function listModels(
-  baseUrl: string,
-  apiKey?: string
-): Promise<{ models: LlmModel[]; type: 'ollama' | 'lmstudio' }> {
-  const headers: Record<string, string> = apiKey ? { Authorization: `Bearer ${apiKey}` } : {};
-  const fetchApi = (path: string, options: RequestInit = {}) =>
-    fetch(`${baseUrl}${path}`, {
-      headers,
-      cache: 'no-cache',
-      ...options,
-    }).catch(() => null);
+async function ollamaModel(
+  root: string,
+  m: OllamaTagsResponse['models'][number]
+): Promise<LlmModel> {
+  const name = m.model || m.name || '';
+  const model: LlmModel = {
+    model: name,
+    name: m.name || m.model,
+    size: m.size,
+    details: m.details,
+    show: { capabilities: guessCapabilities(name) },
+  };
 
-  // LMStudio
-  const lmRes: Response | null = await fetchApi('models');
-  if (lmRes?.ok || lmRes?.status === 304) {
-    const data: LmStudioModelsResponse = await lmRes.json();
-    if (Array.isArray(data.models)) {
-      return {
-        type: 'lmstudio',
-        models: data.models.map((m) => {
-          const caps: string[] = ['chat'];
-          if (m.type === 'embedding') caps.push('embedding');
-          if (m.capabilities?.vision) caps.push('vision');
-          if (/think|reasoning/i.test(m.key)) caps.push('think');
-          return {
-            model: m.key,
-            name: m.key.split('/').pop() || m.key,
-            size: 0,
-            size_bytes: m.size_bytes,
-            details: {
-              family: m.architecture,
-              quantization_level: m.quantization?.name,
-            },
-            show: { capabilities: caps },
-          };
-        }),
-      };
-    }
-  }
+  try {
+    const res = await fetch(`${root}/api/show`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+    });
+    if (!res.ok) return model;
 
-  // Ollama
-  const ollamaCheck: Response | null = await fetchApi('tags');
-  if (ollamaCheck?.ok) {
-    const data: OllamaTagsResponse = await ollamaCheck.json();
-    if (Array.isArray(data.models)) {
-      const models: LlmModel[] = await Promise.all(
-        data.models.map(async (m) => {
-          const name: string = m.model || m.name || '';
-          try {
-            const showRes: Response = await fetch(`${baseUrl}show`, {
-              method: 'POST',
-              body: JSON.stringify({ name }),
-            });
-            const show = (await showRes.json()) as {
-              details?: { family: string; families?: string[] };
-              template?: string;
-              system?: string;
-              modality?: string[];
-            };
-            const caps: string[] = ['chat'];
-            if (
-              (show.details?.family && /clip/i.test(show.details.family)) ||
-              show.details?.families?.some((f: string) => /clip/i.test(f))
-            )
-              caps.push('vision');
-            if (
-              /think|reasoning/i.test(name) ||
-              show.template?.includes('think') ||
-              show.system?.includes('think')
-            )
-              caps.push('think');
-            return {
-              model: name,
-              name: m.name || m.model,
-              size: m.size,
-              details: show.details,
-              show: { capabilities: caps, modality: show.modality },
-            };
-          } catch {
-            return {
-              model: name,
-              name: m.name || m.model,
-              size: m.size,
-              show: { capabilities: ['chat'] },
-            };
-          }
-        })
+    const show: OllamaShowResponse = await res.json();
+    if (Array.isArray(show.capabilities) && show.capabilities.length > 0) {
+      model.show.capabilities = mapOllamaCapabilities(show.capabilities);
+    } else {
+      // Older Ollama servers don't report capabilities: keep the model card data.
+      model.show.capabilities = guessCapabilities(name).concat(
+        show.details?.family && /clip/i.test(show.details.family) ? ['vision'] : []
       );
-      return { models, type: 'ollama' };
     }
+  } catch {
+    // Keep the /api/tags-only result.
   }
 
-  // OpenAI
-  const oaRes: Response | null = await fetchApi('models');
-  if (oaRes?.ok) {
-    const data: OpenAiModelsResponse = await oaRes.json();
-    if (Array.isArray(data.data)) {
-      return {
-        type: 'ollama', // Using ollama as default type for compatibility
-        models: data.data.map((m) => ({
-          model: m.id,
-          name: m.id,
-          size: 0,
-          show: {
-            capabilities: ['chat', 'vision', ...(/think|reasoning/i.test(m.id) ? ['think'] : [])],
-          },
-        })),
-      };
-    }
-  }
+  return model;
+}
 
-  return { models: [], type: 'ollama' };
+async function listOllamaModels(root: string): Promise<LlmModel[] | null> {
+  try {
+    const res = await fetch(`${root}/api/tags`, { cache: 'no-cache' });
+    if (!res.ok) return null;
+    const data: OllamaTagsResponse = await res.json();
+    if (!Array.isArray(data.models) || data.models.length === 0) return null;
+    return Promise.all(data.models.map((m) => ollamaModel(root, m)));
+  } catch {
+    return null;
+  }
+}
+
+/** LM Studio's native API: the only source of model type (llm / vlm / embeddings). */
+async function listLmStudioModels(root: string): Promise<LlmModel[] | null> {
+  try {
+    const res = await fetch(`${root}/api/v0/models`, { cache: 'no-cache' });
+    if (!res.ok) return null;
+    const data: LmStudioV0ModelsResponse = await res.json();
+    if (!Array.isArray(data.data) || data.data.length === 0) return null;
+
+    return data.data.map((m) => ({
+      model: m.id,
+      name: m.id,
+      details: { family: m.arch, quantization_level: m.quantization },
+      show: {
+        capabilities:
+          m.type === 'embeddings'
+            ? ['embedding']
+            : [
+                'chat',
+                ...(m.type === 'vlm' ? ['vision'] : []),
+                ...(THINKING_RE.test(m.id) ? ['thinking'] : []),
+              ],
+      },
+    }));
+  } catch {
+    return null;
+  }
+}
+
+async function listOpenAiModels(root: string): Promise<LlmModel[]> {
+  try {
+    const res = await fetch(`${root}/v1/models`, { cache: 'no-cache' });
+    if (!res.ok) return [];
+
+    const data: OpenAiModelsResponse = await res.json();
+    if (!Array.isArray(data.data)) return [];
+
+    return data.data.map((m) => ({
+      model: m.id,
+      name: m.id,
+      show: { capabilities: guessCapabilities(m.id) },
+    }));
+  } catch {
+    return [];
+  }
+}
+
+export async function listModels(baseUrl: string): Promise<{
+  models: LlmModel[];
+  provider: LlmProvider;
+}> {
+  const root = apiRoot(baseUrl);
+  if (!root) return { models: [], provider: 'openai' };
+
+  const ollama = await listOllamaModels(root);
+  if (ollama) return { models: ollama, provider: 'ollama' };
+
+  const lmStudio = await listLmStudioModels(root);
+  if (lmStudio) return { models: lmStudio, provider: 'lmstudio' };
+
+  return { models: await listOpenAiModels(root), provider: 'openai' };
 }
 
 export function streamChat(
   baseUrl: string,
-  type: 'ollama' | 'lmstudio',
   body: { model: string; messages: Message[] },
   callbacks: {
     onChunk: (chunk: { message: Message }) => void;
     onError: (error: unknown) => void;
     onComplete: () => void;
   },
-  options?: { think?: boolean; apiKey?: string }
+  options?: { think?: boolean }
 ): AbortController {
-  const ctrl: AbortController = new AbortController();
+  const ctrl = new AbortController();
 
   (async (): Promise<void> => {
     try {
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      };
-      if (options?.apiKey) headers.Authorization = `Bearer ${options.apiKey}`;
-      let url: string = `${baseUrl}chat`;
-      let req: Record<string, unknown>;
+      const messages = body.messages.map((m) => ({
+        role: m.role,
+        content: m.images?.length
+          ? [
+              { type: 'text', text: m.content },
+              ...m.images.map((img) => ({
+                type: 'image_url',
+                image_url: { url: `data:image/png;base64,${img}` },
+              })),
+            ]
+          : m.content,
+      }));
 
-      if (type === 'ollama') {
-        req = {
-          model: body.model,
-          messages: body.messages,
-          stream: true,
-          options: { think: options?.think },
-        };
-      } else if (type === 'lmstudio') {
-        const sys: Message | undefined = body.messages.find((m) => m.role === 'system');
-        const msgs: Message[] = body.messages.filter((m) => m.role !== 'system');
-        const last: Message = msgs[msgs.length - 1];
-        // LM Studio Stateful API (/api/v1/chat) expects 'content' and 'type: text|image'
-        let input: string | { type: string; content: string | undefined }[] = last.content || '';
-        if (last.images?.length) {
-          input = [
-            { type: 'text', content: last.content },
-            ...last.images.map((img) => ({ type: 'image', content: img })),
-          ];
-        }
-        req = {
-          model: body.model,
-          input,
-          system_prompt: sys?.content || '',
-          stream: true,
-        };
-      } else {
-        url = `${baseUrl}chat/completions`;
-        const messages = body.messages.map((m) => ({
-          role: m.role,
-          content: m.images?.length
-            ? [
-                { type: 'text', text: m.content },
-                ...m.images.map((img) => ({
-                  type: 'image_url',
-                  image_url: { url: `data:image/png;base64,${img}` },
-                })),
-              ]
-            : m.content,
-        }));
-        req = { model: body.model, messages, stream: true };
+      const req: Record<string, unknown> = {
+        model: body.model,
+        messages,
+        stream: true,
+      };
+      if (options?.think !== undefined) {
+        // `options.think` is Ollama's native switch, `reasoning_effort` is the OpenAI one.
+        // Each server ignores the field belonging to the other dialect.
+        req.options = { think: options.think };
+        req.reasoning_effort = options.think ? 'medium' : 'none';
       }
 
-      const res: Response = await fetch(url, {
+      const res = await fetch(`${apiRoot(baseUrl)}/v1/chat/completions`, {
         method: 'POST',
-        headers,
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(req),
         signal: ctrl.signal,
       });
       if (!res.ok) throw new Error(`API error: ${res.status}`);
 
-      const reader: ReadableStreamDefaultReader<Uint8Array> | undefined = res.body?.getReader();
+      const reader = res.body?.getReader();
       if (!reader) throw new Error('No reader');
 
-      const decoder: TextDecoder = new TextDecoder();
-      let buffer: string = '';
+      const decoder = new TextDecoder();
+      let buffer = '';
 
       while (true) {
-        const { done, value }: { done: boolean; value?: Uint8Array } = await reader.read();
+        const { done, value } = await reader.read();
         if (done) break;
         buffer += decoder.decode(value, { stream: true });
-        const lines: string[] = buffer.split('\n');
+        const lines = buffer.split('\n');
         buffer = lines.pop() || '';
         for (const line of lines) {
-          const chunk = parseLlmChunk(line, type);
+          const chunk = parseLlmChunk(line);
           if (chunk?.message) callbacks.onChunk({ message: chunk.message });
         }
       }

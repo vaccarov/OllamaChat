@@ -1,4 +1,4 @@
-import type { Dispatch, RefObject, SetStateAction } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
 import type { Message } from '@/types';
 import type { ChatRole } from '@/types/ChatRoleDefinition';
 import type { ChatSession } from '@/types/ChatSession';
@@ -6,7 +6,7 @@ import type { ImageToSend } from '@/types/ImageToSend';
 
 export type MessageContextType = {
   activeSession: ChatSession | undefined;
-  conversation: RefObject<Message[]>;
+  conversation: Message[];
   sessionsInGroup: Record<string, ChatSession[]>;
   speechLang: string;
   isThinkingEnabled: boolean;

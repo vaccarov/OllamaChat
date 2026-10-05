@@ -1,11 +1,11 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useLocalStorage } from '@mantine/hooks';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
 import { DEFAULT_SPEECH_LANG } from '@/constants/langs';
 import { STORAGE_KEYS } from '@/constants/storageKeys';
 import { MessageContext } from '@/context/MessageContextDefinition';
 import { ModelContext } from '@/context/ModelContextDefinition';
-import usePersistentState from '@/hooks/usePersistentState';
 import {
   type ChatHistory,
   ChatRole,
@@ -14,24 +14,21 @@ import {
   type ImageToSend,
   type Message,
 } from '@/types';
-import { sortSessionsByDate } from '@/utils/tools';
+import { downloadFile, sortSessionsByDate } from '@/utils/tools';
 
 export const MessageProvider = ({ children }: { children: React.ReactNode }): React.JSX.Element => {
   const { t, i18n } = useTranslation();
   const modelContext = React.useContext(ModelContext);
-  const [history, setHistory] = usePersistentState<ChatHistory>(STORAGE_KEYS.chatHistory, {
-    sessions: [],
-    activeSessionId: '',
+  const [history, setHistory] = useLocalStorage<ChatHistory>({
+    key: STORAGE_KEYS.chatHistory,
+    defaultValue: { sessions: [], activeSessionId: '' },
   });
-  const [speechLang, setSpeechLang] = usePersistentState<string>(
-    STORAGE_KEYS.speechLang,
-    DEFAULT_SPEECH_LANG
-  );
+  const [speechLang, setSpeechLang] = useLocalStorage<string>({
+    key: STORAGE_KEYS.speechLang,
+    defaultValue: DEFAULT_SPEECH_LANG,
+  });
   const [isThinkingEnabled, setIsThinkingEnabled] = useState<boolean>(false);
   const { sessions, activeSessionId }: ChatHistory = history;
-  const conversation = useRef<Message[]>([]);
-  const historyRef: React.MutableRefObject<ChatHistory> = useRef<ChatHistory>(history);
-  historyRef.current = history;
 
   const createNewSession = useCallback(
     (model: string = '', name: string = t('chat.new_chat_default_name')): ChatSession => ({
@@ -54,23 +51,15 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
   }, [sessions.length, createNewSession, setHistory, t]);
 
   const setSessions = useCallback(
-    (updater: React.SetStateAction<ChatSession[]>) => {
-      setHistory((prev: ChatHistory) => {
-        const newSessions: ChatSession[] =
-          typeof updater === 'function' ? updater(prev.sessions) : updater;
-        return { ...prev, sessions: newSessions };
-      });
+    (updater: (sessions: ChatSession[]) => ChatSession[]) => {
+      setHistory((prev: ChatHistory) => ({ ...prev, sessions: updater(prev.sessions) }));
     },
     [setHistory]
   );
 
   const setActiveSessionId = useCallback(
-    (updater: React.SetStateAction<string | null>) => {
-      setHistory((prev: ChatHistory) => {
-        const newId: string | null =
-          typeof updater === 'function' ? updater(prev.activeSessionId) : updater;
-        return { ...prev, activeSessionId: newId };
-      });
+    (id: string | null) => {
+      setHistory((prev: ChatHistory) => ({ ...prev, activeSessionId: id }));
     },
     [setHistory]
   );
@@ -97,9 +86,9 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
     }
   }, [activeSession, modelContext]);
 
-  useEffect(() => {
-    if (activeSession) {
-      conversation.current = activeSession.messages
+  const conversation: Message[] = useMemo(
+    () =>
+      (activeSession?.messages ?? [])
         .filter((m: ChatText) => m.role !== 'custom')
         .map((m: ChatText) => ({
           role: m.role,
@@ -108,9 +97,9 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
             m.image?.data?.split(',')[1] !== undefined
               ? [m.image.data.split(',')[1] as string]
               : undefined,
-        })) as Message[];
-    }
-  }, [activeSession]);
+        })),
+    [activeSession]
+  );
 
   const addMessage = useCallback(
     (role: ChatRole, content: string, image?: ImageToSend, sessionId?: string): void => {
@@ -253,18 +242,9 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
   );
 
   const exportSessions = useCallback((): void => {
-    const { sessions, activeSessionId }: ChatHistory = historyRef.current;
-    const json: string = JSON.stringify({ sessions, activeSessionId }, null, 2);
-    const blob: Blob = new Blob([json], { type: 'application/json' });
-    const url: string = URL.createObjectURL(blob);
-    const a: HTMLAnchorElement = document.createElement('a');
-    a.href = url;
-    a.download = t('chat.history.filename');
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }, [t]);
+    const blob: Blob = new Blob([JSON.stringify(history, null, 2)], { type: 'application/json' });
+    downloadFile(t('chat.history.filename'), URL.createObjectURL(blob));
+  }, [history, t]);
 
   const importSessions = useCallback(
     (jsonString: string): void => {

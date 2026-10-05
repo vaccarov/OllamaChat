@@ -6,6 +6,4 @@ export const STORAGE_KEYS = {
   chatHistory: 'chat_chatHistory',
   chatServerUrl: 'chat_chatServerUrl',
   serverUrl: 'chat_serverUrl',
-  chatServerUrlInput: 'chat_chatServerUrlInput',
-  serverUrlInput: 'chat_serverUrlInput',
 };

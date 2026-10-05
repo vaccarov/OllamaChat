@@ -1,109 +1,90 @@
 # OllamaChat
 
-`OllamaChat` is an interactive user interface built with Next.js, React, and TypeScript, designed to interact with local language models via Ollama. This project offers a smooth chat experience with advanced features like audio transcription, voice playback of model responses, and image analysis/generation/edition.
+`OllamaChat` is an interactive chat UI built with Next.js, React and TypeScript. It talks to any **Ollama** or **LM Studio** server through the OpenAI-compatible `/v1` API, and optionally to [ChatServer](https://github.com/vaccarov/ChatServer) for image generation, speech-to-text, text-to-speech and RAG.
 
 ## Screenshots
 
 <table align="center">
   <tr>
-    <td><img src="public/sample1.png" width="400" alt="Generated Image 1"></td>
-    <td><img src="public/sample2.png" width="400" alt="Generated Image 2"></td>
+    <td><img src="docs/sample1.png" width="400" alt="Chat with a vision model"></td>
+    <td><img src="docs/sample2.png" width="400" alt="Image generation"></td>
   </tr>
   <tr>
-    <td><img src="public/sample3.png" width="400" alt="Generated Image 3"></td>
-    <td><img src="public/sample4.png" width="400" alt="Generated Image 4"></td>
+    <td><img src="docs/sample3.png" width="400" alt="RAG settings"></td>
+    <td><img src="docs/sample4.png" width="400" alt="Chat sessions"></td>
   </tr>
 </table>
 
 ## Features
 
-- **Chat with Ollama:** Interact with any local LLM available through Ollama.
-- **Multi-Session Management:** Your chat history is saved and organized into distinct sessions.
-- **Import/Export Sessions:** Save and restore your chat sessions in JSON format.
-- **Voice Transcription (STT):** Record your voice to have it transcribed as text input.
-- **Text-to-Speech (TTS):** Model responses are read aloud for a more immersive experience.
-- **Image Generation & Analysis:** Generate images from text prompts and attach images to your prompts for vision-capable models to analyze.
-- **Internationalization (i18n):** The interface is available in multiple languages.
-- **Markdown & Collapsible Reasoning:** Responses are rendered in Markdown, with `<think>` tags automatically displayed in a collapsible section.
-- **Customizable System Prompt:** Define a custom system prompt to guide the model's behavior, with presets available.
-- **LLM Capabilities Display:** The UI shows the capabilities of each LLM (e.g., vision, embedding) to help you choose the right model.
-- **Retrieval-Augmented Generation (RAG):** Enhance model responses by providing context from external documents or websites.
+- **Chat with Ollama or LM Studio**: model list, capabilities, size and quantisation are read from the native API of whichever server you point at.
+- **Multi-session management**: chat history is saved and organised into distinct sessions.
+- **Import/Export sessions**: save and restore your chat sessions as JSON.
+- **Voice transcription (STT)**: record your voice and have it transcribed as text input.
+- **Text-to-speech (TTS)**: model responses can be read aloud.
+- **Image generation & analysis**: generate images from text prompts and attach images to your prompts for vision-capable models.
+- **Retrieval-Augmented Generation (RAG)**: ground answers in your own PDF documents.
+- **Internationalisation (i18n)**: English and French.
+- **Markdown & collapsible reasoning**: responses render as Markdown, with `reasoning_content` or `<think>` blocks shown in a collapsible section.
 
-## Tech Stack
+## Tech stack
 
-- **Next.js:** A React framework for building full-stack web applications.
-- **React & TypeScript:** For building the user interface with strong typing.
-- **Mantine:** A React component library for an elegant UI.
-- **React Feather:** For icons.
-- **Ollama JS:** A JavaScript client for interacting with Ollama models.
-- **i18next:** An internationalization framework.
-
-## Architecture
-
-This project is built on the **Next.js App Router**, which uses **Server Components** by default for performance and fetches data on the server. Interactive parts of the UI are explicitly marked as **Client Components** (`'use client'`).
-
-- **Server Actions** (`src/app/actions.ts`) are used to securely fetch data from the Ollama server without exposing it to the client.
-- **API Routes** (`src/app/api/`) are used to act as a secure proxy between the client and external backends. This is used for the voice transcription service to avoid CORS issues and hide the backend URL.
+- **Next.js** (App Router) + **React** + **TypeScript**
+- **Mantine** for the component library and `@mantine/hooks` for storage/media-query hooks
+- **React Feather** for icons
+- **i18next** / **react-i18next** for translations
+- **react-markdown** + **rehype-raw** for rendering
 
 ## Prerequisites
 
-Before starting, ensure you have the following:
+- **Node.js** 18 or higher
+- **npm**
+- A running **Ollama** server (`ollama pull mistral`) **or** an **LM Studio** server with the local API enabled
+- *(optional)* A running [ChatServer](https://github.com/vaccarov/ChatServer) for image generation, transcription, TTS and RAG
 
-- **Node.js** (version 18 or higher recommended)
-- **npm** (or another package manager like yarn, pnpm)
-- **A running Ollama server** with your desired models (e.g., `ollama pull mistral`).
-- **A running Python backend for transcription.** The one this UI was designed for is available at [https://github.com/vaccarov/ChatServer](https://github.com/vaccarov/ChatServer).
+## Installation and startup
 
-## Installation and Startup
+```bash
+git clone https://github.com/vaccarov/OllamaChat
+cd OllamaChat
+npm install
+npm run dev
+```
 
-1.  **Clone the repository:**
+The application is then available at [http://localhost:3000](http://localhost:3000).
 
-    ```bash
-    git clone https://github.com/vaccarov/OllamaChat
-    cd OllamaChat
-    ```
+## Configuration
 
-2.  **Install dependencies:**
+Both server URLs can be set from the in-app **Settings → Servers** tab, or pre-filled with a `.env.local` file (never committed):
 
-    ```bash
-    npm install
-    ```
+```env
+NEXT_PUBLIC_OLLAMA_URL=http://localhost:11434
+NEXT_PUBLIC_SERVER_URL=http://localhost:8000
+```
 
-3.  **Configure .env.local (can be configured in the app directly):**
-    Create a `.env.local` file at the root of the project. This file should **not** be committed to Git. Add the following variables, pointing to the servers you want to use.
+`NEXT_PUBLIC_OLLAMA_URL` is the **LLM server** and accepts every common spelling:
 
-    _Example using a local setup:_
+| Server | Accepted values |
+| --- | --- |
+| Ollama | `http://localhost:11434`, `http://localhost:11434/api`, `http://localhost:11434/v1` |
+| LM Studio | `http://localhost:1234`, `http://localhost:1234/v1` |
 
-    ```env
-    NEXT_PUBLIC_OLLAMA_URL=http://localhost:11434
-    NEXT_PUBLIC_SERVER_URL=http://localhost:8000
-    ```
+The app probes `/api/tags` (Ollama), then `/api/v0/models` (LM Studio), then falls back to the generic OpenAI `/v1/models`.
 
-    _Example using a remote or secured setup like with Tailscale and Caddy:_
+`NEXT_PUBLIC_SERVER_URL` is the optional **backend server** (ChatServer).
 
-    ```env
-    NEXT_PUBLIC_OLLAMA_URL=https://YOUR_PRIVATE_URL.ts.net/ollama
-    NEXT_PUBLIC_SERVER_URL=https://YOUR_PRIVATE_URL.ts.net/audio
-    ```
+Both values are only a first-run default: whatever you type in Settings is what the app uses, and it is persisted in `localStorage`.
 
-4.  **Run the development server:**
-    ```bash
-    npm run dev
-    ```
-    The application will be accessible at [http://localhost:3000](http://localhost:3000).
+## Development scripts
 
-## Development Scripts
-
-- `npm run dev`: Starts the development server.
-- `npm run build`: Compiles the application for production.
-- `npm run start`: Starts the production server.
-- `npm run lint`: Runs ESLint to check for code quality issues.
+- `npm run dev` — start the development server
+- `npm run build` — compile for production
+- `npm run start` — start the production server
+- `npm run check` — Biome lint + format + import sorting (writes changes)
+- `npm run lint` / `npm run format` — Biome lint / format only
 
 ## TODO
 
-- Handle large image uploads (use local DB instead of localstorage).
-  TBI
-- https://huggingface.co/tencent/SRPO
-- https://huggingface.co/openbmb/VoxCPM-0.5B
-- Use masks for image generation in order to only edit parts of the picture (Use an inpainting or masked img2img pipeline so that only the masked (white) region is regenerated.)
-- Handle big images {"status": "error", "message": "Invalid buffer size: 14.55 GiB"}
+- Handle large image uploads (use a local DB instead of `localStorage`).
+- Use masks for image generation so that only parts of a picture are edited (inpainting / masked img2img).
+- Handle very large images (`Invalid buffer size`).

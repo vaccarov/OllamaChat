@@ -1,70 +1,48 @@
 'use client';
 
 import type { ComboboxData } from '@mantine/core';
+import { useLocalStorage } from '@mantine/hooks';
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { DEBOUNCE_SERVER_URL_MS } from '@/constants/list';
 import { STORAGE_KEYS } from '@/constants/storageKeys';
 import { ModelContext } from '@/context/ModelContextDefinition';
-import usePersistentState from '@/hooks/usePersistentState';
 import { listModels } from '@/services/llm';
 import { checkChatServer } from '@/services/transcribe';
-import type { LlmModel } from '@/types';
-import { ApiStatus } from '@/types/api';
+import { ApiStatus, type LlmModel, type LlmProvider } from '@/types';
 
 const normalizeUrl = (url: string): string => {
   if (!url) return '';
-  const normalized = url.trim().replace(/\/$/, '');
-  return `${normalized}/`;
+  return url.endsWith('/') ? url : `${url}/`;
 };
-
-const URL_REGEX = /\/api\/?$|\/api\/v1\/?$/;
 
 export const ModelProvider = ({ children }: { children: React.ReactNode }): React.JSX.Element => {
   const [models, setModels] = useState<LlmModel[]>([]);
   const [embeddingModels, setEmbeddingModels] = useState<ComboboxData>([]);
   const [currentModel, setCurrentModel] = useState<LlmModel | undefined>();
-  const [savedModelName, setSavedModelName] = usePersistentState<string | null>(
-    STORAGE_KEYS.selectedModel,
-    null
-  );
-  // chatServerUrl is the LLM server (Ollama/LM Studio)
-  const [chatServerUrl, setChatServerUrl] = usePersistentState<string>(
-    STORAGE_KEYS.chatServerUrl,
-    normalizeUrl(process.env.NEXT_PUBLIC_OLLAMA_URL ?? '')
-  );
-  const [chatServerUrlInput, setChatServerUrlInput] = usePersistentState<string>(
-    STORAGE_KEYS.chatServerUrlInput,
-    chatServerUrl
+  const [llmProvider, setLlmProvider] = useState<LlmProvider>('openai');
+  const [savedModelName, setSavedModelName] = useLocalStorage<string | null>({
+    key: STORAGE_KEYS.selectedModel,
+    defaultValue: null,
+  });
+  // Only the raw value the user typed is persisted; the URL every request uses is derived from it.
+  const [chatServerUrlInput, setChatServerUrlInput] = useLocalStorage<string>({
+    key: STORAGE_KEYS.chatServerUrl,
+    defaultValue: process.env.NEXT_PUBLIC_OLLAMA_URL ?? '',
+  });
+  const chatServerUrl: string = useMemo(
+    () => normalizeUrl(chatServerUrlInput),
+    [chatServerUrlInput]
   );
   const [chatServerStatus, setChatServerStatus] = useState<ApiStatus>(ApiStatus.UNKNOWN);
-  const [serverType, setServerType] = useState<'ollama' | 'lmstudio'>('ollama');
-  const isChatServerOnline: boolean = useMemo(
-    () => chatServerStatus === ApiStatus.VALID,
-    [chatServerStatus]
-  );
 
-  // serverUrl is the Backend server (Transcription/Images)
-  const [serverUrl, setServerUrl] = usePersistentState<string>(
-    STORAGE_KEYS.serverUrl,
-    normalizeUrl(process.env.NEXT_PUBLIC_SERVER_URL ?? '')
-  );
-  const [serverUrlInput, setServerUrlInput] = usePersistentState<string>(
-    STORAGE_KEYS.serverUrlInput,
-    serverUrl
-  );
+  const [serverUrlInput, setServerUrlInput] = useLocalStorage<string>({
+    key: STORAGE_KEYS.serverUrl,
+    defaultValue: process.env.NEXT_PUBLIC_SERVER_URL ?? '',
+  });
+  const serverUrl: string = useMemo(() => normalizeUrl(serverUrlInput), [serverUrlInput]);
   const [serverStatus, setServerStatus] = useState<ApiStatus>(ApiStatus.UNKNOWN);
   const isServerOnline: boolean = useMemo(() => serverStatus === ApiStatus.VALID, [serverStatus]);
-
-  const syncUrl = useCallback((input: string, setUrl: (u: string) => void) => {
-    if (URL_REGEX.test(input)) setUrl(normalizeUrl(input));
-  }, []);
-
-  useEffect(
-    () => syncUrl(chatServerUrlInput, setChatServerUrl),
-    [chatServerUrlInput, setChatServerUrl, syncUrl]
-  );
-  useEffect(() => syncUrl(serverUrlInput, setServerUrl), [serverUrlInput, setServerUrl, syncUrl]);
 
   const refreshModels = useCallback(async (): Promise<void> => {
     if (!chatServerUrl) {
@@ -74,10 +52,11 @@ export const ModelProvider = ({ children }: { children: React.ReactNode }): Reac
     }
 
     setChatServerStatus(ApiStatus.CHECKING);
-    const { models: fetched, type } = await listModels(chatServerUrl);
+    const { models: fetched, provider }: { models: LlmModel[]; provider: LlmProvider } =
+      await listModels(chatServerUrl);
+    setLlmProvider(provider);
     if (fetched.length > 0) {
       setChatServerStatus(ApiStatus.VALID);
-      setServerType(type);
       setEmbeddingModels(
         fetched
           .filter((m: LlmModel) => m.show.capabilities?.includes('embedding'))
@@ -132,15 +111,14 @@ export const ModelProvider = ({ children }: { children: React.ReactNode }): Reac
         currentModel,
         refreshModels,
         chatServerUrl,
+        llmProvider,
         chatServerUrlInput,
         setChatServerUrlInput,
         chatServerStatus,
-        isChatServerOnline,
         serverUrl,
         serverUrlInput,
         setServerUrlInput,
         serverStatus,
-        serverType,
         isServerOnline,
       }}>
       {children}

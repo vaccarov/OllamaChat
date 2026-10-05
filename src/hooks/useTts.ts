@@ -1,23 +1,23 @@
 'use client';
 
+import { useLocalStorage } from '@mantine/hooks';
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { STORAGE_KEYS } from '@/constants/storageKeys';
 import { ModelContext } from '@/context/ModelContextDefinition';
 import type { UseTtsReturn } from '@/types/Tts';
 import { apiFetch } from '@/utils/api';
-import usePersistentState from './usePersistentState';
 
 export const useTts = (): UseTtsReturn => {
   const modelContext = useContext(ModelContext);
-  const [isTtsEnabled, setIsTtsEnabled] = usePersistentState<boolean>(
-    STORAGE_KEYS.ttsEnabled,
-    false
-  );
+  const [isTtsEnabled, setIsTtsEnabled] = useLocalStorage<boolean>({
+    key: STORAGE_KEYS.ttsEnabled,
+    defaultValue: false,
+  });
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const speak = useCallback(
-    async (text: string, _lang: string): Promise<void> => {
+    async (text: string): Promise<void> => {
       if (!isTtsEnabled || !modelContext?.serverUrl) return;
 
       try {

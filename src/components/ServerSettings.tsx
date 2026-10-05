@@ -1,11 +1,10 @@
-import { Anchor, Code, Group, List, Text, TextInput, Title } from '@mantine/core';
+import { Anchor, Group, Text, TextInput } from '@mantine/core';
 import type { TFunction } from 'i18next';
 import { type ChangeEvent, type ReactElement, useContext } from 'react';
 import { CheckCircle, Loader, XCircle } from 'react-feather';
-import { Trans, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { ModelContext } from '@/context/ModelContextDefinition';
-import type { ModelContextDefinition } from '@/types';
-import { ApiStatus } from '@/types/api';
+import { ApiStatus, type ModelContextDefinition } from '@/types';
 import './SettingsModal.css';
 
 export function ServerSettings(): ReactElement {
@@ -24,7 +23,7 @@ export function ServerSettings(): ReactElement {
   return (
     <div className='settingsContainer'>
       <TextInput
-        label={t('settings.ollama_url')}
+        label={t('settings.llm_url')}
         placeholder='http://localhost:11434 or http://localhost:1234/v1'
         value={chatServerUrlInput}
         onChange={(event: ChangeEvent<HTMLInputElement>) =>
@@ -51,162 +50,6 @@ export function ServerSettings(): ReactElement {
         }
         rightSection={<StatusIcon status={serverStatus} />}
       />
-      <div style={{ marginTop: 'var(--mantine-spacing-lg)' }}>
-        <Title order={4}>{t('settings.urls.title')}</Title>
-        <Text
-          component='div'
-          mt='sm'>
-          <Trans
-            i18nKey='settings.urls.intro1'
-            components={{ 1: <Code />, 2: <Code />, 3: <Code /> }}
-          />
-        </Text>
-        <Text mt='xs'>{t('settings.urls.intro2')}</Text>
-        <List
-          withPadding
-          mt='sm'>
-          <List.Item>
-            <Trans
-              i18nKey='settings.urls.solution1'
-              components={{ 1: <Code /> }}
-            />
-          </List.Item>
-          <List.Item>
-            <Trans
-              i18nKey='settings.urls.solution2'
-              components={{ 1: <Code />, 2: <Code /> }}
-            />
-          </List.Item>
-        </List>
-        <Title
-          order={5}
-          mt='md'>
-          {t('settings.urls.step1Title')}
-        </Title>
-        <Text
-          component='div'
-          mt='xs'>
-          <Trans
-            i18nKey='settings.urls.step1Text'
-            components={{
-              1: (
-                <Anchor
-                  href='https://tailscale.com/download'
-                  target='_blank'
-                  rel='noopener noreferrer'
-                />
-              ),
-              2: <Code />,
-              3: <Code />,
-            }}
-          />
-        </Text>
-        <Title
-          order={5}
-          mt='md'>
-          {t('settings.urls.step2Title')}
-        </Title>
-        <Text
-          component='div'
-          mt='xs'>
-          <Trans
-            i18nKey='settings.urls.step2Text'
-            components={{
-              1: (
-                <Anchor
-                  href='https://caddyserver.com/docs/install'
-                  target='_blank'
-                  rel='noopener noreferrer'
-                />
-              ),
-              2: <Code />,
-            }}
-          />
-        </Text>
-        <Code
-          block
-          mt='xs'>
-          {`YOUR_PRIVATE_URL.ts.net {
-  tls internal
-  handle_path /ollama* {
-    reverse_proxy localhost:11434
-  }
-  handle_path /server* {
-    reverse_proxy localhost:8000
-  }
-}`}
-        </Code>
-        <Text
-          component='div'
-          mt='xs'>
-          <Trans
-            i18nKey='settings.urls.step2Subtext'
-            components={{ 1: <Code />, 2: <Code /> }}
-          />
-        </Text>
-        <Title
-          order={5}
-          mt='md'>
-          {t('settings.urls.step3Title')}
-        </Title>
-        <Text
-          component='div'
-          mt='xs'>
-          <Trans
-            i18nKey='settings.urls.step3Text'
-            components={{ 1: <Code /> }}
-          />
-        </Text>
-        <Anchor
-          href='https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server'
-          target='_blank'
-          rel='noopener noreferrer'
-          size='sm'
-          mt='xs'>
-          {t('settings.urls.step3Link')}
-        </Anchor>
-        <List
-          withPadding
-          mt='sm'>
-          <List.Item>
-            <Trans
-              i18nKey='settings.urls.step3Var1'
-              components={{ 1: <Code />, 2: <Code /> }}
-            />
-          </List.Item>
-          <List.Item>
-            <Trans
-              i18nKey='settings.urls.step3Var2'
-              values={{ url: window.location.href }}
-              components={{ 1: <Code /> }}
-            />
-          </List.Item>
-        </List>
-        <Title
-          order={5}
-          mt='md'>
-          <Trans
-            i18nKey='settings.urls.step4Title'
-            components={{ 1: <Code /> }}
-          />
-        </Title>
-        <List
-          withPadding
-          mt='sm'>
-          <List.Item>
-            <Trans
-              i18nKey='settings.urls.step4Url1'
-              components={{ 1: <Code />, 2: <Code /> }}
-            />
-          </List.Item>
-          <List.Item>
-            <Trans
-              i18nKey='settings.urls.step4Url2'
-              components={{ 1: <Code />, 2: <Code /> }}
-            />
-          </List.Item>
-        </List>
-      </div>
     </div>
   );
 }

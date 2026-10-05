@@ -13,20 +13,13 @@
   --assistantBubble: #0000006e;
 }
 
-#root {
+body {
+  margin: 0;
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-
-  color-scheme: light dark;
-  background-color: var(--backcolor);
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-body {
-  margin: 0;
 }
 
 .hidden {
@@ -47,9 +40,26 @@ body {
   width: calc(100% - var(--chatlist-width));
 }
 
+.imageItem {
+  position: relative;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.imageItemOverlay {
+  opacity: 0;
+}
+
+.imageItem:hover .imageItemOverlay,
+.imageItem:focus-visible .imageItemOverlay {
+  opacity: 1;
+}
+
 .appContainer {
   display: flex;
-  height: var(--app-height);
+  height: 100dvh;
   width: 100vw;
   overflow-x: hidden;
 }

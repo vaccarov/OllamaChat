@@ -5,15 +5,16 @@ import { MessageContext } from '@/context/MessageContextDefinition';
 import type { ChatSession } from '@/types';
 
 interface ChatRenameModalProps {
-  opened: boolean;
   onClose: () => void;
-  session: ChatSession | null;
+  /** undefined = closed, null = new chat, a session = rename it. */
+  session: ChatSession | null | undefined;
 }
 
-export const ChatRenameModal = ({ opened, onClose, session }: ChatRenameModalProps) => {
+export const ChatRenameModal = ({ onClose, session }: ChatRenameModalProps) => {
   const { t } = useTranslation();
   const messageContext = useContext(MessageContext);
   const [name, setName] = useState<string>('');
+  const opened: boolean = session !== undefined;
 
   useEffect(() => {
     if (opened) setName(session?.name || '');

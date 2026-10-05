@@ -30,6 +30,8 @@ export const Chat: React.FC = (): React.ReactElement | null => {
     if (chatRef.current) chatRef.current.scrollTo({ top: 0, behavior: 'instant' });
   }, []);
 
+  const activeSession = messageContext?.activeSession;
+
   useEffect(() => {
     const el: HTMLDivElement | null = chatRef.current;
     if (!el) return;
@@ -45,14 +47,11 @@ export const Chat: React.FC = (): React.ReactElement | null => {
   }, []);
 
   useEffect(() => {
-    if (isAtBottom) scrollToBottom();
-  }, [isAtBottom, scrollToBottom]);
-
-  useEffect(() => scrollToBottom(), [scrollToBottom]);
+    if (activeSession && isAtBottom) scrollToBottom();
+  }, [activeSession, isAtBottom, scrollToBottom]);
 
   if (!messageContext || !modelContext || !modalContext) return null;
 
-  const { activeSession } = messageContext;
   const { models } = modelContext;
   const { setIsSettingsOpen } = modalContext;
 

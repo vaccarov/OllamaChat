@@ -1,15 +1,20 @@
 'use client';
 
-export type ApiFetchOptions = RequestInit & {
+type ApiFetchOptions = RequestInit & {
   responseType?: 'json' | 'blob';
 };
+
+/** Joins a base URL and an endpoint without producing a double slash. */
+export function joinUrl(baseUrl: string, endpoint: string): string {
+  return `${baseUrl.replace(/\/+$/, '')}/${endpoint.replace(/^\/+/, '')}`;
+}
 
 export async function apiFetch<T>(
   baseUrl: string,
   endpoint: string,
   options: ApiFetchOptions = {}
 ): Promise<T> {
-  const url = `${baseUrl}/${endpoint}`;
+  const url = joinUrl(baseUrl, endpoint);
   const { responseType = 'json', ...fetchOptions } = options;
 
   const headers = {
