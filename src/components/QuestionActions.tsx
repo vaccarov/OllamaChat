@@ -44,14 +44,12 @@ export const QuestionActions: React.FC<QuestionActionsProps> = ({
   const { isThinkingEnabled, setIsThinkingEnabled } = messageContext;
 
   const handleTtsButtonClick = (): void => {
+    if (isTtsEnabled) cancel();
     setIsTtsEnabled(!isTtsEnabled);
-    if (isSpeaking) {
-      cancel();
-    }
   };
 
   return (
-    <Collapse in={visible}>
+    <Collapse expanded={visible}>
       <div className='actionGroup'>
         <ActionIcon
           onClick={() => setIsGenerateModalOpen(true)}
@@ -85,6 +83,7 @@ export const QuestionActions: React.FC<QuestionActionsProps> = ({
 
         <ActionIcon
           onClick={handleTtsButtonClick}
+          disabled={!isServerOnline}
           title={
             isTtsEnabled
               ? isSpeaking

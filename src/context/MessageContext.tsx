@@ -22,6 +22,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode }): Re
   const [history, setHistory] = useLocalStorage<ChatHistory>({
     key: STORAGE_KEYS.chatHistory,
     defaultValue: { sessions: [], activeSessionId: '' },
+    getInitialValueInEffect: false,
   });
   const [speechLang, setSpeechLang] = useLocalStorage<string>({
     key: STORAGE_KEYS.speechLang,

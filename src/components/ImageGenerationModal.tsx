@@ -255,7 +255,7 @@ export const ImageGenerationModal = ({
               {...form.getInputProps('prompt')}
             />
             <Collapse
-              in={showOptions}
+              expanded={showOptions}
               className='spaceVertical'>
               <ControlledTextarea
                 presets={imageNegativePromptPresets}
